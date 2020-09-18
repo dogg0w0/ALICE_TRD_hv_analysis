@@ -1,0 +1,11 @@
+*.root
+*.csv
+*.txt
+output_plots/
+website/
+*.o
+*.tiff
+*.svg
+*.pdf
+.vscode
+hv_ALICE_Data
