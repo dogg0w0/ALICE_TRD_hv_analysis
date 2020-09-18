@@ -36,18 +36,24 @@ public:
     std::string outfile_name;
     std::string channel_name;
     std::string crate_name;
-    Int_t start_time; // start fSec since EPOCH
-    Int_t end_time;   // end fSec since EPOCH
+    Int_t start_time = 0; // start fSec since EPOCH
+    Int_t end_time = 0;   // end fSec since EPOCH
+    Int_t offset_start_time = 0;
+    Int_t offset_end_time = 0;
+    Bool_t offset_set = kFALSE;
+    Double_t offset = 0;
 
-    analysis(std::string filename, std::string outfile, std::string channel, std::string crate, Int_t start, Int_t end);
+    analysis(std::string filename, std::string outfile, std::string channel_name, std::string crate_name, Int_t start_time, Int_t end_time);
+    analysis(std::string filename, std::string outfile, std::string channel_name, std::string crate_name, Int_t start_time, Int_t end_time, Int_t offset_start_time, Int_t offset_end_time);
     virtual ~analysis();
     virtual Int_t Cut(Long64_t entry);
+    virtual void Offset(Long64_t nentries);
     virtual Int_t GetEntry(Long64_t entry);
     virtual Long64_t LoadTree(Long64_t entry);
     virtual void Init(TTree *tree);
-    Double_t Loop();
+    virtual Double_t Loop();
     virtual Bool_t Notify();
-    Double_t mean(std::vector<Double_t> *v);
+    virtual Double_t mean(std::vector<Double_t> *v);
     virtual void Show(Long64_t entry = -1);
 };
 Double_t analysis::Loop()
@@ -56,6 +62,8 @@ Double_t analysis::Loop()
         return -1;
 
     Long64_t nentries = fChain->GetEntriesFast();
+    if (offset_set)
+        analysis::Offset(nentries);
     TFile *myfile = new TFile(outfile_name.c_str(), "UPDATE");
     TTimeStamp *ttime = new TTimeStamp();
     TCanvas *c0 = new TCanvas(channel_name.c_str(), channel_name.c_str(), 10, 10, 800, 600);
@@ -76,10 +84,15 @@ Double_t analysis::Loop()
         {
             continue;
         }
-        if (fSec < start_time || fSec > end_time)
+        if (fSec < start_time)
         {
             continue;
         }
+        if (fSec > end_time)
+        {
+            break;
+        }
+
         ttime->SetSec(fSec);
         ttime->SetNanoSec(fNanoSec);
         hv_v.push_back(HV);
@@ -100,16 +113,16 @@ Double_t analysis::Loop()
     g->Draw("ALP");
     c0->Write();
     myfile->Close();
-    return analysis::mean(&hv_v);
+    return (offset_set) ? analysis::mean(&hv_v) - offset : analysis::mean(&hv_v);
 }
 
-analysis::analysis(std::string filename, std::string outfile, std::string channel, std::string crate, Int_t start, Int_t end) : fChain(0)
+analysis::analysis(std::string filename, std::string outfile, std::string channel_name, std::string crate_name, Int_t start_time, Int_t end_time) : fChain(0)
 {
     outfile_name = outfile;
-    channel_name = channel;
-    crate_name = crate;
-    start_time = start;
-    end_time = end;
+    channel_name = channel_name;
+    crate_name = crate_name;
+    start_time = start_time;
+    end_time = end_time;
     TTree *tree = 0;
     TFile *f = new TFile(filename.c_str(), "READ");
     if (!f || !f->IsOpen())
@@ -121,11 +134,45 @@ analysis::analysis(std::string filename, std::string outfile, std::string channe
     Init(tree);
 }
 
+analysis::analysis(std::string filename, std::string outfile, std::string channel_name, std::string crate_name, Int_t start_time, Int_t end_time, Int_t offset_start_time, Int_t offset_end_time)
+{
+    analysis(filename, outfile, channel_name, crate_name, start_time, end_time);
+    offset_start_time = offset_start_time;
+    offset_end_time = offset_end_time;
+    offset_set = kTRUE;
+}
+
 analysis::~analysis()
 {
     if (!fChain)
         return;
     delete fChain->GetCurrentFile();
+}
+
+void analysis::Offset(Long64_t nentries)
+{
+    // Called inside Loop
+    Long64_t gentry = 0;
+    Long64_t nbytes = 0, nb = 0;
+    std::vector<Double_t> offset_v = {};
+    for (Long64_t jentry = 0; jentry < nentries; jentry++)
+    {
+        Long64_t ientry = LoadTree(jentry);
+        if (ientry < 0)
+            break;
+        nb = fChain->GetEntry(jentry);
+        nbytes += nb;
+        if (fSec < offset_start_time)
+        {
+            continue;
+        }
+        if (fSec > offset_end_time)
+        {
+            break;
+        }
+        offset_v.push_back(HV);
+    }
+    offset = analysis::mean(&offset_v);
 }
 
 Int_t analysis::GetEntry(Long64_t entry)

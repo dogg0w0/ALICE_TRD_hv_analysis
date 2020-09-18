@@ -52,7 +52,7 @@ void analysis_sorted4::Loop()
       {
          continue;
       }
-      if (fSec < 1536624000 || fSec > 1536883200)
+      if (fSec < 1504316746 || fSec > 1504489546)
       {
          continue;
       }
