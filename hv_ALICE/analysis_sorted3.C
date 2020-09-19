@@ -33,13 +33,11 @@ void analysis_sorted_3::Loop()
       return;
 
    Long64_t nentries = fChain->GetEntriesFast();
-   //TFile *myfile = new TFile("output.root", "UPDATE");
-   TTimeStamp *ttime = new TTimeStamp();
-   TCanvas *c0 = new TCanvas("test", "test", 10, 10, 800, 600);
    TGraph *g = new TGraph();
-   c0->cd();
    Long64_t gentry = 0;
+   TTimeStamp *ttime = new TTimeStamp();
    Long64_t nbytes = 0, nb = 0;
+   vector<Double_t> hv_v;
    for (Long64_t jentry = 0; jentry < nentries; jentry++)
    {
       Long64_t ientry = LoadTree(jentry);
@@ -52,17 +50,24 @@ void analysis_sorted_3::Loop()
       {
          continue;
       }
-      if (fSec < 1504316746 || fSec > 1504489546)
+      if (fSec < 1536313400)
       {
          continue;
       }
+      if (fSec > 1536340600)
+         break;
       ttime->SetSec(fSec);
       ttime->SetNanoSec(fNanoSec);
       g->SetPoint(gentry, ttime->AsDouble(), HV);
+      hv_v.push_back(HV);
       gentry++;
    }
-
-   g->Draw();
+   auto n = v.size();
+   Double_t average = 0;
+   if (n != 0)
+   {
+      average = accumulate(hv_v.begin(), hv_v.end(), 0.0) / n;
+   }
    g->SetTitle("CHANNEL_NAME");
    g->GetXaxis()->SetTimeOffset(0, "gmt");
    g->GetXaxis()->SetTimeDisplay(1);
@@ -72,7 +77,6 @@ void analysis_sorted_3::Loop()
    g->GetYaxis()->SetTitle("HV [V]");
    g->SetMarkerStyle(8);
    g->SetMarkerSize(0.5);
-   g->SetMarkerColorAlpha(kBlue, 0.35);
+   g->SetMarkerColorAlpha(kRed, 0.35);
    g->Draw("ALP");
-   c0->Draw();
 }

@@ -50,8 +50,11 @@ void analysis_sorted2::Loop()
       // if (Cut(ientry) < 0) continue;
       if (HV < 0)
          continue;
-      if (fSec < 1504589400 || fSec > 1504591800)
+      //if (fSec < 1504399786 || fSec > 1504401590)
+      if (fSec < 1504399786)
          continue;
+      if (fSec > 1504401590)
+         break;
       ttime->SetSec(fSec);
       ttime->SetNanoSec(fNanoSec);
       g->SetPoint(gentry, ttime->AsDouble(), HV);

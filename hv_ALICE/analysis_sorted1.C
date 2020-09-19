@@ -6,35 +6,38 @@
 
 void analysis_sorted1::Loop()
 {
-//   In a ROOT session, you can do:
-//      root> .L analysis_sorted1.C
-//      root> analysis_sorted1 t
-//      root> t.GetEntry(12); // Fill t data members with entry number 12
-//      root> t.Show();       // Show values of entry 12
-//      root> t.Show(16);     // Read and show values of entry 16
-//      root> t.Loop();       // Loop on all entries
-//
+   //   In a ROOT session, you can do:
+   //      root> .L analysis_sorted1.C
+   //      root> analysis_sorted1 t
+   //      root> t.GetEntry(12); // Fill t data members with entry number 12
+   //      root> t.Show();       // Show values of entry 12
+   //      root> t.Show(16);     // Read and show values of entry 16
+   //      root> t.Loop();       // Loop on all entries
+   //
 
-//     This is the loop skeleton where:
-//    jentry is the global entry number in the chain
-//    ientry is the entry number in the current Tree
-//  Note that the argument to GetEntry must be:
-//    jentry for TChain::GetEntry
-//    ientry for TTree::GetEntry and TBranch::GetEntry
-//
-//       To read only selected branches, Insert statements like:
-// METHOD1:
-//    fChain->SetBranchStatus("*",0);  // disable all branches
-//    fChain->SetBranchStatus("branchname",1);  // activate branchname
-// METHOD2: replace line
-//    fChain->GetEntry(jentry);       //read all branches
-//by  b_branchname->GetEntry(ientry); //read only this branch
-   if (fChain == 0) return;
+   //     This is the loop skeleton where:
+   //    jentry is the global entry number in the chain
+   //    ientry is the entry number in the current Tree
+   //  Note that the argument to GetEntry must be:
+   //    jentry for TChain::GetEntry
+   //    ientry for TTree::GetEntry and TBranch::GetEntry
+   //
+   //       To read only selected branches, Insert statements like:
+   // METHOD1:
+   //    fChain->SetBranchStatus("*",0);  // disable all branches
+   //    fChain->SetBranchStatus("branchname",1);  // activate branchname
+   // METHOD2: replace line
+   //    fChain->GetEntry(jentry);       //read all branches
+   //by  b_branchname->GetEntry(ientry); //read only this branch
+   if (fChain == 0)
+      return;
 
    Long64_t nentries = fChain->GetEntriesFast();
-   TH2F *hist = new TH2F("hist", "Kanal 06_0_0A; HV [V]; t [s]", 120, 970, 1625, 180, 1325e6, 1550e6);
-
+   TGraph *g = new TGraph();
+   Long64_t gentry = 0;
+   TTimeStamp *ttime = new TTimeStamp();
    Long64_t nbytes = 0, nb = 0;
+   vector<Double_t> hv_v;
    for (Long64_t jentry = 0; jentry < nentries; jentry++)
    {
       Long64_t ientry = LoadTree(jentry);
@@ -43,7 +46,44 @@ void analysis_sorted1::Loop()
       nb = fChain->GetEntry(jentry);
       nbytes += nb;
       // if (Cut(ientry) < 0) continue;
-      hist->Fill(HV, fSec);
+      if (HV < 0)
+      {
+         continue;
+      }
+      if (fSec < 1536323400)
+      {
+         continue;
+      }
+      if (fSec > 1536330600)
+         break;
+      ttime->SetSec(fSec);
+      ttime->SetNanoSec(fNanoSec);
+      g->SetPoint(gentry, ttime->AsDouble(), HV);
+      hv_v.push_back(HV);
+      gentry++;
    }
-   hist->Draw("colz");
+   auto n = hv_v.size();
+   Double_t average = 0;
+   if (n != 0)
+   {
+      average = accumulate(hv_v.begin(), hv_v.end(), 0.0) / n;
+   }
+   double accum = 0.0;
+   std::for_each(std::begin(hv_v), std::end(hv_v), [&](const double d) {
+      accum += (d - average) * (d - average);
+   });
+
+   double stdev = sqrt(accum / (hv_v.size() - 1));
+   cout << average << "\t+-" << stdev <<endl;
+   g->SetTitle("CHANNEL_NAME");
+   g->GetXaxis()->SetTimeOffset(0, "gmt");
+   g->GetXaxis()->SetTimeDisplay(1);
+   g->GetXaxis()->SetLabelOffset(0.02);
+   g->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M\:%S}}");
+   g->GetXaxis()->SetTitle("Time");
+   g->GetYaxis()->SetTitle("HV [V]");
+   g->SetMarkerStyle(8);
+   g->SetMarkerSize(0.5);
+   g->SetMarkerColorAlpha(kRed, 0.35);
+   g->Draw("ALP");
 }

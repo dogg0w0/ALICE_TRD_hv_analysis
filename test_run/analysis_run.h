@@ -35,7 +35,7 @@ public:
     // Names and File-info
     std::string outfile_name;
     std::string channel_name;
-    std::string crate_name;
+    char measurement_type;
     Int_t start_time = 0; // start fSec since EPOCH
     Int_t end_time = 0;   // end fSec since EPOCH
     Int_t offset_start_time = 0;
@@ -43,8 +43,8 @@ public:
     Bool_t offset_set = kFALSE;
     Double_t offset = 0;
 
-    analysis(std::string filename, std::string outfile, std::string channel_name, std::string crate_name, Int_t start_time, Int_t end_time);
-    analysis(std::string filename, std::string outfile, std::string channel_name, std::string crate_name, Int_t start_time, Int_t end_time, Int_t offset_start_time, Int_t offset_end_time);
+    analysis(std::string filename, std::string outfile, std::string channel_name, char measurement, Int_t start, Int_t end);
+    analysis(std::string filename, std::string outfile, std::string channel_name, char measurement, Int_t start, Int_t end, Int_t offset_start, Int_t offset_end);
     virtual ~analysis();
     virtual Int_t Cut(Long64_t entry);
     virtual void Offset(Long64_t nentries);
@@ -66,9 +66,9 @@ Double_t analysis::Loop()
         analysis::Offset(nentries);
     TFile *myfile = new TFile(outfile_name.c_str(), "UPDATE");
     TTimeStamp *ttime = new TTimeStamp();
-    TCanvas *c0 = new TCanvas(channel_name.c_str(), channel_name.c_str(), 10, 10, 800, 600);
-    TGraph *g = new TGraph();
+    TCanvas *c0 = new TCanvas((channel_name + "_" + measurement_type).c_str(), (channel_name + "_" + measurement_type).c_str(), 10, 10, 800, 600);
     c0->cd();
+    TGraph *g = new TGraph();
     Long64_t gentry = 0;
     Long64_t nbytes = 0, nb = 0;
     std::vector<Double_t> hv_v = {};
@@ -84,13 +84,9 @@ Double_t analysis::Loop()
         {
             continue;
         }
-        if (fSec < start_time)
+        if (fSec < start_time || fSec > end_time)
         {
             continue;
-        }
-        if (fSec > end_time)
-        {
-            break;
         }
 
         ttime->SetSec(fSec);
@@ -113,16 +109,17 @@ Double_t analysis::Loop()
     g->Draw("ALP");
     c0->Write();
     myfile->Close();
-    return (offset_set) ? analysis::mean(&hv_v) - offset : analysis::mean(&hv_v);
+    Double_t _temp = (offset_set) ? analysis::mean(&hv_v) - offset : analysis::mean(&hv_v);
+    return (_temp < 0) ? 0.0 : _temp;
 }
 
-analysis::analysis(std::string filename, std::string outfile, std::string channel_name, std::string crate_name, Int_t start_time, Int_t end_time) : fChain(0)
+analysis::analysis(std::string filename, std::string outfile, std::string channel, char measurement, Int_t start, Int_t end) : fChain(0)
 {
     outfile_name = outfile;
-    channel_name = channel_name;
-    crate_name = crate_name;
-    start_time = start_time;
-    end_time = end_time;
+    channel_name = channel;
+    measurement_type = measurement;
+    start_time = start;
+    end_time = end;
     TTree *tree = 0;
     TFile *f = new TFile(filename.c_str(), "READ");
     if (!f || !f->IsOpen())
@@ -134,12 +131,25 @@ analysis::analysis(std::string filename, std::string outfile, std::string channe
     Init(tree);
 }
 
-analysis::analysis(std::string filename, std::string outfile, std::string channel_name, std::string crate_name, Int_t start_time, Int_t end_time, Int_t offset_start_time, Int_t offset_end_time)
+analysis::analysis(std::string filename, std::string outfile, std::string channel, char measurement, Int_t start, Int_t end, Int_t offset_start, Int_t offset_end)
 {
-    analysis(filename, outfile, channel_name, crate_name, start_time, end_time);
-    offset_start_time = offset_start_time;
-    offset_end_time = offset_end_time;
+    offset_start_time = offset_start;
+    offset_end_time = offset_end;
     offset_set = kTRUE;
+    outfile_name = outfile;
+    channel_name = channel;
+    measurement_type = measurement;
+    start_time = start;
+    end_time = end;
+    TTree *tree = 0;
+    TFile *f = new TFile(filename.c_str(), "READ");
+    if (!f || !f->IsOpen())
+    {
+        std::cerr << "cannot open file:\t" << filename << std::endl;
+    }
+    f->GetObject("Tree_TRD_HV", tree);
+
+    Init(tree);
 }
 
 analysis::~analysis()
@@ -152,7 +162,6 @@ analysis::~analysis()
 void analysis::Offset(Long64_t nentries)
 {
     // Called inside Loop
-    Long64_t gentry = 0;
     Long64_t nbytes = 0, nb = 0;
     std::vector<Double_t> offset_v = {};
     for (Long64_t jentry = 0; jentry < nentries; jentry++)
