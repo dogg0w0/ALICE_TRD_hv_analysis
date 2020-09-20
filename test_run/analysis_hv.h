@@ -18,7 +18,6 @@ public:
     virtual Double_t Loop();
 };
 
-
 Double_t analysis_hv::Loop()
 {
     if (fChain == 0)
@@ -27,7 +26,9 @@ Double_t analysis_hv::Loop()
     Long64_t nentries = fChain->GetEntriesFast();
     TFile *myfile = new TFile(outfile_name.c_str(), "UPDATE");
     TTimeStamp *ttime = new TTimeStamp();
-    TCanvas *c0 = new TCanvas((channel_name + "_" + measurement_type).c_str(), (channel_name + "_" + measurement_type).c_str(), 10, 10, 800, 600);
+    TCanvas *c0 = new TCanvas((channel_name + "_" + measurement_type + "_" + Form("%d", luminosity_index)).c_str(),
+                              (channel_name + "_" + measurement_type + "_" + Form("%d", luminosity_index)).c_str(),
+                              10, 10, 800, 600);
     c0->cd();
     TGraph *g = new TGraph();
     Long64_t gentry = 0;

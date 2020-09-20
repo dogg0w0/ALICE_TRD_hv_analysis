@@ -40,11 +40,14 @@ public:
     Int_t end_time = 0;   // end fSec since EPOCH
     Int_t offset_start_time = 0;
     Int_t offset_end_time = 0;
+    Int_t luminosity_index = 0;
     Bool_t offset_set = kFALSE;
     Double_t offset = 0;
 
-    analysis(std::string filename, std::string outfile, std::string channel_name, char measurement, Int_t start, Int_t end);
-    analysis(std::string filename, std::string outfile, std::string channel_name, char measurement, Int_t start, Int_t end, Int_t offset_start, Int_t offset_end);
+    analysis(std::string filename, std::string outfile, std::string channel_name,
+             Int_t lumi_index, char measurement, Int_t start, Int_t end);
+    analysis(std::string filename, std::string outfile, std::string channel_name,
+             Int_t lumi_index, char measurement, Int_t start, Int_t end, Int_t offset_start, Int_t offset_end);
     virtual ~analysis();
     virtual Int_t Cut(Long64_t entry);
     virtual void Offset(Long64_t nentries);
@@ -56,6 +59,7 @@ public:
     virtual Double_t mean(std::vector<Double_t> *v);
     virtual void Show(Long64_t entry = -1);
 };
+
 Double_t analysis::Loop()
 {
     if (fChain == 0)
@@ -66,7 +70,9 @@ Double_t analysis::Loop()
         analysis::Offset(nentries);
     TFile *myfile = new TFile(outfile_name.c_str(), "UPDATE");
     TTimeStamp *ttime = new TTimeStamp();
-    TCanvas *c0 = new TCanvas((channel_name + "_" + measurement_type).c_str(), (channel_name + "_" + measurement_type).c_str(), 10, 10, 800, 600);
+    TCanvas *c0 = new TCanvas((channel_name + "_" + measurement_type + "_" + Form("%d", luminosity_index)).c_str(),
+                              (channel_name + "_" + measurement_type + "_" + Form("%d", luminosity_index)).c_str(),
+                              10, 10, 800, 600);
     c0->cd();
     TGraph *g = new TGraph();
     Long64_t gentry = 0;
@@ -113,11 +119,13 @@ Double_t analysis::Loop()
     return (_temp < 0) ? 0.0 : _temp;
 }
 
-analysis::analysis(std::string filename, std::string outfile, std::string channel, char measurement, Int_t start, Int_t end) : fChain(0)
+analysis::analysis(std::string filename, std::string outfile, std::string channel,
+                   Int_t lumi_index, char measurement, Int_t start, Int_t end) : fChain(0)
 {
     outfile_name = outfile;
     channel_name = channel;
     measurement_type = measurement;
+    luminosity_index = lumi_index;
     start_time = start;
     end_time = end;
     TTree *tree = 0;
@@ -131,7 +139,9 @@ analysis::analysis(std::string filename, std::string outfile, std::string channe
     Init(tree);
 }
 
-analysis::analysis(std::string filename, std::string outfile, std::string channel, char measurement, Int_t start, Int_t end, Int_t offset_start, Int_t offset_end)
+analysis::analysis(std::string filename, std::string outfile, std::string channel,
+                   Int_t lumi_index, char measurement,
+                   Int_t start, Int_t end, Int_t offset_start, Int_t offset_end) : fChain(0)
 {
     offset_start_time = offset_start;
     offset_end_time = offset_end;
@@ -139,6 +149,7 @@ analysis::analysis(std::string filename, std::string outfile, std::string channe
     outfile_name = outfile;
     channel_name = channel;
     measurement_type = measurement;
+    luminosity_index = lumi_index;
     start_time = start;
     end_time = end;
     TTree *tree = 0;
@@ -157,6 +168,7 @@ analysis::~analysis()
     if (!fChain)
         return;
     delete fChain->GetCurrentFile();
+    delete fChain;
 }
 
 void analysis::Offset(Long64_t nentries)

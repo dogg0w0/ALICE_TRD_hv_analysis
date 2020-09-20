@@ -9,3 +9,4 @@ website/
 *.pdf
 .vscode
 hv_ALICE_Data
+test_run/analysis_run

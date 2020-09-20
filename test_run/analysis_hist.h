@@ -4,41 +4,101 @@
 #include <TROOT.h>
 #include <TCanvas.h>
 #include <TGraph.h>
-#include <TH2F.h>
-#include <TH1F.h>
+#include <TH2D.h>
+#include <TH1D.h>
 #include <TFile.h>
 #include <TAxis.h>
 #include <iostream>
+#include <vector>
 
 class histogramms
 {
 public:
     TCanvas *canvas;
-    TH2F *hist_sector;
-    TH2F *hist_perc;
-    TH1F *hist_stack_perc;
-    TH2F *hist_exclude;
+    TH2D *hist_sector;
+    TH2D *hist_perc;
+    TH2D *hist_lumi;
+    TH2D *hist_offset;
     Int_t sector;
+    std::vector<std::string> channel_labels;
+    //std::vector<std::string> luminosity_labels;
 
     histogramms(Int_t sector_n);
+    histogramms(Int_t sector_n, std::vector<std::string> &luminosity_labels);
     ~histogramms();
-    void Draw(Double_t overall_mean_current, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map, std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map);
+    void Draw(Double_t overall_mean_current, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
+              std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_offset_map);
+    void Canvas();
+    void HistSector();
+    void HistLumi(std::vector<std::string> &luminosity_labels);
+    void HistPerc();
+    void HistOffset();
     void Write();
+    void WriteLumi();
+    void ChannelNames();
 };
 
 histogramms::histogramms(Int_t sector_n)
 {
     sector = sector_n;
-    canvas = new TCanvas(Form("sector_%d", sector), Form("Sector %d", sector), 10, 10, 800, 800);
-    canvas->Divide(2, 2);
-    canvas->SetGrid();
+    histogramms::ChannelNames();
+    histogramms::Canvas();
+    histogramms::HistSector();
+    histogramms::HistPerc();
+    histogramms::HistOffset();
+}
+
+histogramms::histogramms(Int_t sector_n, std::vector<std::string> &luminosity_labels)
+{
+    sector = sector_n;
+    histogramms::ChannelNames();
+    histogramms::Canvas();
+    histogramms::HistSector();
+    histogramms::HistLumi(luminosity_labels);
+    histogramms::HistPerc();
+    histogramms::HistOffset();
+}
+
+histogramms::~histogramms()
+{
+    delete canvas;
+    delete hist_sector;
+    delete hist_perc;
+    delete hist_lumi;
+    delete hist_offset;
+}
+
+void histogramms::Draw(Double_t overall_mean_current, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
+                       std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map,
+                       std::map<Int_t, std::map<Int_t, Double_t>> &mean_offset_map)
+{
+    hist_perc->SetTitle(Form("Anode Current to Baseline %f [#muA] in Sector 6", overall_mean_current));
+    for (Int_t stack = 0; stack < 5; stack++)
+    {
+        for (Int_t layer = 0; layer < 6; layer++)
+        {
+            hist_sector->SetBinContent(stack + 1, layer + 1, (!mean_hv_map[stack][layer]) ? 0 : mean_current_map[stack][layer]);
+            hist_offset->SetBinContent(stack + 1, layer + 1, (!mean_hv_map[stack][layer]) ? 0 : mean_offset_map[stack][layer]);
+            hist_perc->SetBinContent(stack + 1, layer + 1,
+                                     (!mean_hv_map[stack][layer]) ? 0 : mean_current_map[stack][layer] / overall_mean_current);
+        }
+    }
+}
+
+void histogramms::Canvas()
+{
+    canvas = new TCanvas(Form("sector_%d", sector), Form("Sector %d", sector), 10, 10, 1800, 600);
+    canvas->Divide(3, 1);
     canvas->SetLeftMargin(0.15);
     canvas->SetBottomMargin(0.15);
     canvas->GetPad(1)->SetGrid();
     canvas->GetPad(2)->SetGrid();
-    canvas->GetPad(4)->SetGrid();
+    canvas->GetPad(3)->SetGrid();
+}
 
-    hist_sector = new TH2F(Form("sector_%d_hist", sector), Form("Mean Anode Current in Sector %d", sector), 5, 0, 5, 6, 0, 6);
+void histogramms::HistSector()
+{
+    hist_sector = new TH2D(Form("sector_%d_hist", sector), Form("Mean Anode Current in Sector %d", sector), 5, 0, 5, 6, 0, 6);
     hist_sector->GetXaxis()->SetTitle("Stack");
     hist_sector->GetYaxis()->SetTitle("Layer");
     hist_sector->GetZaxis()->SetTitle("Current [#muA]");
@@ -52,8 +112,28 @@ histogramms::histogramms(Int_t sector_n)
         hist_sector->GetYaxis()->SetBinLabel(layer, Form("%d", layer - 1));
     }
     hist_sector->SetStats(0);
+}
 
-    hist_perc = new TH2F(Form("sector_%d_hist_perc", sector), "", 5, 0, 5, 6, 0, 6);
+void histogramms::HistLumi(std::vector<std::string> &luminosity_labels)
+{
+    hist_lumi = new TH2D(Form("sector_%d_hist_lumi", sector), "Anode Current during high luminosity", luminosity_labels.size(), 0, luminosity_labels.size(), 30, 0, 30);
+    for (Int_t luminosity = 0; luminosity < (Int_t)luminosity_labels.size(); luminosity++)
+    {
+        hist_lumi->GetXaxis()->SetBinLabel(luminosity + 1, luminosity_labels[luminosity].c_str());
+    }
+    for (Int_t channels = 0; channels < 30; channels++)
+    {
+        hist_lumi->GetYaxis()->SetBinLabel(channels + 1, channel_labels[channels].c_str());
+    }
+    hist_lumi->GetXaxis()->SetTitle("Luminosity");
+    hist_lumi->GetYaxis()->SetTitle("Channel");
+    hist_lumi->GetZaxis()->SetTitle("Percentage");
+    hist_lumi->SetStats(0);
+}
+
+void histogramms::HistPerc()
+{
+    hist_perc = new TH2D(Form("sector_%d_hist_perc", sector), "", 5, 0, 5, 6, 0, 6);
     hist_perc->GetXaxis()->SetTitle("Stack");
     hist_perc->GetYaxis()->SetTitle("Layer");
     hist_perc->GetZaxis()->SetTitle("Percentage");
@@ -67,58 +147,23 @@ histogramms::histogramms(Int_t sector_n)
         hist_perc->GetYaxis()->SetBinLabel(layer, Form("%d", layer - 1));
     }
     hist_perc->SetStats(0);
+}
 
-    hist_stack_perc = new TH1F(Form("sector_%d_hist_stack_perc", sector), Form("Anode Current in Sector %d per Stack to Baseline", sector), 5, 0, 5);
-    hist_stack_perc->GetXaxis()->SetTitle("Stack");
-    hist_stack_perc->GetYaxis()->SetTitle("Percentage");
-    hist_stack_perc->GetXaxis()->SetNdivisions(8, 8, 0, kTRUE);
+void histogramms::HistOffset()
+{
+    hist_offset = new TH2D(Form("sector_%d_hist_offset", sector), "Offset [#muA]", 5, 0, 5, 6, 0, 6);
+    hist_offset->GetXaxis()->SetTitle("Stack");
+    hist_offset->GetYaxis()->SetTitle("Layer");
+    hist_offset->GetXaxis()->SetNdivisions(8, 8, 0, kTRUE);
     for (Int_t stack = 1; stack < 6; stack++)
     {
-        hist_stack_perc->GetXaxis()->SetBinLabel(stack, Form("%d", stack - 1));
-    }
-    hist_stack_perc->SetStats(0);
-
-    hist_exclude = new TH2F(Form("sector_%d_hist_exclude", sector), "Excluded Chambers", 5, 0, 5, 6, 0, 6);
-    hist_exclude->GetXaxis()->SetTitle("Stack");
-    hist_exclude->GetYaxis()->SetTitle("Layer");
-    hist_exclude->GetXaxis()->SetNdivisions(8, 8, 0, kTRUE);
-    for (Int_t stack = 1; stack < 6; stack++)
-    {
-        hist_exclude->GetXaxis()->SetBinLabel(stack, Form("%d", stack - 1));
+        hist_offset->GetXaxis()->SetBinLabel(stack, Form("%d", stack - 1));
     }
     for (Int_t layer = 1; layer < 7; layer++)
     {
-        hist_exclude->GetYaxis()->SetBinLabel(layer, Form("%d", layer - 1));
+        hist_offset->GetYaxis()->SetBinLabel(layer, Form("%d", layer - 1));
     }
-    hist_exclude->SetStats(0);
-}
-
-histogramms::~histogramms()
-{
-    delete canvas;
-    delete hist_sector;
-    delete hist_perc;
-    delete hist_stack_perc;
-    delete hist_exclude;
-}
-
-void histogramms::Draw(Double_t overall_mean_current, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map, std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map)
-{
-    hist_perc->SetTitle(Form("Anode Current to Baseline %f [#muA] in Sector 6", overall_mean_current));
-    for (Int_t stack = 0; stack < 5; stack++)
-    {
-        Double_t temp_layer_current = 0;
-        for (Int_t layer = 0; layer < 6; layer++)
-        {
-            // Hist
-            hist_sector->SetBinContent(stack + 1, layer + 1, (!mean_hv_map[stack][layer]) ? 0 : mean_current_map[stack][layer]);
-            hist_exclude->SetBinContent(stack + 1, layer + 1, (mean_hv_map[stack][layer]) ? 0 : 1);
-            hist_perc->SetBinContent(stack + 1, layer + 1, (!mean_hv_map[stack][layer]) ? 0 : mean_current_map[stack][layer] / overall_mean_current);
-            temp_layer_current += mean_current_map[stack][layer] / overall_mean_current;
-        }
-        // Fill Hist per Stack
-        hist_stack_perc->SetBinContent(stack + 1, temp_layer_current / 5);
-    }
+    hist_offset->SetStats(0);
 }
 
 void histogramms::Write()
@@ -130,11 +175,33 @@ void histogramms::Write()
     canvas->cd(2);
     hist_perc->Draw("text");
     canvas->cd(3);
-    hist_stack_perc->Draw();
-    canvas->cd(4);
-    hist_exclude->Draw("colz");
+    hist_offset->Draw("text");
     canvas->Write();
     out->Close();
+}
+
+void histogramms::WriteLumi()
+{
+    TFile *out = new TFile(Form("sm_%d.root", sector), "UPDATE");
+    TCanvas *c0 = new TCanvas(Form("sector_lumi_%d", sector), Form("Sector %d", sector), 10, 10, 800, 600);
+    c0->SetLeftMargin(0.15);
+    c0->SetBottomMargin(0.15);
+    c0->SetGrid();
+    //c0->GetPad(1)->SetGrid();
+    hist_lumi->Draw("colz");
+    c0->Write();
+    out->Close();
+}
+
+void histogramms::ChannelNames()
+{
+    for (Int_t stack = 0; stack < 5; stack++)
+    {
+        for (Int_t layer = 0; layer < 6; layer++)
+        {
+            channel_labels.push_back(Form("%02d_%d_%d", sector, stack, layer));
+        }
+    }
 }
 
 #endif
