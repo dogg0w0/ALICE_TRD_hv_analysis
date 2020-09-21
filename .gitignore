@@ -1,8 +1,9 @@
 *.root
 *.csv
-*.txt
 output_plots/
 website/
+*/build/
+test_dir/build/
 *.o
 *.tiff
 *.svg
@@ -10,3 +11,14 @@ website/
 .vscode
 hv_ALICE_Data
 test_run/analysis_run
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
