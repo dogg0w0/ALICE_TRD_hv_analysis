@@ -4,7 +4,7 @@
 #include "analysis_hist.hpp"
 #include "analysis_hv.hpp"
 
-void analysis_run()
+void analysis_run(Int_t sector_number)
 {
 
     std::string line, channel_name, crate_name, measurement_type;
@@ -12,7 +12,7 @@ void analysis_run()
     Double_t mean_current, mean_hv;
     Double_t start_time = 0, end_time = 0;
     Int_t mean_n = 0;
-    Int_t sector_n = 6;
+    Int_t sector_n = sector_number;
     Int_t luminosity_index = 0;
 
     // Map for Current per Chamber <Stack, <Layer,  Mean Current>>
@@ -27,7 +27,7 @@ void analysis_run()
     // Map for offset per Chamber <Stack, <Layer,  Mean Offset>>
     std::map<Int_t, std::map<Int_t, Double_t>> mean_luminosity_current_map;
     std::vector<std::string> luminosity_labels = {"2.6 Hz/#mub", "9 Hz/#mub", "15 Hz/#mub", "30 Hz/#mub", "40 Hz/#mub", "52 Hz/#mub", "64 Hz/#mub", "70 Hz/#mub"};
-    histogramms hists(6, luminosity_labels);
+    histogramms hists(sector_n, luminosity_labels);
 
     // individual set timestamps
     std::vector<std::tuple<Int_t, Int_t, Int_t>> timestamps = {
@@ -105,10 +105,6 @@ void analysis_run()
                     }
                 }
             }
-            if (file_index == 60)
-            {
-                break;
-            }
         }
         overall_mean_current /= (mean_n != 0) ? mean_n : 30;
         hists.Draw(overall_mean_current, luminosity_index, mean_current_map, mean_hv_map, mean_offset_map);
@@ -120,6 +116,13 @@ void analysis_run()
 
 int main(int argc, char const *argv[])
 {
-    analysis_run();
+    if (argc == 2)
+    {
+        analysis_run((std::stoi(argv[1])));
+    }
+    else
+    {
+        std::cerr << "Usage:\t" << argv[0] << "\t sector number" << std::endl;
+    }
     return 0;
 }
