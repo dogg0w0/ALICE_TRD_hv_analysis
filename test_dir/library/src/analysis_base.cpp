@@ -7,9 +7,11 @@ Double_t analysis::Loop()
 
     Long64_t nentries = fChain->GetEntriesFast();
     TFile *myfile = new TFile(outfile_name.c_str(), "UPDATE");
+    TDirectory *subdir = (gDirectory->FindObjectAny(Form("luminosity_%d", luminosity_index))) ? (TDirectory *)gDirectory->FindObjectAny(Form("luminosity_%d", luminosity_index)) : myfile->mkdir(Form("luminosity_%d", luminosity_index));
+    subdir->cd();
     TTimeStamp ttime(0, 0);
-    TCanvas *c0 = new TCanvas((channel_name + "_" + measurement_type + "_" + Form("%d", luminosity_index)).c_str(),
-                              (channel_name + "_" + measurement_type + "_" + Form("%d", luminosity_index)).c_str(),
+    TCanvas *c0 = new TCanvas((channel_name + "_" + measurement_type).c_str(),
+                              (channel_name + "_" + measurement_type).c_str(),
                               10, 10, 800, 600);
     c0->cd();
     TGraph *g = new TGraph();
@@ -56,9 +58,10 @@ Double_t analysis::Loop()
     g->SetMarkerColorAlpha(kRed, 0.35);
     g->Draw("ALP");
     c0->Write();
+    myfile->Write();
     myfile->Close();
     if (g)
-        g->Delete();
+        delete g;
     if (c0)
         delete c0;
     return analysis::mean(&hv_v);

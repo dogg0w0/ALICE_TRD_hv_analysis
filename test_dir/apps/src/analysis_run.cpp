@@ -6,12 +6,7 @@
 
 void analysis_run()
 {
-    std::ifstream file("../outfile.txt");
-    if (!file.is_open())
-    {
-        std::cout << "outfile not open" << std::endl;
-        return;
-    }
+
     std::string line, channel_name, crate_name, measurement_type;
     Int_t file_index, install_year;
     Double_t mean_current, mean_hv;
@@ -38,34 +33,41 @@ void analysis_run()
     std::vector<std::tuple<Int_t, Int_t, Int_t>> timestamps = {
         {1, 1504576500, 1504579200},
         {2, 1504579800, 1504583700},
-        //{3, 1504584000, 1504587900},
-        //{4, 1504589100, 1504592400},
-        //{5, 1504605300, 1504607400},
-        //{6, 1504608000, 1504610700},
-        //{7, 1504611900, 1504615800},
-        //{8, 1504617600, 1504626600}};
-    };
+        {3, 1504584000, 1504587900},
+        {4, 1504589100, 1504592400},
+        {5, 1504605300, 1504607400},
+        {6, 1504608000, 1504610700},
+        {7, 1504611900, 1504615800},
+        {8, 1504617600, 1504626600}};
 
-    while (file >> crate_name >> file_index >> install_year >> measurement_type >> channel_name)
+    for (const auto &timestamps_element : timestamps)
     {
-        if (measurement_type[0] == 'I')
+        luminosity_index = std::get<0>(timestamps_element);
+        start_time = std::get<1>(timestamps_element);
+        end_time = std::get<2>(timestamps_element);
+
+        std::ifstream file("../outfile.txt");
+        if (!file.is_open())
         {
-            Int_t sector = std::stoi(channel_name.substr(0, 2));
-            Int_t stack = std::stoi(channel_name.substr(3, 1));
-            Int_t layer = std::stoi(channel_name.substr(5, 1));
-            char plate = channel_name[6];
-            if (sector == sector_n)
+            std::cout << "outfile not open" << std::endl;
+            return;
+        }
+
+        while (file >> crate_name >> file_index >> install_year >> measurement_type >> channel_name)
+        {
+            if (measurement_type[0] == 'I')
             {
-                if (plate == 'A')
+                Int_t sector = std::stoi(channel_name.substr(0, 2));
+                Int_t stack = std::stoi(channel_name.substr(3, 1));
+                Int_t layer = std::stoi(channel_name.substr(5, 1));
+                char plate = channel_name[6];
+                if (sector == sector_n)
                 {
-                    analysis offset(Form("sorted_%d.csv.root", file_index), 1504399786, 1504401590);
-                    offset.Offset();
-                    mean_offset_map[stack][layer] = offset.offset;
-                    for (const auto &timestamps_element : timestamps)
+                    if (plate == 'A')
                     {
-                        luminosity_index = std::get<0>(timestamps_element);
-                        start_time = std::get<1>(timestamps_element);
-                        end_time = std::get<2>(timestamps_element);
+                        analysis offset(Form("sorted_%d.csv.root", file_index), 1504399786, 1504401590);
+                        offset.Offset();
+                        mean_offset_map[stack][layer] = offset.offset;
 
                         // Analysis for hv
                         analysis_hv hv(Form("sorted_%d.csv.root", file_index - 1),
@@ -100,18 +102,19 @@ void analysis_run()
                         // TODO content
                         hists.hist_lumi->SetBinContent(luminosity_index, stack * 6 + layer + 1,
                                                        (!mean_hv_map[stack][layer]) ? 0 : mean_current_map[stack][layer]);
-                        // deletes
-                        //delete current;
-                        //delete hv;
                     }
                 }
             }
+            if (file_index == 60)
+            {
+                break;
+            }
         }
+        overall_mean_current /= (mean_n != 0) ? mean_n : 30;
+        hists.Draw(overall_mean_current, luminosity_index, mean_current_map, mean_hv_map, mean_offset_map);
+        hists.Write();
+        file.close();
     }
-    // TODO move to correct place
-    //overall_mean_current /= (mean_n != 0) ? mean_n : 30;
-    //hists->Draw(overall_mean_current, mean_current_map, mean_hv_map, mean_offset_map);
-    //hists->Write();
     hists.WriteLumi();
 }
 

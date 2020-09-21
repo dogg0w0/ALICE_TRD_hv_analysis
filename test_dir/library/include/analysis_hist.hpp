@@ -26,7 +26,7 @@ public:
     histogramms(Int_t sector_n);
     histogramms(Int_t sector_n, std::vector<std::string> &luminosity_labels);
     ~histogramms();
-    void Draw(Double_t overall_mean_current, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
+    void Draw(Double_t overall_mean_current, Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
               std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_offset_map);
     void Canvas();
     void HistSector();

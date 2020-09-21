@@ -26,20 +26,22 @@ histogramms::~histogramms()
     if (canvas)
         delete canvas;
     if (hist_sector)
-        hist_sector->Delete();
+        delete hist_sector;
     if (hist_perc)
-        hist_perc->Delete();
+        delete hist_perc;
     if (hist_lumi)
-        hist_lumi->Delete();
+        delete hist_lumi;
     if (hist_offset)
-        hist_offset->Delete();
+        delete hist_offset;
 }
 
-void histogramms::Draw(Double_t overall_mean_current, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
+void histogramms::Draw(Double_t overall_mean_current, Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
                        std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map,
                        std::map<Int_t, std::map<Int_t, Double_t>> &mean_offset_map)
 {
-    hist_perc->SetTitle(Form("Anode Current to Baseline %f [#muA] in Sector 6", overall_mean_current));
+    canvas->SetName(Form("sector_%d_%d", sector, luminosity_index));
+    canvas->SetTitle(Form("Sector %d Luminosity %d", sector, luminosity_index));
+        hist_perc->SetTitle(Form("Anode Current to Baseline %f [#muA] in Sector 6", overall_mean_current));
     for (Int_t stack = 0; stack < 5; stack++)
     {
         for (Int_t layer = 0; layer < 6; layer++)
@@ -137,6 +139,8 @@ void histogramms::Write()
 {
     std::cout << "Writing results into file:\t" << Form("sm_%d.root", sector) << std::endl;
     TFile *out = new TFile(Form("sm_%d.root", sector), "UPDATE");
+    TDirectory *plots = (gDirectory->FindObjectAny("plots")) ? (TDirectory *)gDirectory->FindObjectAny("plots") : out->mkdir("plots");
+    plots->cd();
     canvas->cd(1);
     hist_sector->Draw("colz");
     canvas->cd(2);
@@ -144,12 +148,15 @@ void histogramms::Write()
     canvas->cd(3);
     hist_offset->Draw("text");
     canvas->Write();
-    out->Close();
+    out->Write();
+    out->Close(); //Maybe delete out;
 }
 
 void histogramms::WriteLumi()
 {
     TFile *out = new TFile(Form("sm_%d.root", sector), "UPDATE");
+    TDirectory *plots = (gDirectory->FindObjectAny("plots")) ? (TDirectory *)gDirectory->FindObjectAny("plots") : out->mkdir("plots");
+    plots->cd();
     TCanvas *c0 = new TCanvas(Form("sector_lumi_%d", sector), Form("Sector %d", sector), 10, 10, 800, 600);
     c0->SetLeftMargin(0.15);
     c0->SetBottomMargin(0.15);
@@ -157,6 +164,7 @@ void histogramms::WriteLumi()
     //c0->GetPad(1)->SetGrid();
     hist_lumi->Draw("colz");
     c0->Write();
+    out->Write();
     out->Close();
 }
 
