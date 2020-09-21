@@ -25,7 +25,7 @@ Double_t analysis_hv::Loop()
 
     Long64_t nentries = fChain->GetEntriesFast();
     TFile *myfile = new TFile(outfile_name.c_str(), "UPDATE");
-    TTimeStamp *ttime = new TTimeStamp();
+    TTimeStamp ttime(0,0);
     TCanvas *c0 = new TCanvas((channel_name + "_" + measurement_type + "_" + Form("%d", luminosity_index)).c_str(),
                               (channel_name + "_" + measurement_type + "_" + Form("%d", luminosity_index)).c_str(),
                               10, 10, 800, 600);
@@ -46,7 +46,6 @@ Double_t analysis_hv::Loop()
         {
             continue;
         }
-        //if (fSec < start_time || fSec > end_time)
         if (fSec < start_time)
         {
             continue;
@@ -56,10 +55,10 @@ Double_t analysis_hv::Loop()
             break;
         }
 
-        ttime->SetSec(fSec);
-        ttime->SetNanoSec(fNanoSec);
+        ttime.SetSec(fSec);
+        ttime.SetNanoSec(fNanoSec);
         hv_v.push_back(HV);
-        g->SetPoint(gentry, ttime->AsDouble(), HV);
+        g->SetPoint(gentry, ttime.AsDouble(), HV);
         gentry++;
     }
 
@@ -76,6 +75,10 @@ Double_t analysis_hv::Loop()
     g->Draw("ALP");
     c0->Write();
     myfile->Close();
+    if (g)
+        g->Delete();
+    if (c0)
+        delete c0;
     return analysis_hv::mean(&hv_v);
 }
 

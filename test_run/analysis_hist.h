@@ -61,11 +61,11 @@ histogramms::histogramms(Int_t sector_n, std::vector<std::string> &luminosity_la
 
 histogramms::~histogramms()
 {
-    delete canvas;
-    delete hist_sector;
-    delete hist_perc;
-    delete hist_lumi;
-    delete hist_offset;
+    if(canvas) delete canvas;
+    if(hist_sector) hist_sector->Delete();
+    if(hist_perc) hist_perc->Delete();
+    if(hist_lumi) hist_lumi->Delete();
+    if(hist_offset) hist_offset->Delete();
 }
 
 void histogramms::Draw(Double_t overall_mean_current, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,

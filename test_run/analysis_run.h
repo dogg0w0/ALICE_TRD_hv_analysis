@@ -41,16 +41,14 @@ public:
     Int_t offset_start_time = 0;
     Int_t offset_end_time = 0;
     Int_t luminosity_index = 0;
-    Bool_t offset_set = kFALSE;
     Double_t offset = 0;
 
+    analysis(std::string filename, Int_t offset_start, Int_t offset_end);
     analysis(std::string filename, std::string outfile, std::string channel_name,
              Int_t lumi_index, char measurement, Int_t start, Int_t end);
-    analysis(std::string filename, std::string outfile, std::string channel_name,
-             Int_t lumi_index, char measurement, Int_t start, Int_t end, Int_t offset_start, Int_t offset_end);
     virtual ~analysis();
     virtual Int_t Cut(Long64_t entry);
-    virtual void Offset(Long64_t nentries);
+    virtual void Offset();
     virtual Int_t GetEntry(Long64_t entry);
     virtual Long64_t LoadTree(Long64_t entry);
     virtual void Init(TTree *tree);
@@ -66,10 +64,8 @@ Double_t analysis::Loop()
         return -1;
 
     Long64_t nentries = fChain->GetEntriesFast();
-    if (offset_set)
-        analysis::Offset(nentries);
     TFile *myfile = new TFile(outfile_name.c_str(), "UPDATE");
-    TTimeStamp *ttime = new TTimeStamp();
+    TTimeStamp ttime(0, 0);
     TCanvas *c0 = new TCanvas((channel_name + "_" + measurement_type + "_" + Form("%d", luminosity_index)).c_str(),
                               (channel_name + "_" + measurement_type + "_" + Form("%d", luminosity_index)).c_str(),
                               10, 10, 800, 600);
@@ -90,15 +86,19 @@ Double_t analysis::Loop()
         {
             continue;
         }
-        if (fSec < start_time || fSec > end_time)
+        if (fSec < start_time)
         {
             continue;
         }
+        if (fSec > end_time)
+        {
+            break;
+        }
 
-        ttime->SetSec(fSec);
-        ttime->SetNanoSec(fNanoSec);
+        ttime.SetSec(fSec);
+        ttime.SetNanoSec(fNanoSec);
         hv_v.push_back(HV);
-        g->SetPoint(gentry, ttime->AsDouble(), HV);
+        g->SetPoint(gentry, ttime.AsDouble(), HV);
         gentry++;
     }
 
@@ -115,8 +115,26 @@ Double_t analysis::Loop()
     g->Draw("ALP");
     c0->Write();
     myfile->Close();
-    Double_t _temp = (offset_set) ? analysis::mean(&hv_v) - offset : analysis::mean(&hv_v);
-    return (_temp < 0) ? 0.0 : _temp;
+    if (g)
+        g->Delete();
+    if (c0)
+        delete c0;
+    return analysis::mean(&hv_v);
+}
+
+analysis::analysis(std::string filename, Int_t offset_start, Int_t offset_end)
+{
+    offset_start_time = offset_start;
+    offset_end_time = offset_end;
+    TTree *tree = 0;
+    TFile *f = new TFile(filename.c_str(), "READ");
+    if (!f || !f->IsOpen())
+    {
+        std::cerr << "cannot open file:\t" << filename << std::endl;
+    }
+    f->GetObject("Tree_TRD_HV", tree);
+
+    Init(tree);
 }
 
 analysis::analysis(std::string filename, std::string outfile, std::string channel,
@@ -139,41 +157,17 @@ analysis::analysis(std::string filename, std::string outfile, std::string channe
     Init(tree);
 }
 
-analysis::analysis(std::string filename, std::string outfile, std::string channel,
-                   Int_t lumi_index, char measurement,
-                   Int_t start, Int_t end, Int_t offset_start, Int_t offset_end) : fChain(0)
-{
-    offset_start_time = offset_start;
-    offset_end_time = offset_end;
-    offset_set = kTRUE;
-    outfile_name = outfile;
-    channel_name = channel;
-    measurement_type = measurement;
-    luminosity_index = lumi_index;
-    start_time = start;
-    end_time = end;
-    TTree *tree = 0;
-    TFile *f = new TFile(filename.c_str(), "READ");
-    if (!f || !f->IsOpen())
-    {
-        std::cerr << "cannot open file:\t" << filename << std::endl;
-    }
-    f->GetObject("Tree_TRD_HV", tree);
-
-    Init(tree);
-}
-
 analysis::~analysis()
 {
     if (!fChain)
         return;
     delete fChain->GetCurrentFile();
-    delete fChain;
 }
 
-void analysis::Offset(Long64_t nentries)
+void analysis::Offset()
 {
     // Called inside Loop
+    Long64_t nentries = fChain->GetEntriesFast();
     Long64_t nbytes = 0, nb = 0;
     std::vector<Double_t> offset_v = {};
     for (Long64_t jentry = 0; jentry < nentries; jentry++)
