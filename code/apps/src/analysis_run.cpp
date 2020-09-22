@@ -40,8 +40,13 @@ void analysis_run(Int_t sector_number)
         {7, 1504611900, 1504615800},
         {8, 1504617600, 1504626600}};
 
+    Int_t date_time = std::get<1>(timestamps[0]);
+    TTimeStamp time_stamp;
+    time_stamp.SetSec(date_time);
+
     for (const auto &timestamps_element : timestamps)
     {
+        Int_t counter = 0;
         luminosity_index = std::get<0>(timestamps_element);
         start_time = std::get<1>(timestamps_element);
         end_time = std::get<2>(timestamps_element);
@@ -99,11 +104,16 @@ void analysis_run(Int_t sector_number)
                         std::cout << file_index << "\t\t" << mean_current_map[stack][layer] << "\t\t"
                                   << mean_offset_map[stack][layer] << std::endl;
                         std::cout << "Luminosity index: " << luminosity_index << std::endl;
-                        // TODO content
+
                         hists.hist_lumi->SetBinContent(luminosity_index, stack * 6 + layer + 1,
                                                        (!mean_hv_map[stack][layer]) ? 0 : mean_current_map[stack][layer]);
+                        counter++;
                     }
                 }
+            }
+            if (counter == 60)
+            {
+                break;
             }
         }
         overall_mean_current /= (mean_n != 0) ? mean_n : 30;
@@ -111,7 +121,7 @@ void analysis_run(Int_t sector_number)
         hists.Write();
         file.close();
     }
-    hists.WriteLumi();
+    hists.WriteLumi(((std::string)time_stamp.AsString()).substr(5, 11));
 }
 
 int main(int argc, char const *argv[])

@@ -2,6 +2,9 @@
 #define ANALYSIS_HIST_H
 
 #include <TROOT.h>
+#include <TStyle.h>
+#include <TLatex.h>
+#include <TF1.h>
 #include <TCanvas.h>
 #include <TGraph.h>
 #include <TH2D.h>
@@ -19,6 +22,7 @@ public:
     TH2D *hist_perc;
     TH2D *hist_lumi;
     TH2D *hist_offset;
+    TH1D *hist_lumi_fit;
     Int_t sector;
     std::vector<std::string> channel_labels;
     //std::vector<std::string> luminosity_labels;
@@ -34,7 +38,7 @@ public:
     void HistPerc();
     void HistOffset();
     void Write();
-    void WriteLumi();
+    void WriteLumi(std::string time_stamp);
     void ChannelNames();
 };
 
