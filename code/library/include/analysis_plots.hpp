@@ -24,8 +24,9 @@ public:
     TH2D *hist_lumi;
     TH2D *hist_offset;
     TGraphErrors *gr_lumi_fit;
-    TGraphErrors gr_lumi_fit_single[30];
+    std::vector<TGraphErrors*> gr_lumi_fit_single;
     Int_t sector;
+    Int_t n_not_working_chambers = 0;
     std::vector<std::string> channel_labels;
     std::vector<Double_t> luminosities = {0.0};
     std::vector<Double_t> mean_current_all_chambers = {0.0};

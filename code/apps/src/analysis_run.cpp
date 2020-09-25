@@ -3,8 +3,9 @@
 #include "analysis_base.hpp"
 #include "analysis_plots.hpp"
 #include "analysis_hv.hpp"
+#include "analysis_dates.hpp"
 
-void analysis_run(Int_t sector_number, std::string input_data_dir, std::string input_outfile)
+void analysis_run(Int_t sector_number, std::string input_data_dir, std::string input_outfile, std::string date)
 {
     std::string file_dir = input_data_dir + "sorted_%d.csv.root";
     std::string line, channel_name, crate_name, measurement_type;
@@ -28,21 +29,13 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
 
     // Map for offset per Chamber <Stack, <Layer,  Mean Offset>>
     std::map<Int_t, std::map<Int_t, Double_t>> mean_luminosity_current_map;
-    std::vector<std::string> luminosity_labels = {"2.6 Hz/#mub", "9 Hz/#mub", "15 Hz/#mub", "30 Hz/#mub", "40 Hz/#mub", "52 Hz/#mub", "64 Hz/#mub", "70 Hz/#mub"};
-    std::vector<Double_t> luminosity_points = {2.6, 9.0, 15.0, 30.0, 40.0, 52.0, 64.0, 70.0};
-    plots plotter(sector_n, luminosity_labels, luminosity_points);
 
-    // individual set timestamps
-    std::vector<std::tuple<Int_t, Int_t, Int_t>> timestamps = {
-        {1, 1504576500, 1504579200},
-        {2, 1504579800, 1504583700},
-        {3, 1504584000, 1504587900},
-        {4, 1504589100, 1504592400},
-        {5, 1504605300, 1504607400},
-        {6, 1504608000, 1504610700},
-        {7, 1504611900, 1504615800},
-        {8, 1504617600, 1504626600}
-    };
+    dates dates_temp(date);
+    std::vector<std::tuple<Int_t, Int_t, Int_t>> timestamps = dates_temp.timestamps;
+    std::vector<std::string> luminosity_labels = dates_temp.luminosity_labels;
+    std::vector<Double_t> luminosity_points = dates_temp.luminosity_points;
+
+    plots plotter(sector_n, luminosity_labels, luminosity_points);
 
     Int_t date_time = std::get<1>(timestamps[0]);
     TTimeStamp time_stamp;
@@ -132,21 +125,22 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
         plotter.Write();
         file.close();
     }
-    //plotter.FitDraw();
+    plotter.FitDraw();
     plotter.WriteLumi(((std::string)time_stamp.AsString()).substr(5, 11));
 }
 
 int main(int argc, char const *argv[])
 {
-    if (argc == 4)
+    if (argc == 5)
     {
-        analysis_run((std::stoi(argv[1])), (std::string)argv[2], (std::string)argv[3]);
+        analysis_run((std::stoi(argv[1])), (std::string)argv[2], (std::string)argv[3], (std::string)argv[4]);
     }
     else
     {
         std::cerr << "Usage:\t" << argv[0] << "\t sector number"
                   << "\t input data dir "
-                  << "\t input_file.txt " << std::endl;
+                  << "\t input_file.txt "
+                  << "\t Date" << std::endl;
     }
     return 0;
 }
