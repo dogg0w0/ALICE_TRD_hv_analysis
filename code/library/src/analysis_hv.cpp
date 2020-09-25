@@ -1,10 +1,7 @@
 #include "analysis_hv.hpp"
 
-Double_t analysis_hv::Loop()
+std::pair<Double_t, Double_t> analysis_hv::Loop()
 {
-    if (fChain == 0)
-        return -1;
-
     Long64_t nentries = fChain->GetEntriesFast();
     TFile *myfile = new TFile(outfile_name.c_str(), "UPDATE");
     TDirectory *subdir = (gDirectory->FindObjectAny(Form("luminosity_%d", luminosity_index))) ? (TDirectory *)gDirectory->FindObjectAny(Form("luminosity_%d", luminosity_index)) : myfile->mkdir(Form("luminosity_%d", luminosity_index));
@@ -64,5 +61,7 @@ Double_t analysis_hv::Loop()
         g->Delete();
     if (c0)
         delete c0;
-    return analysis_hv::mean(&hv_v);
+    Double_t mean = analysis::mean(&hv_v);
+    Double_t mean_std = analysis::mean_std(&hv_v, mean);
+    return std::pair<Double_t, Double_t>();
 }

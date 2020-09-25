@@ -4,12 +4,12 @@
 #include "analysis_hist.hpp"
 #include "analysis_hv.hpp"
 
-void analysis_run(Int_t sector_number)
+void analysis_run(Int_t sector_number, std::string input_data_dir, std::string input_outfile)
 {
-
+    std::string file_dir = input_data_dir + "sorted_%d.csv.root";
     std::string line, channel_name, crate_name, measurement_type;
     Int_t file_index, install_year;
-    Double_t mean_current, mean_hv;
+    Double_t mean_current, mean_std_current, mean_hv, mean_std_hv;
     Double_t start_time = 0, end_time = 0;
     Int_t mean_n = 0;
     Int_t sector_n = sector_number;
@@ -23,11 +23,14 @@ void analysis_run(Int_t sector_number)
     std::map<Int_t, std::map<Int_t, Bool_t>> mean_hv_map;
     // Overall Mean Current in Sector;
     Double_t overall_mean_current = 0;
+    // std::pair<Double_t, Double_t> for analysis::Loop
+    std::pair<Double_t, Double_t> mean_and_std_pair;
 
     // Map for offset per Chamber <Stack, <Layer,  Mean Offset>>
     std::map<Int_t, std::map<Int_t, Double_t>> mean_luminosity_current_map;
     std::vector<std::string> luminosity_labels = {"2.6 Hz/#mub", "9 Hz/#mub", "15 Hz/#mub", "30 Hz/#mub", "40 Hz/#mub", "52 Hz/#mub", "64 Hz/#mub", "70 Hz/#mub"};
-    histogramms hists(sector_n, luminosity_labels);
+    std::vector<Double_t> luminosity_points = {2.6, 9.0, 15.0, 30.0, 40.0, 52.0, 64.0, 70.0};
+    histogramms hists(sector_n, luminosity_labels, luminosity_points);
 
     // individual set timestamps
     std::vector<std::tuple<Int_t, Int_t, Int_t>> timestamps = {
@@ -51,7 +54,7 @@ void analysis_run(Int_t sector_number)
         start_time = std::get<1>(timestamps_element);
         end_time = std::get<2>(timestamps_element);
 
-        std::ifstream file("../outfile.txt");
+        std::ifstream file(input_outfile);
         if (!file.is_open())
         {
             std::cout << "outfile not open" << std::endl;
@@ -70,26 +73,31 @@ void analysis_run(Int_t sector_number)
                 {
                     if (plate == 'A')
                     {
-                        analysis offset(Form("sorted_%d.csv.root", file_index), 1504399786, 1504401590);
+                        // Calculate Offset
+                        analysis offset(Form(file_dir.c_str(), file_index), 1504399786, 1504401590);
                         offset.Offset();
                         mean_offset_map[stack][layer] = offset.offset;
 
                         // Analysis for hv
-                        analysis_hv hv(Form("sorted_%d.csv.root", file_index - 1),
+                        analysis_hv hv(Form(file_dir.c_str(), file_index - 1),
                                        Form("sm_%d.root", sector),
                                        channel_name, luminosity_index,
                                        'V',
                                        start_time, end_time);
-                        mean_hv = hv.Loop();
+                        mean_and_std_pair = hv.Loop();
+                        mean_hv = mean_and_std_pair.first;
+                        mean_std_hv = mean_and_std_pair.second;
                         mean_hv_map[stack][layer] = (mean_hv > 1450) ? kTRUE : kFALSE;
 
                         // Anlysis for current
-                        analysis current(Form("sorted_%d.csv.root", file_index),
+                        analysis current(Form(file_dir.c_str(), file_index),
                                          Form("sm_%d.root", sector),
                                          channel_name, luminosity_index,
                                          'I',
                                          start_time, end_time);
-                        mean_current = current.Loop();
+                        mean_and_std_pair = current.Loop();
+                        mean_current = mean_and_std_pair.first;
+                        mean_std_current = mean_and_std_pair.second;
                         mean_current_map[stack][layer] = ((mean_current - offset.offset) < 0) ? 0 : mean_current - offset.offset;
 
                         // Calculate mean
@@ -99,9 +107,9 @@ void analysis_run(Int_t sector_number)
                             mean_n++;
                         }
                         // Print Information
-                        std::cout << file_index - 1 << "\t\t" << mean_hv_map[stack][layer] << "\t\t"
-                                  << stack << "\t\t" << layer << std::endl;
-                        std::cout << file_index << "\t\t" << mean_current_map[stack][layer] << "\t\t"
+                        std::cout << file_index - 1 << std::setw(12) << mean_hv_map[stack][layer] << std::setw(12)
+                                  << stack << std::setw(12) << layer << std::endl;
+                        std::cout << file_index << std::setw(12) << mean_current_map[stack][layer] << std::setw(12)
                                   << mean_offset_map[stack][layer] << std::endl;
                         std::cout << "Luminosity index: " << luminosity_index << std::endl;
 
@@ -126,13 +134,15 @@ void analysis_run(Int_t sector_number)
 
 int main(int argc, char const *argv[])
 {
-    if (argc == 2)
+    if (argc == 4)
     {
-        analysis_run((std::stoi(argv[1])));
+        analysis_run((std::stoi(argv[1])), (std::string)argv[2], (std::string)argv[3]);
     }
     else
     {
-        std::cerr << "Usage:\t" << argv[0] << "\t sector number" << std::endl;
+        std::cerr << "Usage:\t" << argv[0] << "\t sector number"
+                  << "\t input data dir "
+                  << "\t input_file.txt " << std::endl;
     }
     return 0;
 }

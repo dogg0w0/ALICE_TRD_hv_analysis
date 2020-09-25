@@ -15,7 +15,7 @@ class analysis_hv : public analysis
 {
 public:
     using analysis::analysis;
-    virtual Double_t Loop();
+    virtual std::pair<Double_t, Double_t> Loop();
 };
 
 #endif

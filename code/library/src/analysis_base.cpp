@@ -1,10 +1,7 @@
 #include "analysis_base.hpp"
 
-Double_t analysis::Loop()
+std::pair<Double_t, Double_t> analysis::Loop()
 {
-    if (fChain == 0)
-        return -1;
-
     Long64_t nentries = fChain->GetEntriesFast();
     TFile *myfile = new TFile(outfile_name.c_str(), "UPDATE");
     TDirectory *subdir = (gDirectory->FindObjectAny(Form("luminosity_%d", luminosity_index))) ? (TDirectory *)gDirectory->FindObjectAny(Form("luminosity_%d", luminosity_index)) : myfile->mkdir(Form("luminosity_%d", luminosity_index));
@@ -64,7 +61,9 @@ Double_t analysis::Loop()
         delete g;
     if (c0)
         delete c0;
-    return analysis::mean(&hv_v);
+    Double_t mean = analysis::mean(&hv_v);
+    Double_t mean_std = analysis::mean_std(&hv_v, mean);
+    return std::pair<Double_t, Double_t>(mean, mean_std);
 }
 
 analysis::analysis(std::string filename, Int_t offset_start, Int_t offset_end)
@@ -191,6 +190,7 @@ Bool_t analysis::Notify()
 
     return kTRUE;
 }
+
 Double_t analysis::mean(std::vector<Double_t> *v)
 {
     Double_t sum = 0, n = 0;
@@ -201,6 +201,17 @@ Double_t analysis::mean(std::vector<Double_t> *v)
     }
     return sum / n;
 }
+
+Double_t analysis::mean_std(std::vector<Double_t> *v, Double_t mean)
+{
+    Double_t standardDeviation = 0;
+    for (auto &&element : *v)
+    {
+        standardDeviation += TMath::Power(element - mean, 2);
+    }
+    return TMath::Sqrt( standardDeviation / (Double_t)v->size() );
+}
+
 void analysis::Show(Long64_t entry)
 {
     // Print contents of entry.

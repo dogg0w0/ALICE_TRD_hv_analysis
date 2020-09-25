@@ -10,13 +10,13 @@ histogramms::histogramms(Int_t sector_n)
     histogramms::HistOffset();
 }
 
-histogramms::histogramms(Int_t sector_n, std::vector<std::string> &luminosity_labels)
+histogramms::histogramms(Int_t sector_n, std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points)
 {
     sector = sector_n;
     histogramms::ChannelNames();
     histogramms::Canvas();
     histogramms::HistSector();
-    histogramms::HistLumi(luminosity_labels);
+    histogramms::HistLumi(luminosity_labels, luminosity_points);
     histogramms::HistPerc();
     histogramms::HistOffset();
 }
@@ -33,8 +33,8 @@ histogramms::~histogramms()
         delete hist_lumi;
     if (hist_offset)
         delete hist_offset;
-    if (hist_lumi_fit)
-        delete hist_lumi_fit;
+    if (gr_lumi_fit)
+        delete gr_lumi_fit;
 }
 
 void histogramms::Draw(Double_t overall_mean_current, Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
@@ -61,8 +61,25 @@ void histogramms::Draw(Double_t overall_mean_current, Int_t luminosity_index, st
             }
         }
     }
+    // Calculate Mean
     average_all_chambers /= number_active_chambers;
-    hist_lumi_fit->SetBinContent(luminosity_index, average_all_chambers);
+    // Calculate RMS
+    Double_t standardDeviation = 0,
+             rms = 0;
+    for (Int_t stack = 0; stack < 5; stack++)
+    {
+        for (Int_t layer = 0; layer < 6; layer++)
+        {
+            if (mean_hv_map[stack][layer])
+            {
+                standardDeviation += TMath::Power(mean_current_map[stack][layer] - average_all_chambers, 2);
+            }
+        }
+    }
+    rms = TMath::Sqrt(standardDeviation / (number_active_chambers));
+    std::cout << "Average plus error: " << average_all_chambers << " +- " << rms << std::endl;
+    mean_current_all_chambers_err.push_back(rms);
+    mean_current_all_chambers.push_back(average_all_chambers);
 }
 
 void histogramms::Canvas()
@@ -97,14 +114,12 @@ void histogramms::HistSector()
     hist_sector->SetStats(0);
 }
 
-void histogramms::HistLumi(std::vector<std::string> &luminosity_labels)
+void histogramms::HistLumi(std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points)
 {
     hist_lumi = new TH2D(Form("sector_%d_hist_lumi", sector), "Anode Current during high luminosity", luminosity_labels.size(), 0, luminosity_labels.size(), 30, 0, 30);
-    hist_lumi_fit = new TH1D(Form("sector_%d_hist_lumi_fit", sector), "Average Anode Current", luminosity_labels.size(), 0, luminosity_labels.size());
     for (Int_t luminosity = 0; luminosity < (Int_t)luminosity_labels.size(); luminosity++)
     {
         hist_lumi->GetXaxis()->SetBinLabel(luminosity + 1, luminosity_labels[luminosity].c_str());
-        hist_lumi_fit->GetXaxis()->SetBinLabel(luminosity + 1, luminosity_labels[luminosity].c_str());
     }
     for (Int_t channels = 0; channels < 30; channels++)
     {
@@ -114,10 +129,10 @@ void histogramms::HistLumi(std::vector<std::string> &luminosity_labels)
     hist_lumi->GetYaxis()->SetTitle("Channel");
     hist_lumi->GetZaxis()->SetTitle("Current [#muA]");
     hist_lumi->SetStats(0);
-
-    hist_lumi_fit->GetXaxis()->SetTitle("Luminosity");
-    hist_lumi_fit->GetYaxis()->SetTitle("Current [#muA]");
-    hist_lumi_fit->SetStats(0);
+    for (auto &&element : luminosity_points)
+    {
+        luminosities.push_back(element);
+    }
 }
 
 void histogramms::HistPerc()
@@ -178,8 +193,21 @@ void histogramms::WriteLumi(std::string time_stamp)
     TFile *out = new TFile(Form("sm_%d.root", sector), "UPDATE");
     TDirectory *plots = (gDirectory->FindObjectAny("plots")) ? (TDirectory *)gDirectory->FindObjectAny("plots") : out->mkdir("plots");
     plots->cd();
-    hist_lumi_fit->Fit("pol1");
-    TF1 *fit = hist_lumi_fit->GetFunction("pol1");
+
+    gr_lumi_fit = new TGraphErrors(luminosities.size());
+    gr_lumi_fit->SetName(Form("sector_%d_hist_lumi_fit", sector));
+    gr_lumi_fit->SetTitle("Average Anode Current");
+    gr_lumi_fit->GetXaxis()->SetTitle("Luminosity [Hz/#mub]");
+    gr_lumi_fit->GetYaxis()->SetTitle("Current [#muA]");
+
+    for (Int_t i = 0; i < luminosities.size(); i++)
+    {
+        gr_lumi_fit->SetPoint(i, luminosities[i], mean_current_all_chambers[i]);
+        gr_lumi_fit->SetPointError(i, 0.0, mean_current_all_chambers_err[i]);
+    }
+
+    gr_lumi_fit->Fit("pol1");
+    TF1 *fit = gr_lumi_fit->GetFunction("pol1");
     hist_lumi->SetTitle(("Anode Current during HL @ " + time_stamp).c_str());
     TCanvas *c0 = new TCanvas(Form("sector_lumi_%d", sector), Form("Sector %d", sector), 10, 10, 800, 600);
     c0->SetLeftMargin(0.15);
@@ -191,7 +219,7 @@ void histogramms::WriteLumi(std::string time_stamp)
     c0->cd(1);
     hist_lumi->Draw("colz");
     c0->cd(2);
-    hist_lumi_fit->Draw();
+    gr_lumi_fit->Draw("AP");
     // Fit Results
 
     TLatex *tex = new TLatex();
@@ -204,7 +232,7 @@ void histogramms::WriteLumi(std::string time_stamp)
         buffer_Chi[100];
     std::sprintf(buffer_a, "a = %.3f #pm %.3f", fit->GetParameter(0), fit->GetParError(0));
     std::sprintf(buffer_b, "b = %.3f #pm %.3f", fit->GetParameter(1), fit->GetParError(1));
-    std::sprintf(buffer_Chi, "#chi^{2}_{red} = %.1f", fit->GetChisquare() / fit->GetNDF());
+    std::sprintf(buffer_Chi, "#chi^{2}_{red} = %.2f", fit->GetChisquare() / fit->GetNDF());
     tex->DrawLatex(0.20, 0.70, buffer_a);
     tex->DrawLatex(0.20, 0.65, buffer_b);
     tex->DrawLatex(0.20, 0.60, buffer_Chi);

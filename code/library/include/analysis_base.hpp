@@ -2,6 +2,7 @@
 #define ANALYSIS_H
 
 #include <TROOT.h>
+#include <TMath.h>
 #include <TChain.h>
 #include <TCanvas.h>
 #include <TGraph.h>
@@ -52,9 +53,10 @@ public:
     virtual Int_t GetEntry(Long64_t entry);
     virtual Long64_t LoadTree(Long64_t entry);
     virtual void Init(TTree *tree);
-    virtual Double_t Loop();
+    virtual std::pair<Double_t, Double_t> Loop();
     virtual Bool_t Notify();
     virtual Double_t mean(std::vector<Double_t> *v);
+    virtual Double_t mean_std(std::vector<Double_t> *v, Double_t mean);
     virtual void Show(Long64_t entry = -1);
 };
 
