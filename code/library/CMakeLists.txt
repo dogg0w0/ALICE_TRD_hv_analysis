@@ -9,7 +9,7 @@ project(
 # Set path to library and LinkDef.h files
 set(HEADER_LIST 
     "${CMAKE_CURRENT_SOURCE_DIR}/include/analysis_base.hpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/analysis_hist.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/analysis_plots.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/analysis_hv.hpp"
 )
 set(DEFLINK "${CMAKE_CURRENT_SOURCE_DIR}/include/DictLinkDef.h")
@@ -29,7 +29,7 @@ add_library(
 
 target_sources(DictROOT
     PRIVATE "src/analysis_base.cpp"
-    PRIVATE "src/analysis_hist.cpp"
+    PRIVATE "src/analysis_plots.cpp"
     PRIVATE "src/analysis_hv.cpp"
     PUBLIC  "${HEADER_LIST}"
 )

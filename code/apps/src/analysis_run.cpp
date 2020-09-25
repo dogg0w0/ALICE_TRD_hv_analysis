@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "analysis_base.hpp"
-#include "analysis_hist.hpp"
+#include "analysis_plots.hpp"
 #include "analysis_hv.hpp"
 
 void analysis_run(Int_t sector_number, std::string input_data_dir, std::string input_outfile)
@@ -16,7 +16,7 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
     Int_t luminosity_index = 0;
 
     // Map for Current per Chamber <Stack, <Layer,  Mean Current>>
-    std::map<Int_t, std::map<Int_t, Double_t>> mean_current_map;
+    std::map<Int_t, std::map<Int_t, Double_t>> mean_current_map, mean_std_current_map;
     // Map for offset per Chamber <Stack, <Layer,  Mean Offset>>
     std::map<Int_t, std::map<Int_t, Double_t>> mean_offset_map;
     // Map for if Current per Stack should be included in further Calculations <Stack, <Layer,  True/False>>
@@ -30,7 +30,7 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
     std::map<Int_t, std::map<Int_t, Double_t>> mean_luminosity_current_map;
     std::vector<std::string> luminosity_labels = {"2.6 Hz/#mub", "9 Hz/#mub", "15 Hz/#mub", "30 Hz/#mub", "40 Hz/#mub", "52 Hz/#mub", "64 Hz/#mub", "70 Hz/#mub"};
     std::vector<Double_t> luminosity_points = {2.6, 9.0, 15.0, 30.0, 40.0, 52.0, 64.0, 70.0};
-    histogramms hists(sector_n, luminosity_labels, luminosity_points);
+    plots plotter(sector_n, luminosity_labels, luminosity_points);
 
     // individual set timestamps
     std::vector<std::tuple<Int_t, Int_t, Int_t>> timestamps = {
@@ -41,7 +41,8 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
         {5, 1504605300, 1504607400},
         {6, 1504608000, 1504610700},
         {7, 1504611900, 1504615800},
-        {8, 1504617600, 1504626600}};
+        {8, 1504617600, 1504626600}
+    };
 
     Int_t date_time = std::get<1>(timestamps[0]);
     TTimeStamp time_stamp;
@@ -99,6 +100,7 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
                         mean_current = mean_and_std_pair.first;
                         mean_std_current = mean_and_std_pair.second;
                         mean_current_map[stack][layer] = ((mean_current - offset.offset) < 0) ? 0 : mean_current - offset.offset;
+                        mean_std_current_map[stack][layer] = mean_std_current;
 
                         // Calculate mean
                         if (mean_hv_map[stack][layer])
@@ -107,14 +109,14 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
                             mean_n++;
                         }
                         // Print Information
-                        std::cout << file_index - 1 << std::setw(12) << mean_hv_map[stack][layer] << std::setw(12)
-                                  << stack << std::setw(12) << layer << std::endl;
-                        std::cout << file_index << std::setw(12) << mean_current_map[stack][layer] << std::setw(12)
+                        std::cout << file_index - 1 << "\t\t\t" << mean_hv_map[stack][layer] << "\t\t\t"
+                                  << stack << "\t\t\t" << layer << std::endl;
+                        std::cout << file_index << "\t\t\t" << mean_current_map[stack][layer] << "\t\t\t"
                                   << mean_offset_map[stack][layer] << std::endl;
                         std::cout << "Luminosity index: " << luminosity_index << std::endl;
 
-                        hists.hist_lumi->SetBinContent(luminosity_index, stack * 6 + layer + 1,
-                                                       (!mean_hv_map[stack][layer]) ? 0 : mean_current_map[stack][layer]);
+                        plotter.hist_lumi->SetBinContent(luminosity_index, stack * 6 + layer + 1,
+                                                         (!mean_hv_map[stack][layer]) ? 0 : mean_current_map[stack][layer]);
                         counter++;
                     }
                 }
@@ -125,11 +127,13 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
             }
         }
         overall_mean_current /= (mean_n != 0) ? mean_n : 30;
-        hists.Draw(overall_mean_current, luminosity_index, mean_current_map, mean_hv_map, mean_offset_map);
-        hists.Write();
+        plotter.Draw(overall_mean_current, luminosity_index, mean_current_map, mean_hv_map, mean_offset_map);
+        plotter.FitUpdate(luminosity_index, mean_current_map, mean_std_current_map, mean_hv_map);
+        plotter.Write();
         file.close();
     }
-    hists.WriteLumi(((std::string)time_stamp.AsString()).substr(5, 11));
+    //plotter.FitDraw();
+    plotter.WriteLumi(((std::string)time_stamp.AsString()).substr(5, 11));
 }
 
 int main(int argc, char const *argv[])

@@ -1,6 +1,6 @@
 # Find ROOT package
 set(ROOT_DIR "${ROOTSYS}/cmake/")
-find_package(ROOT 6.22 CONFIG)
+find_package(ROOT 6.20 CONFIG)
 if(ROOT_FOUND)
     message(STATUS "Found ROOT: ${ROOT_VERSION} at ${ROOT_DIR}")
     message(STATUS "\t\tOriginal flags: ${ROOT_CXX_FLAGS}")

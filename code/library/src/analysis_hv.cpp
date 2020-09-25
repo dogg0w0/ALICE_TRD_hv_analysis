@@ -63,5 +63,5 @@ std::pair<Double_t, Double_t> analysis_hv::Loop()
         delete c0;
     Double_t mean = analysis::mean(&hv_v);
     Double_t mean_std = analysis::mean_std(&hv_v, mean);
-    return std::pair<Double_t, Double_t>();
+    return std::pair<Double_t, Double_t>(mean, mean_std);
 }

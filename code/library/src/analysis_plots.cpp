@@ -1,27 +1,28 @@
-#include "analysis_hist.hpp"
+#include "analysis_plots.hpp"
 
-histogramms::histogramms(Int_t sector_n)
+plots::plots(Int_t sector_n)
 {
     sector = sector_n;
-    histogramms::ChannelNames();
-    histogramms::Canvas();
-    histogramms::HistSector();
-    histogramms::HistPerc();
-    histogramms::HistOffset();
+    plots::ChannelNames();
+    plots::Canvas();
+    plots::HistSector();
+    plots::HistPerc();
+    plots::HistOffset();
 }
 
-histogramms::histogramms(Int_t sector_n, std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points)
+plots::plots(Int_t sector_n, std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points)
 {
     sector = sector_n;
-    histogramms::ChannelNames();
-    histogramms::Canvas();
-    histogramms::HistSector();
-    histogramms::HistLumi(luminosity_labels, luminosity_points);
-    histogramms::HistPerc();
-    histogramms::HistOffset();
+    plots::ChannelNames();
+    plots::Canvas();
+    plots::HistSector();
+    plots::HistLumi(luminosity_labels, luminosity_points);
+    plots::HistPerc();
+    plots::HistOffset();
+    plots::FitInit(luminosity_labels);
 }
 
-histogramms::~histogramms()
+plots::~plots()
 {
     if (canvas)
         delete canvas;
@@ -35,11 +36,13 @@ histogramms::~histogramms()
         delete hist_offset;
     if (gr_lumi_fit)
         delete gr_lumi_fit;
+    //if (gr_lumi_fit_single)
+    //    delete[] gr_lumi_fit_single;
 }
 
-void histogramms::Draw(Double_t overall_mean_current, Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
-                       std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map,
-                       std::map<Int_t, std::map<Int_t, Double_t>> &mean_offset_map)
+void plots::Draw(Double_t overall_mean_current, Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
+                 std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map,
+                 std::map<Int_t, std::map<Int_t, Double_t>> &mean_offset_map)
 {
     canvas->SetName(Form("sector_%d_%d", sector, luminosity_index));
     canvas->SetTitle(Form("Sector %d Luminosity %d", sector, luminosity_index));
@@ -82,7 +85,7 @@ void histogramms::Draw(Double_t overall_mean_current, Int_t luminosity_index, st
     mean_current_all_chambers.push_back(average_all_chambers);
 }
 
-void histogramms::Canvas()
+void plots::Canvas()
 {
     canvas = new TCanvas(Form("sector_%d", sector), Form("Sector %d", sector), 10, 10, 1800, 600);
     canvas->Divide(3, 1);
@@ -96,7 +99,7 @@ void histogramms::Canvas()
     canvas->GetPad(3)->SetGrid();
 }
 
-void histogramms::HistSector()
+void plots::HistSector()
 {
     hist_sector = new TH2D(Form("sector_%d_hist", sector), Form("Mean Anode Current in Sector %d", sector), 5, 0, 5, 6, 0, 6);
     hist_sector->GetXaxis()->SetTitle("Stack");
@@ -114,7 +117,7 @@ void histogramms::HistSector()
     hist_sector->SetStats(0);
 }
 
-void histogramms::HistLumi(std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points)
+void plots::HistLumi(std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points)
 {
     hist_lumi = new TH2D(Form("sector_%d_hist_lumi", sector), "Anode Current during high luminosity", luminosity_labels.size(), 0, luminosity_labels.size(), 30, 0, 30);
     for (Int_t luminosity = 0; luminosity < (Int_t)luminosity_labels.size(); luminosity++)
@@ -135,7 +138,7 @@ void histogramms::HistLumi(std::vector<std::string> &luminosity_labels, std::vec
     }
 }
 
-void histogramms::HistPerc()
+void plots::HistPerc()
 {
     hist_perc = new TH2D(Form("sector_%d_hist_perc", sector), "", 5, 0, 5, 6, 0, 6);
     hist_perc->GetXaxis()->SetTitle("Stack");
@@ -153,7 +156,7 @@ void histogramms::HistPerc()
     hist_perc->SetStats(0);
 }
 
-void histogramms::HistOffset()
+void plots::HistOffset()
 {
     hist_offset = new TH2D(Form("sector_%d_hist_offset", sector), "Offset [#muA]", 5, 0, 5, 6, 0, 6);
     hist_offset->GetXaxis()->SetTitle("Stack");
@@ -170,7 +173,7 @@ void histogramms::HistOffset()
     hist_offset->SetStats(0);
 }
 
-void histogramms::Write()
+void plots::Write()
 {
     std::cout << "Writing results into file:\t" << Form("sm_%d.root", sector) << std::endl;
     TFile *out = new TFile(Form("sm_%d.root", sector), "UPDATE");
@@ -188,7 +191,7 @@ void histogramms::Write()
     out->Close();
 }
 
-void histogramms::WriteLumi(std::string time_stamp)
+void plots::WriteLumi(std::string time_stamp)
 {
     TFile *out = new TFile(Form("sm_%d.root", sector), "UPDATE");
     TDirectory *plots = (gDirectory->FindObjectAny("plots")) ? (TDirectory *)gDirectory->FindObjectAny("plots") : out->mkdir("plots");
@@ -242,7 +245,7 @@ void histogramms::WriteLumi(std::string time_stamp)
     delete c0;
 }
 
-void histogramms::ChannelNames()
+void plots::ChannelNames()
 {
     for (Int_t stack = 0; stack < 5; stack++)
     {
@@ -251,4 +254,90 @@ void histogramms::ChannelNames()
             channel_labels.push_back(Form("%02d_%d_%d", sector, stack, layer));
         }
     }
+}
+
+void plots::FitInit(std::vector<std::string> &luminosity_labels)
+{
+    for (Int_t stack = 0; stack < 5; stack++)
+    {
+        for (Int_t layer = 0; layer < 6; layer++)
+        {
+            gr_lumi_fit_single[layer + stack * 6] = TGraphErrors(luminosity_labels.size() + 1);
+            gr_lumi_fit_single[layer + stack * 6].SetTitle(Form("%02d_%d_%d Fit Current", sector, stack, layer));
+            gr_lumi_fit_single[layer + stack * 6].SetName(Form("%02d_%d_%d_fit", sector, stack, layer));
+            gr_lumi_fit_single[layer + stack * 6].GetXaxis()->SetTitle("Luminosity [Hz/#mub]");
+            gr_lumi_fit_single[layer + stack * 6].GetYaxis()->SetTitle("Current [#muA]");
+            gr_lumi_fit_single[layer + stack * 6].SetPoint(0, 0.0, 0.0);
+            gr_lumi_fit_single[layer + stack * 6].SetPointError(0, 0.0, 0.0);
+        }
+    }
+}
+
+void plots::FitUpdate(Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
+                      std::map<Int_t, std::map<Int_t, Double_t>> &mean_std_current_map,
+                      std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map)
+{
+    for (Int_t stack = 0; stack < 5; stack++)
+    {
+        for (Int_t layer = 0; layer < 6; layer++)
+        {
+            if (mean_hv_map[stack][layer])
+            {
+                gr_lumi_fit_single[layer + stack * 6].SetPoint(luminosity_index, luminosities[luminosity_index], mean_current_map[stack][layer]);
+                gr_lumi_fit_single[layer + stack * 6].SetPointError(luminosity_index, 0.0, mean_std_current_map[stack][layer]);
+            }
+            else
+            {
+                gr_lumi_fit_single[layer + stack * 6].SetPoint(luminosity_index, luminosities[luminosity_index], 0.0);
+                gr_lumi_fit_single[layer + stack * 6].SetPointError(luminosity_index, 0.0, 0.0);
+            }
+        }
+    }
+}
+
+void plots::FitDraw()
+{
+    TFile *out = new TFile(Form("sm_%d.root", sector), "UPDATE");
+    TDirectory *fits = (gDirectory->FindObjectAny("fits")) ? (TDirectory *)gDirectory->FindObjectAny("fits") : out->mkdir("fits");
+    fits->cd();
+
+    TLatex *tex = new TLatex();
+    tex->SetNDC(kTRUE);
+    tex->SetTextSize(0.035);
+    tex->SetTextColor(kBlack);
+
+    char buffer_a[100],
+        buffer_b[100],
+        buffer_Chi[100];
+    for (Int_t stack = 0; stack < 5; stack++)
+    {
+        for (Int_t layer = 0; layer < 6; layer++)
+        {
+            gr_lumi_fit_single[layer + stack * 6].Fit("pol1");
+            TF1 *fit = gr_lumi_fit_single[layer + stack * 6].GetFunction("pol1");
+            TCanvas *c0 = new TCanvas(Form("sector_lumi_%d", sector), Form("Sector %d", sector), 10, 10, 800, 600);
+            c0->SetLeftMargin(0.15);
+            c0->SetBottomMargin(0.15);
+            c0->GetPad(1)->SetRightMargin(0.12);
+            c0->GetPad(1)->SetLeftMargin(0.12);
+            c0->GetPad(1)->SetGrid();
+            gr_lumi_fit_single[layer + stack * 6].Draw("AP");
+
+            // Fit Results
+            tex->DrawLatex(0.18, 0.75, "Pol1 Fit f(x) = a + b*x");
+            std::sprintf(buffer_a, "a = %.3f #pm %.3f", fit->GetParameter(0), fit->GetParError(0));
+            std::sprintf(buffer_b, "b = %.3f #pm %.3f", fit->GetParameter(1), fit->GetParError(1));
+            std::sprintf(buffer_Chi, "#chi^{2}_{red} = %.2f", fit->GetChisquare() / fit->GetNDF());
+            tex->DrawLatex(0.20, 0.70, buffer_a);
+            tex->DrawLatex(0.20, 0.65, buffer_b);
+            tex->DrawLatex(0.20, 0.60, buffer_Chi);
+            c0->Write();
+            delete c0;
+
+            // here Histogramm for slope and offset
+        }
+    }
+    out->Write();
+    out->Close();
+    delete tex;
 }

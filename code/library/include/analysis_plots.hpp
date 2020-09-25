@@ -1,5 +1,5 @@
-#ifndef ANALYSIS_HIST_H
-#define ANALYSIS_HIST_H
+#ifndef ANALYSIS_PLOTS_H
+#define ANALYSIS_PLOTS_H
 
 #include <TROOT.h>
 #include <TStyle.h>
@@ -15,7 +15,7 @@
 #include <iostream>
 #include <vector>
 
-class histogramms
+class plots
 {
 public:
     TCanvas *canvas;
@@ -24,6 +24,7 @@ public:
     TH2D *hist_lumi;
     TH2D *hist_offset;
     TGraphErrors *gr_lumi_fit;
+    TGraphErrors gr_lumi_fit_single[30];
     Int_t sector;
     std::vector<std::string> channel_labels;
     std::vector<Double_t> luminosities = {0.0};
@@ -31,9 +32,9 @@ public:
     std::vector<Double_t> mean_current_all_chambers_err = {0.0};
     //std::vector<std::string> luminosity_labels;
 
-    histogramms(Int_t sector_n);
-    histogramms(Int_t sector_n, std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points);
-    ~histogramms();
+    plots(Int_t sector_n);
+    plots(Int_t sector_n, std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points);
+    ~plots();
     void Draw(Double_t overall_mean_current, Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
               std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_offset_map);
     void Canvas();
@@ -44,6 +45,10 @@ public:
     void Write();
     void WriteLumi(std::string time_stamp);
     void ChannelNames();
+    void FitInit(std::vector<std::string> &luminosity_labels);
+    void FitUpdate(Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_std_current_map,
+                   std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map);
+    void FitDraw();
 };
 
 #endif
