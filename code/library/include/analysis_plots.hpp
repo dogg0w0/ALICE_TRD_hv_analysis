@@ -50,6 +50,7 @@ public:
     void FitUpdate(Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_std_current_map,
                    std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map);
     void FitDraw();
+    void FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t> &fit_b_v);
 };
 
 #endif

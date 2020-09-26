@@ -345,15 +345,32 @@ void plots::FitDraw()
             delete c0;
         }
     }
+
+    out->Write();
+    out->Close();
+
+    delete tex;
+    plots::FitSlopeOffset(fit_a_v, fit_b_v);
+}
+
+void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t> &fit_b_v)
+{
+    TFile *out = new TFile(Form("sm_%d.root", sector), "UPDATE");
+    TDirectory *fits = (gDirectory->FindObjectAny("fits")) ? (TDirectory *)gDirectory->FindObjectAny("fits") : out->mkdir("fits");
+    fits->cd();
+
     std::sort(fit_a_v.begin(), fit_a_v.end());
     std::sort(fit_b_v.begin(), fit_b_v.end());
 
-    TCanvas *c0 = new TCanvas(Form("sector_lumi_fit_%d", sector), Form("Sector %02d", sector), 10, 10, 800, 600);
-    c0->Divide(2, 1);
-    // Histogramms for slope and offset distribution, bins with sturge's rule
-    Int_t nbins = TMath::Nint(1 + TMath::Log2(30 - n_not_working_chambers));
+    // Histogramms for slope and offset distribution, bins with Sturge's rule
+    Int_t nbins = TMath::Nint(3 + TMath::Log2(30 - n_not_working_chambers));
     TH1D *h_a = new TH1D("h_a", "Distribution of Offset", nbins, fit_a_v[n_not_working_chambers], fit_a_v.back());
     TH1D *h_b = new TH1D("h_b", "Distribution of Slope", nbins, fit_b_v[n_not_working_chambers], fit_b_v.back());
+
+    h_a->GetXaxis()->SetTitle("a");
+    h_a->GetYaxis()->SetTitle("entries");
+    h_b->GetXaxis()->SetTitle("b");
+    h_b->GetYaxis()->SetTitle("entries");
 
     for (Int_t i = n_not_working_chambers; i < fit_a_v.size(); i++)
     {
@@ -363,25 +380,38 @@ void plots::FitDraw()
     // Fit
     h_b->Fit("gaus", "WW");
     h_b->SetStats(0);
-    TF1* fgauss = h_b->GetFunction("gaus");
+
+    TCanvas *c1 = new TCanvas(Form("sector_lumi_fit_%d", sector), Form("Sector %02d", sector), 10, 10, 800, 600);
+    c1->Divide(2, 1);
+    c1->cd(1);
+    h_a->Draw("");
+
+    c1->cd(2);
+    h_b->Draw("");
+
+    // Fit Results
+    TLatex *tex = new TLatex();
+    tex->SetNDC(kTRUE);
+    tex->SetTextSize(0.035);
+    tex->SetTextColor(kBlack);
+    TF1 *fgauss = h_b->GetFunction("gaus");
     tex->DrawLatex(0.65, 0.85, "Gauss Fit");
-    char buffer_M[100],
-        buffer_S[100];
-    sprintf(buffer_M, "M_{Z} = %.3f #pm %.3f", fgauss->GetParameter(1), fgauss->GetParError(1));
+    char buffer_mu[100],
+        buffer_S[100],
+        buffer_Chi[100];
+    sprintf(buffer_mu, "#mu = %.3f #pm %.3f", fgauss->GetParameter(1), fgauss->GetParError(1));
     sprintf(buffer_S, "#sigma = %.3f #pm %.3f", fgauss->GetParameter(2), fgauss->GetParError(2));
     sprintf(buffer_Chi, "#chi^{2}_{red} = %.1f", fgauss->GetChisquare() / fgauss->GetNDF());
-    tex->DrawLatex(0.65, 0.80, buffer_M);
+    tex->DrawLatex(0.65, 0.80, buffer_mu);
     tex->DrawLatex(0.65, 0.75, buffer_S);
     tex->DrawLatex(0.65, 0.70, buffer_Chi);
 
-    c0->cd(1);
-    h_a->Draw("");
-    c0->cd(2);
-    h_b->Draw("");
-    c0->Write();
+    c1->Write();
     out->Write();
     out->Close();
 
-    delete tex;
-    delete c0;
+    if (tex)
+        delete tex;
+    if (c1)
+        delete c1;
 }
