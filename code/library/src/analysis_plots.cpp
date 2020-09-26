@@ -395,16 +395,16 @@ void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t>
     tex->SetTextSize(0.035);
     tex->SetTextColor(kBlack);
     TF1 *fgauss = h_b->GetFunction("gaus");
-    tex->DrawLatex(0.65, 0.85, "Gauss Fit");
+    tex->DrawLatex(0.60, 0.85, "Gauss Fit");
     char buffer_mu[100],
         buffer_S[100],
         buffer_Chi[100];
     sprintf(buffer_mu, "#mu = %.3f #pm %.3f", fgauss->GetParameter(1), fgauss->GetParError(1));
     sprintf(buffer_S, "#sigma = %.3f #pm %.3f", fgauss->GetParameter(2), fgauss->GetParError(2));
     sprintf(buffer_Chi, "#chi^{2}_{red} = %.1f", fgauss->GetChisquare() / fgauss->GetNDF());
-    tex->DrawLatex(0.65, 0.80, buffer_mu);
-    tex->DrawLatex(0.65, 0.75, buffer_S);
-    tex->DrawLatex(0.65, 0.70, buffer_Chi);
+    tex->DrawLatex(0.60, 0.80, buffer_mu);
+    tex->DrawLatex(0.60, 0.75, buffer_S);
+    tex->DrawLatex(0.60, 0.70, buffer_Chi);
 
     c1->Write();
     out->Write();
