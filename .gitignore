@@ -1,5 +1,6 @@
 *.root
 *.csv
+*.cvs
 output_plots/
 website/
 */build/
