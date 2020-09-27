@@ -3,7 +3,7 @@
 pathTOsorted="/home/doggo/Downloads/ALICE_TRD/hv_ALICE_Data/"
 
 declare -a listTOFfiles=("tof_t0/HighLumiTest_3Sep2018.csv" "tof_t0/HighLumiTest_7Sep2018_Fill_7133_Ramp.csv" "tof_t0/HighLumiTest_7Sep2018_Fill_7135.csv")
-declare -a listT0files=("tof_t0/Fill1722_InstLumi.cvs" "tof_t0/Fill1733_InstLumi.cvs" "tof_t0/Fill1735_InstLumi.cvs")
+declare -a listT0files=("tof_t0/Fill1722_InstLumi.csv" "tof_t0/Fill1733_InstLumi.csv" "tof_t0/Fill1735_InstLumi.csv")
 declare -a listStartTimes=("1535963411" "1536326026" "1536350231")
 declare -a listEndTimes=("1535986886" "1536329471" "1536359296")
 
