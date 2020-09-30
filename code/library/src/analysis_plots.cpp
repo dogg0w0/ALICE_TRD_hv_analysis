@@ -363,9 +363,12 @@ void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t>
     std::sort(fit_b_v.begin(), fit_b_v.end());
 
     // Histogramms for slope and offset distribution, bins with Sturge's rule
-    Int_t nbins = TMath::Nint(3 + TMath::Log2(30 - n_not_working_chambers));
-    TH1D *h_a = new TH1D("h_a", "Distribution of Offset", nbins, fit_a_v[n_not_working_chambers], fit_a_v.back());
-    TH1D *h_b = new TH1D("h_b", "Distribution of Slope", nbins, fit_b_v[n_not_working_chambers], fit_b_v.back());
+    //Int_t nbins = TMath::Nint(3 + TMath::Log2(30 - n_not_working_chambers));
+    //TH1D *h_a = new TH1D("h_a", "Distribution of Offset", nbins, fit_a_v[n_not_working_chambers], fit_a_v.back());
+    //TH1D *h_b = new TH1D("h_b", "Distribution of Slope", nbins, fit_b_v[n_not_working_chambers], fit_b_v.back());
+    Int_t nbins = 30;
+    TH1D *h_a = new TH1D("h_a", "Distribution of Offset", nbins, 0, 0.1);
+    TH1D *h_b = new TH1D("h_b", "Distribution of Slope", nbins, 0, 0.15);
 
     h_a->GetXaxis()->SetTitle("a");
     h_a->GetYaxis()->SetTitle("entries");
@@ -378,7 +381,7 @@ void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t>
         h_b->Fill(fit_b_v[i]);
     }
     // Fit
-    h_b->Fit("gaus", "WW");
+    h_b->Fit("gaus", "WW", "", 0.04, 0.15);
     h_b->SetStats(0);
 
     TCanvas *c1 = new TCanvas(Form("sector_lumi_fit_%d", sector), Form("Sector %02d", sector), 10, 10, 800, 600);

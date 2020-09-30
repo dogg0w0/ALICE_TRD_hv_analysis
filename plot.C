@@ -1,14 +1,14 @@
-#define analysis_sorted2_cxx
-#include "analysis_sorted2.h"
+#define plot_cxx
+#include "plot.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 
-void analysis_sorted2::Loop()
+void plot::Loop()
 {
    //   In a ROOT session, you can do:
-   //      root> .L analysis_sorted2.C
-   //      root> analysis_sorted2 t
+   //      root> .L plot.C
+   //      root> plot t
    //      root> t.GetEntry(12); // Fill t data members with entry number 12
    //      root> t.Show();       // Show values of entry 12
    //      root> t.Show(16);     // Read and show values of entry 16
@@ -33,12 +33,12 @@ void analysis_sorted2::Loop()
       return;
 
    Long64_t nentries = fChain->GetEntriesFast();
-   //TFile *myfile = new TFile("output.root", "UPDATE");
-   TGraph *g = new TGraph();
-   TTimeStamp *ttime = new TTimeStamp();
-   TCanvas *c0 = new TCanvas("c0", "Kanal 06_0_0A", 10, 10, 1000, 1000);
-   c0->cd();
+   TMultiGraph *grs = new TMultiGraph();
+   TGraph *g1 = new TGraph();
+   TGraph *g2 = new TGraph();
+   TGraph *g3 = new TGraph();
    Long64_t gentry = 0;
+   TTimeStamp *ttime = new TTimeStamp();
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry = 0; jentry < nentries; jentry++)
    {
@@ -48,34 +48,31 @@ void analysis_sorted2::Loop()
       nb = fChain->GetEntry(jentry);
       nbytes += nb;
       // if (Cut(ientry) < 0) continue;
-      if (HV < 0)
-         continue;
-      //if (fSec < 1504399786 || fSec > 1504401590)
-      if (fSec < 1536192000)
-      {
-         continue;
-      }
-      if (fSec > 1536537600)
-         break;
       ttime->SetSec(fSec);
       ttime->SetNanoSec(fNanoSec);
-      g->SetPoint(gentry, ttime->AsDouble(), HV);
+      g1->SetPoint(gentry, ttime->AsDouble(), current);
+      g2->SetPoint(gentry, ttime->AsDouble(), T0_Luminosity);
+      g3->SetPoint(gentry, ttime->AsDouble(), Luminosity);
       gentry++;
    }
-   g->Draw();
-   g->SetTitle("Kanal 06_0_0A");
-   //g->GetXaxis()->SetRangeUser(1.5184e9, 1.5444e9);
-   g->GetXaxis()->SetTimeOffset(0, "gmt");
-   g->GetXaxis()->SetTimeDisplay(1);
-   g->GetXaxis()->SetLabelOffset(0.02);
-   g->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M\:%S}}");
-   g->GetXaxis()->SetTitle("Time");
-   g->GetYaxis()->SetTitle("Current [#muA]");
-   g->SetMarkerStyle(8);
-   g->SetMarkerSize(0.5);
-   g->SetMarkerColorAlpha(kRed, 0.35);
-   g->Draw("AP");
-   c0->Draw();
-   //c0->Write();
-   //myfile->Close();
+   g1->SetMarkerStyle(8);
+   g1->SetMarkerSize(1);
+   g1->SetMarkerColorAlpha(kRed, 1);
+   g2->SetMarkerStyle(20);
+   g2->SetMarkerSize(0.5);
+   g2->SetMarkerColorAlpha(kBlue, 0.4);
+   g3->SetMarkerStyle(7);
+   g3->SetMarkerSize(0.5);
+   g3->SetMarkerColorAlpha(kGreen, 0.35);
+   grs->Add(g1);
+   grs->Add(g2);
+   grs->Add(g3);
+   grs->SetTitle("CHANNEL_NAME");
+   grs->GetXaxis()->SetTimeOffset(0, "gmt");
+   grs->GetXaxis()->SetTimeDisplay(1);
+   grs->GetXaxis()->SetLabelOffset(0.02);
+   grs->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M\:%S}}");
+   grs->GetXaxis()->SetTitle("Time");
+   grs->GetYaxis()->SetTitle("HV [V]");
+   grs->Draw("AP");
 }

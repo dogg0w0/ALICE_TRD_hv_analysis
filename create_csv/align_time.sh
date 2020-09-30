@@ -26,8 +26,7 @@ for tofFileindex in "${!listTOFfiles[@]}"
 do
     python code/match_lumi.py ${listTOFfiles[tofFileindex]} ${listT0files[tofFileindex]} temp/tof_t0/tof_t0_${tofFileindex}.csv
     mkdir -p output/date_${tofFileindex}
-    #for index in {1..2160..2}
-    for index in {1..4..2}
+    for index in {1..2160..2}
     do
         echo "$((${index} + 1))"
         ./code/makecsv "${pathTOsorted}/sorted_${index}.csv.root" temp/sortedcsv/sorted_${index}.csv ${listStartTimes[tofFileindex]} ${listEndTimes[tofFileindex]}
