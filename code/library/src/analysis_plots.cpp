@@ -360,8 +360,8 @@ void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t>
     TDirectory *fits = (gDirectory->FindObjectAny("fits")) ? (TDirectory *)gDirectory->FindObjectAny("fits") : out->mkdir("fits");
     fits->cd();
 
-    std::sort(fit_a_v.begin(), fit_a_v.end());
-    std::sort(fit_b_v.begin(), fit_b_v.end());
+    //std::sort(fit_a_v.begin(), fit_a_v.end());
+    //std::sort(fit_b_v.begin(), fit_b_v.end());
 
     // Histogramms for slope and offset distribution, bins with Sturge's rule
     //Int_t nbins = TMath::Nint(3 + TMath::Log2(30 - n_not_working_chambers));
@@ -420,8 +420,6 @@ void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t>
     tex->DrawLatex(0.60, 0.75, buffer_S);
     tex->DrawLatex(0.60, 0.70, buffer_Chi);
 
-    h_b_0->Write();
-    h_b_4->Write();
     c1->Write();
     out->Write();
     out->Close();
