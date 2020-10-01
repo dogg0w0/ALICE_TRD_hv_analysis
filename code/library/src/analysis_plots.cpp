@@ -13,6 +13,7 @@ plots::plots(Int_t sector_n)
 plots::plots(Int_t sector_n, std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points)
 {
     sector = sector_n;
+    plots::ChamberWeightsInit();
     plots::ChannelNames();
     plots::Canvas();
     plots::HistSector();
@@ -370,15 +371,25 @@ void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t>
     TH1D *h_a = new TH1D("h_a", "Distribution of Offset", nbins, 0, 0.1);
     TH1D *h_b = new TH1D("h_b", "Distribution of Slope", nbins, 0, 0.15);
 
+    TH1D *h_b_0 = new TH1D("h_b_0", "Distribution of Slope 0", nbins, 0, 0.15);
+    TH1D *h_b_4 = new TH1D("h_b_4", "Distribution of Slope 4", nbins, 0, 0.15);
+
+    for (Int_t i = 0; i < 6; i++)
+    {
+        h_b_0->Fill(fit_b_v[i], chambers_weights[i]);
+        h_b_4->Fill(fit_b_v[i + 4 * 6], chambers_weights[i + 4 * 6]);
+    }
+
     h_a->GetXaxis()->SetTitle("a");
     h_a->GetYaxis()->SetTitle("entries");
     h_b->GetXaxis()->SetTitle("b");
     h_b->GetYaxis()->SetTitle("entries");
 
-    for (Int_t i = n_not_working_chambers; i < fit_a_v.size(); i++)
+    //for (Int_t i = n_not_working_chambers; i < fit_a_v.size(); i++)
+    for (Int_t i = 0; i < 30; i++)
     {
-        h_a->Fill(fit_a_v[i]);
-        h_b->Fill(fit_b_v[i]);
+        h_a->Fill(fit_a_v[i], chambers_weights[i]);
+        h_b->Fill(fit_b_v[i], chambers_weights[i]);
     }
     // Fit
     h_b->Fit("gaus", "WW", "", 0.04, 0.15);
@@ -409,6 +420,8 @@ void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t>
     tex->DrawLatex(0.60, 0.75, buffer_S);
     tex->DrawLatex(0.60, 0.70, buffer_Chi);
 
+    h_b_0->Write();
+    h_b_4->Write();
     c1->Write();
     out->Write();
     out->Close();
@@ -417,4 +430,46 @@ void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t>
         delete tex;
     if (c1)
         delete c1;
+}
+
+void plots::ChamberWeightsInit()
+{
+    Double_t norm = 1430 * 1430;
+    std::vector<Double_t> area = {
+        1200 * 1200,
+        1200 * 1200,
+        1270 * 1270,
+        1340 * 1340,
+        1410 * 1410,
+        1430 * 1430, // Stack 0
+        1200 * 1200,
+        1200 * 1200,
+        1270 * 1270,
+        1340 * 1340,
+        1410 * 1410,
+        1430 * 1430, // Stack 1
+        1060 * 1060,
+        1060 * 1060,
+        1060 * 1060,
+        1060 * 1060,
+        1060 * 1060,
+        1060 * 1060, // Stack 2
+        1200 * 1200,
+        1200 * 1200,
+        1270 * 1270,
+        1340 * 1340,
+        1410 * 1410,
+        1430 * 1430, // Stack 3
+        1200 * 1200,
+        1200 * 1200,
+        1270 * 1270,
+        1340 * 1340,
+        1410 * 1410,
+        1430 * 1430, // Stack 4
+    };
+
+    for (Int_t i = 0; i < 30; i++)
+    {
+        chambers_weights.push_back(area[i] / norm);
+    }
 }

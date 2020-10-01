@@ -31,6 +31,7 @@ public:
     std::vector<Double_t> luminosities = {0.0};
     std::vector<Double_t> mean_current_all_chambers = {0.0};
     std::vector<Double_t> mean_current_all_chambers_err = {0.0};
+    std::vector<Double_t> chambers_weights;
     //std::vector<std::string> luminosity_labels;
 
     plots(Int_t sector_n);
@@ -46,6 +47,7 @@ public:
     void Write();
     void WriteLumi(std::string time_stamp);
     void ChannelNames();
+    void ChamberWeightsInit();
     void FitInit(std::vector<std::string> &luminosity_labels);
     void FitUpdate(Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_std_current_map,
                    std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map);

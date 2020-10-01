@@ -1,5 +1,6 @@
 {
-    gStyle->SetOptFit(1011);
+    gStyle->SetOptFit(0);
+    gStyle->SetOptStat(0);
     std::vector<TString> root_File_Names;
     for (int i = 0; i < 18; i++)
     {
