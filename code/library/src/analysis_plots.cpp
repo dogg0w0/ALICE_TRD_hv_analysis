@@ -372,11 +372,17 @@ void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t>
     TH1D *h_b = new TH1D("h_b", "Distribution of Slope", nbins, 0, 0.15);
 
     TH1D *h_b_0 = new TH1D("h_b_0", "Distribution of Slope 0", nbins, 0, 0.15);
+    TH1D *h_b_1 = new TH1D("h_b_1", "Distribution of Slope 1", nbins, 0, 0.15);
+    TH1D *h_b_2 = new TH1D("h_b_2", "Distribution of Slope 2", nbins, 0, 0.15);
+    TH1D *h_b_3 = new TH1D("h_b_3", "Distribution of Slope 3", nbins, 0, 0.15);
     TH1D *h_b_4 = new TH1D("h_b_4", "Distribution of Slope 4", nbins, 0, 0.15);
 
     for (Int_t i = 0; i < 6; i++)
     {
         h_b_0->Fill(fit_b_v[i], chambers_weights[i]);
+        h_b_1->Fill(fit_b_v[i + 1 * 6], chambers_weights[i + 1 * 6]);
+        h_b_2->Fill(fit_b_v[i + 2 * 6], chambers_weights[i + 2 * 6]);
+        h_b_3->Fill(fit_b_v[i + 3 * 6], chambers_weights[i + 3 * 6]);
         h_b_4->Fill(fit_b_v[i + 4 * 6], chambers_weights[i + 4 * 6]);
     }
 
