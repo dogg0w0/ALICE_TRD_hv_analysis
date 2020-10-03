@@ -1,6 +1,6 @@
 #include "analysis_plots.hpp"
 
-plots::plots(Int_t sector_n)
+plots::plots(const Int_t sector_n)
 {
     sector = sector_n;
     plots::ChannelNames();
@@ -10,7 +10,7 @@ plots::plots(Int_t sector_n)
     plots::HistOffset();
 }
 
-plots::plots(Int_t sector_n, std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points)
+plots::plots(const Int_t sector_n, const std::vector<std::string> &luminosity_labels, const std::vector<Double_t> &luminosity_points)
 {
     sector = sector_n;
     plots::ChamberWeightsInit();
@@ -120,7 +120,7 @@ void plots::HistSector()
     hist_sector->SetStats(0);
 }
 
-void plots::HistLumi(std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points)
+void plots::HistLumi(const std::vector<std::string> &luminosity_labels, const std::vector<Double_t> &luminosity_points)
 {
     hist_lumi = new TH2D(Form("sector_%d_hist_lumi", sector), "Anode Current during high luminosity", luminosity_labels.size(), 0, luminosity_labels.size(), 30, 0, 30);
     for (Int_t luminosity = 0; luminosity < (Int_t)luminosity_labels.size(); luminosity++)
@@ -179,7 +179,7 @@ void plots::HistOffset()
 void plots::Write()
 {
     std::cout << "Writing results into file:\t" << Form("sm_%d.root", sector) << std::endl;
-    TFile *out = new TFile(Form("sm_%d.root", sector), "UPDATE");
+    auto out = new TFile(Form("sm_%d.root", sector), "UPDATE");
     TDirectory *plots = (gDirectory->FindObjectAny("plots")) ? (TDirectory *)gDirectory->FindObjectAny("plots") : out->mkdir("plots");
     plots->cd();
     gStyle->SetPaintTextFormat(".2f");
@@ -194,9 +194,9 @@ void plots::Write()
     out->Close();
 }
 
-void plots::WriteLumi(std::string time_stamp)
+void plots::WriteLumi(const std::string time_stamp)
 {
-    TFile *out = new TFile(Form("sm_%d.root", sector), "UPDATE");
+    auto out = new TFile(Form("sm_%d.root", sector), "UPDATE");
     TDirectory *plots = (gDirectory->FindObjectAny("plots")) ? (TDirectory *)gDirectory->FindObjectAny("plots") : out->mkdir("plots");
     plots->cd();
 
@@ -215,7 +215,7 @@ void plots::WriteLumi(std::string time_stamp)
     gr_lumi_fit->Fit("pol1");
     TF1 *fit = gr_lumi_fit->GetFunction("pol1");
     hist_lumi->SetTitle(("Anode Current during HL @ " + time_stamp).c_str());
-    TCanvas *c0 = new TCanvas(Form("sector_lumi_%d", sector), Form("Sector %d", sector), 10, 10, 800, 600);
+    auto c0 = new TCanvas(Form("sector_lumi_%d", sector), Form("Sector %d", sector), 10, 10, 800, 600);
     c0->SetLeftMargin(0.15);
     c0->SetBottomMargin(0.15);
     c0->Divide(2, 1);
@@ -259,7 +259,7 @@ void plots::ChannelNames()
     }
 }
 
-void plots::FitInit(std::vector<std::string> &luminosity_labels)
+void plots::FitInit(const std::vector<std::string> &luminosity_labels)
 {
     for (Int_t stack = 0; stack < 5; stack++)
     {
@@ -276,7 +276,7 @@ void plots::FitInit(std::vector<std::string> &luminosity_labels)
     }
 }
 
-void plots::FitUpdate(Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
+void plots::FitUpdate(const Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
                       std::map<Int_t, std::map<Int_t, Double_t>> &mean_std_current_map,
                       std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map)
 {
@@ -302,7 +302,7 @@ void plots::FitUpdate(Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Do
 
 void plots::FitDraw()
 {
-    TFile *out = new TFile(Form("sm_%d.root", sector), "UPDATE");
+    auto out = new TFile(Form("sm_%d.root", sector), "UPDATE");
     TDirectory *fits = (gDirectory->FindObjectAny("fits")) ? (TDirectory *)gDirectory->FindObjectAny("fits") : out->mkdir("fits");
     fits->cd();
 
@@ -326,7 +326,7 @@ void plots::FitDraw()
             fit_a_v.push_back(fit->GetParameter(0));
             fit_b_v.push_back(fit->GetParameter(1));
 
-            TCanvas *c0 = new TCanvas(Form("sector_lumi_fit_%02d_%d_%d", sector, stack, layer), Form("Sector %02d_%d_%d", sector, stack, layer), 10, 10, 800, 600);
+            auto c0 = new TCanvas(Form("sector_lumi_fit_%02d_%d_%d", sector, stack, layer), Form("Sector %02d_%d_%d", sector, stack, layer), 10, 10, 800, 600);
             c0->SetTopMargin(0.15);
             c0->SetBottomMargin(0.15);
             c0->GetPad(0)->SetRightMargin(0.12);
@@ -354,9 +354,9 @@ void plots::FitDraw()
     plots::FitSlopeOffset(fit_a_v, fit_b_v);
 }
 
-void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t> &fit_b_v)
+void plots::FitSlopeOffset(const std::vector<Double_t> &fit_a_v, const std::vector<Double_t> &fit_b_v)
 {
-    TFile *out = new TFile(Form("sm_%d.root", sector), "UPDATE");
+    auto out = new TFile(Form("sm_%d.root", sector), "UPDATE");
     TDirectory *fits = (gDirectory->FindObjectAny("fits")) ? (TDirectory *)gDirectory->FindObjectAny("fits") : out->mkdir("fits");
     fits->cd();
 
@@ -365,17 +365,23 @@ void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t>
 
     // Histogramms for slope and offset distribution, bins with Sturge's rule
     //Int_t nbins = TMath::Nint(3 + TMath::Log2(30 - n_not_working_chambers));
-    //TH1D *h_a = new TH1D("h_a", "Distribution of Offset", nbins, fit_a_v[n_not_working_chambers], fit_a_v.back());
-    //TH1D *h_b = new TH1D("h_b", "Distribution of Slope", nbins, fit_b_v[n_not_working_chambers], fit_b_v.back());
+    //auto h_a = new TH1D("h_a", "Distribution of Offset", nbins, fit_a_v[n_not_working_chambers], fit_a_v.back());
+    //auto h_b = new TH1D("h_b", "Distribution of Slope", nbins, fit_b_v[n_not_working_chambers], fit_b_v.back());
     Int_t nbins = 30;
-    TH1D *h_a = new TH1D("h_a", "Distribution of Offset", nbins, 0, 0.1);
-    TH1D *h_b = new TH1D("h_b", "Distribution of Slope", nbins, 0, 0.15);
+    auto h_a = new TH1D("h_a", "Distribution of Offset", nbins, 0, 0.1);
+    auto h_b = new TH1D("h_b", "Distribution of Slope", nbins, 0, 0.15);
 
-    TH1D *h_b_0 = new TH1D("h_b_0", "Distribution of Slope 0", nbins, 0, 0.15);
-    TH1D *h_b_1 = new TH1D("h_b_1", "Distribution of Slope 1", nbins, 0, 0.15);
-    TH1D *h_b_2 = new TH1D("h_b_2", "Distribution of Slope 2", nbins, 0, 0.15);
-    TH1D *h_b_3 = new TH1D("h_b_3", "Distribution of Slope 3", nbins, 0, 0.15);
-    TH1D *h_b_4 = new TH1D("h_b_4", "Distribution of Slope 4", nbins, 0, 0.15);
+    auto h_b_0 = new TH1D("h_b_0", "Distribution of Slope 0", nbins, 0, 0.15);
+    auto h_b_1 = new TH1D("h_b_1", "Distribution of Slope 1", nbins, 0, 0.15);
+    auto h_b_2 = new TH1D("h_b_2", "Distribution of Slope 2", nbins, 0, 0.15);
+    auto h_b_3 = new TH1D("h_b_3", "Distribution of Slope 3", nbins, 0, 0.15);
+    auto h_b_4 = new TH1D("h_b_4", "Distribution of Slope 4", nbins, 0, 0.15);
+
+    auto h_a_0 = new TH1D("h_a_0", "Distribution of Offset 0", nbins, 0, 0.1);
+    auto h_a_1 = new TH1D("h_a_1", "Distribution of Offset 1", nbins, 0, 0.1);
+    auto h_a_2 = new TH1D("h_a_2", "Distribution of Offset 2", nbins, 0, 0.1);
+    auto h_a_3 = new TH1D("h_a_3", "Distribution of Offset 3", nbins, 0, 0.1);
+    auto h_a_4 = new TH1D("h_a_4", "Distribution of Offset 4", nbins, 0, 0.1);
 
     for (Int_t i = 0; i < 6; i++)
     {
@@ -384,6 +390,12 @@ void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t>
         h_b_2->Fill(fit_b_v[i + 2 * 6], chambers_weights[i + 2 * 6]);
         h_b_3->Fill(fit_b_v[i + 3 * 6], chambers_weights[i + 3 * 6]);
         h_b_4->Fill(fit_b_v[i + 4 * 6], chambers_weights[i + 4 * 6]);
+
+        h_a_0->Fill(fit_a_v[i], chambers_weights[i]);
+        h_a_1->Fill(fit_a_v[i + 1 * 6], chambers_weights[i + 1 * 6]);
+        h_a_2->Fill(fit_a_v[i + 2 * 6], chambers_weights[i + 2 * 6]);
+        h_a_3->Fill(fit_a_v[i + 3 * 6], chambers_weights[i + 3 * 6]);
+        h_a_4->Fill(fit_a_v[i + 4 * 6], chambers_weights[i + 4 * 6]);
     }
 
     h_a->GetXaxis()->SetTitle("a");
@@ -401,7 +413,7 @@ void plots::FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t>
     h_b->Fit("gaus", "WW", "", 0.04, 0.15);
     h_b->SetStats(0);
 
-    TCanvas *c1 = new TCanvas(Form("sector_lumi_fit_%d", sector), Form("Sector %02d", sector), 10, 10, 800, 600);
+    auto c1 = new TCanvas(Form("sector_lumi_fit_%d", sector), Form("Sector %02d", sector), 10, 10, 800, 600);
     c1->Divide(2, 1);
     c1->cd(1);
     h_a->Draw("");

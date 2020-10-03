@@ -33,10 +33,10 @@ void analysis_sorted2::Loop()
       return;
 
    Long64_t nentries = fChain->GetEntriesFast();
-   //TFile *myfile = new TFile("output.root", "UPDATE");
-   TGraph *g = new TGraph();
+   //auto myfile = new TFile("output.root", "UPDATE");
+   auto g = new TGraph();
    TTimeStamp *ttime = new TTimeStamp();
-   TCanvas *c0 = new TCanvas("c0", "Kanal 06_0_0A", 10, 10, 1000, 1000);
+   auto c0 = new TCanvas("c0", "Kanal 06_0_0A", 10, 10, 1000, 1000);
    c0->cd();
    Long64_t gentry = 0;
    Long64_t nbytes = 0, nb = 0;

@@ -52,7 +52,7 @@ analysis_sorted2::analysis_sorted2(TTree *tree) : fChain(0)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("sorted_2.csv.root");
+      auto f = (TFile*)gROOT->GetListOfFiles()->FindObject("sorted_2.csv.root");
       if (!f || !f->IsOpen()) {
          f = new TFile("sorted_2.csv.root");
       }

@@ -56,7 +56,7 @@ readroot_csv::readroot_csv(std::string filename, std::string outfile_name)
 {
    outfile = outfile_name;
    TTree *tree = 0;
-   TFile *f = new TFile(filename.c_str(), "READ");
+   auto f = new TFile(filename.c_str(), "READ");
    if (!f || !f->IsOpen())
    {
       std::cerr << "cannot open file:\t" << filename << std::endl;

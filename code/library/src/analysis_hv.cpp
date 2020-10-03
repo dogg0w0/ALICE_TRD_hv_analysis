@@ -3,15 +3,15 @@
 std::pair<Double_t, Double_t> analysis_hv::Loop()
 {
     Long64_t nentries = fChain->GetEntriesFast();
-    TFile *myfile = new TFile(outfile_name.c_str(), "UPDATE");
+    auto myfile = new TFile(outfile_name.c_str(), "UPDATE");
     TDirectory *subdir = (gDirectory->FindObjectAny(Form("luminosity_%d", luminosity_index))) ? (TDirectory *)gDirectory->FindObjectAny(Form("luminosity_%d", luminosity_index)) : myfile->mkdir(Form("luminosity_%d", luminosity_index));
     subdir->cd();
     TTimeStamp ttime(0, 0);
-    TCanvas *c0 = new TCanvas((channel_name + "_" + measurement_type).c_str(),
+    auto c0 = new TCanvas((channel_name + "_" + measurement_type).c_str(),
                               (channel_name + "_" + measurement_type).c_str(),
                               10, 10, 800, 600);
     c0->cd();
-    TGraph *g = new TGraph();
+    auto g = new TGraph();
     Long64_t gentry = 0;
     Long64_t nbytes = 0, nb = 0;
     std::vector<Double_t> hv_v = {};

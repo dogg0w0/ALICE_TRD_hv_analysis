@@ -34,9 +34,9 @@ void plot::Loop()
 
    Long64_t nentries = fChain->GetEntriesFast();
    TMultiGraph *grs = new TMultiGraph();
-   TGraph *g1 = new TGraph();
-   TGraph *g2 = new TGraph();
-   TGraph *g3 = new TGraph();
+   auto g1 = new TGraph();
+   auto g2 = new TGraph();
+   auto g3 = new TGraph();
    Long64_t gentry = 0;
    TTimeStamp *ttime = new TTimeStamp();
    Long64_t nbytes = 0, nb = 0;

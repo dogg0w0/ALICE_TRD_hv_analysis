@@ -10,7 +10,7 @@ void convertCSV(std::string inputfile, std::string outputfile)
     Int_t fSec, fNanoSec;
     Double_t TOF_average_current, TOF_rms_current, luminosity, T0_luminosity, current, HV;
 
-    TFile *f = new TFile(outputfile.c_str(), "RECREATE");
+    auto f = new TFile(outputfile.c_str(), "RECREATE");
     TTree *tree = new TTree("TOF_T0_Tree", "data from matched csv");
 
     tree->Branch("fSec", &fSec, "fSec/I");

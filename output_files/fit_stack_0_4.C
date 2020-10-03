@@ -9,17 +9,17 @@
     }
     const int numfiles = 18;
 
-    TCanvas *c0 = new TCanvas("c0", "Slope Distribution", 10, 10, 1800, 1600);
-    TH1D *h_0 = new TH1D("h_0", "Add of all Slope Hists in Stack 0", 30, 0, 0.15);
-    TH1D *h_4 = new TH1D("h_4", "Add of all Slope Hists in Stack 4", 30, 0, 0.15);
+    auto c0 = new TCanvas("c0", "Slope Distribution", 10, 10, 1800, 1600);
+    auto h_0 = new TH1D("h_0", "Add of all Slope Hists in Stack 0", 30, 0, 0.15);
+    auto h_4 = new TH1D("h_4", "Add of all Slope Hists in Stack 4", 30, 0, 0.15);
 
     TFile *s[numfiles];
     for (Int_t i = 0; i < numfiles; i++)
     {
         s[i] = TFile::Open(root_File_Names[i], "READ");
 
-        TH1D *h0 = (TH1D *)s[i]->Get("fits/h_b_0");
-        TH1D *h4 = (TH1D *)s[i]->Get("fits/h_b_4");
+        auto h0 = (TH1D *)s[i]->Get("fits/h_b_0");
+        auto h4 = (TH1D *)s[i]->Get("fits/h_b_4");
 
         h_0->Add(h0);
         h_4->Add(h4);

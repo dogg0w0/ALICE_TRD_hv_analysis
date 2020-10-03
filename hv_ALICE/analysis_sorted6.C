@@ -32,10 +32,10 @@ void analysis_sorted6::Loop()
    if (fChain == 0) return;
 
    Long64_t nentries = fChain->GetEntriesFast();
-   //TFile *myfile = new TFile("output.root", "UPDATE");
-   TGraph *g = new TGraph();
+   //auto myfile = new TFile("output.root", "UPDATE");
+   auto g = new TGraph();
    TTimeStamp *ttime = new TTimeStamp();
-   TCanvas *c0 = new TCanvas("c0", "Kanal 06_0_2A", 10, 10, 1000, 1000);
+   auto c0 = new TCanvas("c0", "Kanal 06_0_2A", 10, 10, 1000, 1000);
    c0->cd();
 
    Bool_t first_time = kTRUE;

@@ -33,7 +33,7 @@ void analysis_sorted1::Loop()
       return;
 
    Long64_t nentries = fChain->GetEntriesFast();
-   TGraph *g = new TGraph();
+   auto g = new TGraph();
    Long64_t gentry = 0;
    TTimeStamp *ttime = new TTimeStamp();
    Long64_t nbytes = 0, nb = 0;

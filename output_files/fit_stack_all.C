@@ -1,4 +1,55 @@
 {
+    //..BABAR style from RooLogon.C in workdir
+    TStyle *babarStyle = new TStyle("BABAR", "BaBar approved plots style");
+
+    // use plain black on white colors
+    babarStyle->SetFrameBorderMode(0);
+    babarStyle->SetCanvasBorderMode(0);
+    babarStyle->SetPadBorderMode(0);
+    babarStyle->SetPadColor(0);
+    babarStyle->SetCanvasColor(0);
+    babarStyle->SetStatColor(0);
+    babarStyle->SetFillColor(0);
+
+    // set the paper & margin sizes
+    babarStyle->SetPaperSize(20, 26);
+    babarStyle->SetPadTopMargin(0.05);
+    babarStyle->SetPadRightMargin(0.05);
+    babarStyle->SetPadBottomMargin(0.16);
+    babarStyle->SetPadLeftMargin(0.12);
+
+    // use large Times-Roman fonts
+    babarStyle->SetTextFont(132);
+    babarStyle->SetTextSize(0.08);
+    babarStyle->SetLabelFont(132, "x");
+    babarStyle->SetLabelFont(132, "y");
+    babarStyle->SetLabelFont(132, "z");
+    babarStyle->SetLabelSize(0.05, "x");
+    babarStyle->SetTitleSize(0.06, "x");
+    babarStyle->SetLabelSize(0.05, "y");
+    babarStyle->SetTitleSize(0.06, "y");
+    babarStyle->SetLabelSize(0.05, "z");
+    babarStyle->SetTitleSize(0.06, "z");
+
+    // use bold lines and markers
+    babarStyle->SetMarkerStyle(20);
+    babarStyle->SetHistLineWidth(1.85);
+    babarStyle->SetLineStyleString(2, "[12 12]"); // postscript dashes
+
+    // get rid of X error bars and y error bar caps
+    babarStyle->SetErrorX(0.001);
+
+    // do not display any of the standard histogram decorations
+    babarStyle->SetOptTitle(0);
+    babarStyle->SetOptStat(0);
+    babarStyle->SetOptFit(0);
+
+    // put tick marks on top and RHS of plots
+    babarStyle->SetPadTickX(1);
+    babarStyle->SetPadTickY(1);
+
+    gROOT->SetStyle("BABAR");
+
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
     Int_t palette[5];
     palette[0] = 2;
@@ -20,22 +71,22 @@
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
 
-    TH1D *h_0 = new TH1D("h_0", "Slope Fit Param Hists in Stack 0", 30, 0, 0.15);
-    TH1D *h_1 = new TH1D("h_1", "Slope Fit Param Hists in Stack 1", 30, 0, 0.15);
-    TH1D *h_2 = new TH1D("h_2", "Slope Fit Param Hists in Stack 2", 30, 0, 0.15);
-    TH1D *h_3 = new TH1D("h_3", "Slope Fit Param Hists in Stack 3", 30, 0, 0.15);
-    TH1D *h_4 = new TH1D("h_4", "Slope Fit Param Hists in Stack 4", 30, 0, 0.15);
+    auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Stack 0", 30, 0, 0.15);
+    auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Stack 1", 30, 0, 0.15);
+    auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Stack 2", 30, 0, 0.15);
+    auto h_3 = new TH1D("h_3", "Slope Fit Param Hists in Stack 3", 30, 0, 0.15);
+    auto h_4 = new TH1D("h_4", "Slope Fit Param Hists in Stack 4", 30, 0, 0.15);
 
     TFile *s[numfiles];
     for (Int_t i = 0; i < numfiles; i++)
     {
         s[i] = TFile::Open(root_File_Names[i], "READ");
 
-        TH1D *h0 = (TH1D *)s[i]->Get("fits/h_b_0");
-        TH1D *h1 = (TH1D *)s[i]->Get("fits/h_b_1");
-        TH1D *h2 = (TH1D *)s[i]->Get("fits/h_b_2");
-        TH1D *h3 = (TH1D *)s[i]->Get("fits/h_b_3");
-        TH1D *h4 = (TH1D *)s[i]->Get("fits/h_b_4");
+        auto h0 = (TH1D *)s[i]->Get("fits/h_b_0");
+        auto h1 = (TH1D *)s[i]->Get("fits/h_b_1");
+        auto h2 = (TH1D *)s[i]->Get("fits/h_b_2");
+        auto h3 = (TH1D *)s[i]->Get("fits/h_b_3");
+        auto h4 = (TH1D *)s[i]->Get("fits/h_b_4");
 
         h_0->Add(h0);
         h_1->Add(h1);

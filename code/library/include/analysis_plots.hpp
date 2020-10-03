@@ -24,7 +24,7 @@ public:
     TH2D *hist_lumi;
     TH2D *hist_offset;
     TGraphErrors *gr_lumi_fit;
-    std::vector<TGraphErrors*> gr_lumi_fit_single;
+    std::vector<TGraphErrors *> gr_lumi_fit_single;
     Int_t sector;
     Int_t n_not_working_chambers = 0;
     std::vector<std::string> channel_labels;
@@ -34,25 +34,25 @@ public:
     std::vector<Double_t> chambers_weights;
     //std::vector<std::string> luminosity_labels;
 
-    plots(Int_t sector_n);
-    plots(Int_t sector_n, std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points);
+    plots(const Int_t sector_n);
+    plots(const Int_t sector_n, const std::vector<std::string> &luminosity_labels, const std::vector<Double_t> &luminosity_points);
     ~plots();
-    void Draw(Double_t overall_mean_current, Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
+    void Draw(const Double_t overall_mean_current, const Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
               std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_offset_map);
     void Canvas();
     void HistSector();
-    void HistLumi(std::vector<std::string> &luminosity_labels, std::vector<Double_t> &luminosity_points);
+    void HistLumi(const std::vector<std::string> &luminosity_labels, const std::vector<Double_t> &luminosity_points);
     void HistPerc();
     void HistOffset();
     void Write();
-    void WriteLumi(std::string time_stamp);
+    void WriteLumi(const std::string time_stamp);
     void ChannelNames();
     void ChamberWeightsInit();
-    void FitInit(std::vector<std::string> &luminosity_labels);
-    void FitUpdate(Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_std_current_map,
+    void FitInit(const std::vector<std::string> &luminosity_labels);
+    void FitUpdate(const Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_std_current_map,
                    std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map);
     void FitDraw();
-    void FitSlopeOffset(std::vector<Double_t> &fit_a_v, std::vector<Double_t> &fit_b_v);
+    void FitSlopeOffset(const std::vector<Double_t> &fit_a_v, const std::vector<Double_t> &fit_b_v);
 };
 
 #endif

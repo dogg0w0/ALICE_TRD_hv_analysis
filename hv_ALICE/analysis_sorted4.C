@@ -32,10 +32,10 @@ void analysis_sorted4::Loop()
    if (fChain == 0) return;
 
    Long64_t nentries = fChain->GetEntriesFast();
-   //TFile *myfile = new TFile("output.root", "UPDATE");
+   //auto myfile = new TFile("output.root", "UPDATE");
    TTimeStamp *ttime = new TTimeStamp();
-   TCanvas *c0 = new TCanvas("test", "test", 10, 10, 800, 600);
-   TGraph *g = new TGraph();
+   auto c0 = new TCanvas("test", "test", 10, 10, 800, 600);
+   auto g = new TGraph();
    c0->cd();
    Long64_t gentry = 0;
    Long64_t nbytes = 0, nb = 0;

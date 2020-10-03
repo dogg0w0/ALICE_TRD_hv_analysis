@@ -44,20 +44,20 @@ public:
     Int_t luminosity_index = 0;
     Double_t offset = 0;
 
-    analysis(std::string filename, Int_t offset_start, Int_t offset_end);
-    analysis(std::string filename, std::string outfile, std::string channel_name,
-             Int_t lumi_index, char measurement, Int_t start, Int_t end);
+    analysis(const std::string filename, const Int_t offset_start, const Int_t offset_end);
+    analysis(const std::string filename, const std::string outfile, const std::string channel_name,
+             const Int_t lumi_index, const char measurement, const Int_t start, const Int_t end);
     virtual ~analysis();
-    virtual Int_t Cut(Long64_t entry);
+    virtual Int_t Cut(const Long64_t entry);
     virtual void Offset();
-    virtual Int_t GetEntry(Long64_t entry);
-    virtual Long64_t LoadTree(Long64_t entry);
+    virtual Int_t GetEntry(const Long64_t entry);
+    virtual Long64_t LoadTree(const Long64_t entry);
     virtual void Init(TTree *tree);
     virtual std::pair<Double_t, Double_t> Loop();
     virtual Bool_t Notify();
-    virtual Double_t mean(std::vector<Double_t> *v);
-    virtual Double_t mean_std(std::vector<Double_t> *v, Double_t mean);
-    virtual void Show(Long64_t entry = -1);
+    virtual Double_t mean(const std::vector<Double_t> *v);
+    virtual Double_t mean_std(const std::vector<Double_t> *v, const Double_t mean);
+    virtual void Show(const Long64_t entry = -1);
 };
 
 #endif

@@ -3,15 +3,15 @@
 std::pair<Double_t, Double_t> analysis::Loop()
 {
     Long64_t nentries = fChain->GetEntriesFast();
-    TFile *myfile = new TFile(outfile_name.c_str(), "UPDATE");
+    auto myfile = new TFile(outfile_name.c_str(), "UPDATE");
     TDirectory *subdir = (gDirectory->FindObjectAny(Form("luminosity_%d", luminosity_index))) ? (TDirectory *)gDirectory->FindObjectAny(Form("luminosity_%d", luminosity_index)) : myfile->mkdir(Form("luminosity_%d", luminosity_index));
     subdir->cd();
     TTimeStamp ttime(0, 0);
-    TCanvas *c0 = new TCanvas((channel_name + "_" + measurement_type).c_str(),
+    auto c0 = new TCanvas((channel_name + "_" + measurement_type).c_str(),
                               (channel_name + "_" + measurement_type).c_str(),
                               10, 10, 800, 600);
     c0->cd();
-    TGraph *g = new TGraph();
+    auto g = new TGraph();
     Long64_t gentry = 0;
     Long64_t nbytes = 0, nb = 0;
     std::vector<Double_t> hv_v = {};
@@ -66,12 +66,12 @@ std::pair<Double_t, Double_t> analysis::Loop()
     return std::pair<Double_t, Double_t>(mean, mean_std);
 }
 
-analysis::analysis(std::string filename, Int_t offset_start, Int_t offset_end)
+analysis::analysis(const std::string filename, const Int_t offset_start, const Int_t offset_end)
 {
     offset_start_time = offset_start;
     offset_end_time = offset_end;
     TTree *tree = 0;
-    TFile *f = new TFile(filename.c_str(), "READ");
+    auto f = new TFile(filename.c_str(), "READ");
     if (!f || !f->IsOpen())
     {
         std::cerr << "cannot open file:\t" << filename << std::endl;
@@ -81,8 +81,8 @@ analysis::analysis(std::string filename, Int_t offset_start, Int_t offset_end)
     Init(tree);
 }
 
-analysis::analysis(std::string filename, std::string outfile, std::string channel,
-                   Int_t lumi_index, char measurement, Int_t start, Int_t end) : fChain(0)
+analysis::analysis(const std::string filename, const std::string outfile, const std::string channel,
+                   const Int_t lumi_index, const char measurement, const Int_t start, const Int_t end) : fChain(0)
 {
     outfile_name = outfile;
     channel_name = channel;
@@ -91,7 +91,7 @@ analysis::analysis(std::string filename, std::string outfile, std::string channe
     start_time = start;
     end_time = end;
     TTree *tree = 0;
-    TFile *f = new TFile(filename.c_str(), "READ");
+    auto f = new TFile(filename.c_str(), "READ");
     if (!f || !f->IsOpen())
     {
         std::cerr << "cannot open file:\t" << filename << std::endl;
@@ -134,14 +134,14 @@ void analysis::Offset()
     offset = analysis::mean(&offset_v);
 }
 
-Int_t analysis::GetEntry(Long64_t entry)
+Int_t analysis::GetEntry(const Long64_t entry)
 {
     // Read contents of entry.
     if (!fChain)
         return 0;
     return fChain->GetEntry(entry);
 }
-Long64_t analysis::LoadTree(Long64_t entry)
+Long64_t analysis::LoadTree(const Long64_t entry)
 {
     // Set the environment to read one entry
     if (!fChain)
@@ -191,7 +191,7 @@ Bool_t analysis::Notify()
     return kTRUE;
 }
 
-Double_t analysis::mean(std::vector<Double_t> *v)
+Double_t analysis::mean(const std::vector<Double_t> *v)
 {
     Double_t sum = 0, n = 0;
     for (auto &&element : *v)
@@ -202,7 +202,7 @@ Double_t analysis::mean(std::vector<Double_t> *v)
     return sum / n;
 }
 
-Double_t analysis::mean_std(std::vector<Double_t> *v, Double_t mean)
+Double_t analysis::mean_std(const std::vector<Double_t> *v, const Double_t mean)
 {
     Double_t standardDeviation = 0;
     for (auto &&element : *v)
@@ -212,7 +212,7 @@ Double_t analysis::mean_std(std::vector<Double_t> *v, Double_t mean)
     return TMath::Sqrt( standardDeviation / (Double_t)v->size() );
 }
 
-void analysis::Show(Long64_t entry)
+void analysis::Show(const Long64_t entry)
 {
     // Print contents of entry.
     // If entry is not specified, print current entry
@@ -220,7 +220,7 @@ void analysis::Show(Long64_t entry)
         return;
     fChain->Show(entry);
 }
-Int_t analysis::Cut(Long64_t entry)
+Int_t analysis::Cut(const Long64_t entry)
 {
     // This function may be called from Loop.
     // returns  1 if entry is accepted.
