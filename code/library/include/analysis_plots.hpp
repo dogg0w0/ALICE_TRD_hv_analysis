@@ -12,6 +12,7 @@
 #include <TH1D.h>
 #include <TFile.h>
 #include <TAxis.h>
+#include <TTree.h>
 #include <iostream>
 #include <vector>
 

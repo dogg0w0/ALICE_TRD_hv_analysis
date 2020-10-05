@@ -360,13 +360,20 @@ void plots::FitSlopeOffset(const std::vector<Double_t> &fit_a_v, const std::vect
     TDirectory *fits = (gDirectory->FindObjectAny("fits")) ? (TDirectory *)gDirectory->FindObjectAny("fits") : out->mkdir("fits");
     fits->cd();
 
-    //std::sort(fit_a_v.begin(), fit_a_v.end());
-    //std::sort(fit_b_v.begin(), fit_b_v.end());
+    // Write Tree for correlation with gain
+    TTree tree_fit_a("fit_params", Form("Fit Parameters for Sector %d", sector));
+    Double_t fit_a, fit_b;
+    tree_fit_a.Branch("fit_a", &fit_a, "fit_a/D");
+    tree_fit_a.Branch("fit_b", &fit_b, "fit_b/D");
+    for (Int_t i = 0; i < 30; i++)
+    {
+        fit_a = fit_a_v[i];
+        fit_b = fit_b_v[i];
+        tree_fit_a.Fill();
+    }
+    tree_fit_a.Write();
 
-    // Histogramms for slope and offset distribution, bins with Sturge's rule
-    //Int_t nbins = TMath::Nint(3 + TMath::Log2(30 - n_not_working_chambers));
-    //auto h_a = new TH1D("h_a", "Distribution of Offset", nbins, fit_a_v[n_not_working_chambers], fit_a_v.back());
-    //auto h_b = new TH1D("h_b", "Distribution of Slope", nbins, fit_b_v[n_not_working_chambers], fit_b_v.back());
+    // Histogramms for slope and offset distribution
     Int_t nbins = 30;
     auto h_a = new TH1D("h_a", "Distribution of Offset", nbins, 0, 0.1);
     auto h_b = new TH1D("h_b", "Distribution of Slope", nbins, 0, 0.15);
