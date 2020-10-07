@@ -493,6 +493,9 @@ void plots::ChamberWeightsInit()
 
     for (Int_t i = 0; i < 30; i++)
     {
-        chambers_weights.push_back(area[i] / norm);
+        // Larger chambers produce more current than smaller ones,
+        // thus one needs to correct them by considering their surface
+        // area.
+        chambers_weights.push_back(1 / (area[i] / norm));
     }
 }
