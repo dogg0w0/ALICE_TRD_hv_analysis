@@ -376,13 +376,13 @@ void plots::FitSlopeOffset(const std::vector<Double_t> &fit_a_v, const std::vect
     // Histogramms for slope and offset distribution
     Int_t nbins = 30;
     auto h_a = new TH1D("h_a", "Distribution of Offset", nbins, 0, 0.1);
-    auto h_b = new TH1D("h_b", "Distribution of Slope", nbins, 0, 0.15);
+    auto h_b = new TH1D("h_b", "Distribution of Slope", nbins, 0, 0.2);
 
-    auto h_b_0 = new TH1D("h_b_0", "Distribution of Slope 0", nbins, 0, 0.15);
-    auto h_b_1 = new TH1D("h_b_1", "Distribution of Slope 1", nbins, 0, 0.15);
-    auto h_b_2 = new TH1D("h_b_2", "Distribution of Slope 2", nbins, 0, 0.15);
-    auto h_b_3 = new TH1D("h_b_3", "Distribution of Slope 3", nbins, 0, 0.15);
-    auto h_b_4 = new TH1D("h_b_4", "Distribution of Slope 4", nbins, 0, 0.15);
+    auto h_b_0 = new TH1D("h_b_0", "Distribution of Slope 0", nbins, 0, 0.2);
+    auto h_b_1 = new TH1D("h_b_1", "Distribution of Slope 1", nbins, 0, 0.2);
+    auto h_b_2 = new TH1D("h_b_2", "Distribution of Slope 2", nbins, 0, 0.2);
+    auto h_b_3 = new TH1D("h_b_3", "Distribution of Slope 3", nbins, 0, 0.2);
+    auto h_b_4 = new TH1D("h_b_4", "Distribution of Slope 4", nbins, 0, 0.2);
 
     auto h_a_0 = new TH1D("h_a_0", "Distribution of Offset 0", nbins, 0, 0.1);
     auto h_a_1 = new TH1D("h_a_1", "Distribution of Offset 1", nbins, 0, 0.1);
@@ -417,7 +417,7 @@ void plots::FitSlopeOffset(const std::vector<Double_t> &fit_a_v, const std::vect
         h_b->Fill(fit_b_v[i], chambers_weights[i]);
     }
     // Fit
-    h_b->Fit("gaus", "WW", "", 0.04, 0.15);
+    h_b->Fit("gaus", "WW", "", 0.04, 0.2);
     h_b->SetStats(0);
 
     auto c1 = new TCanvas(Form("sector_lumi_fit_%d", sector), Form("Sector %02d", sector), 10, 10, 800, 600);
