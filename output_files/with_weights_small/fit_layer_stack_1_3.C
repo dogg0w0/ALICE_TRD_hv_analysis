@@ -72,12 +72,12 @@
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
 
-    auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Layer 0", 40, 0.02, 0.15);
-    auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Layer 1", 40, 0.02, 0.15);
-    auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Layer 2", 40, 0.02, 0.15);
-    auto h_3 = new TH1D("h_3", "Slope Fit Param Hists in Layer 3", 40, 0.02, 0.15);
-    auto h_4 = new TH1D("h_4", "Slope Fit Param Hists in Layer 4", 40, 0.02, 0.15);
-    auto h_5 = new TH1D("h_5", "Slope Fit Param Hists in Layer 5", 40, 0.02, 0.15);
+    auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Layer 0", 30, 0.02, 0.2);
+    auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Layer 1", 30, 0.02, 0.2);
+    auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Layer 2", 30, 0.02, 0.2);
+    auto h_3 = new TH1D("h_3", "Slope Fit Param Hists in Layer 3", 30, 0.02, 0.2);
+    auto h_4 = new TH1D("h_4", "Slope Fit Param Hists in Layer 4", 30, 0.02, 0.2);
+    auto h_5 = new TH1D("h_5", "Slope Fit Param Hists in Layer 5", 30, 0.02, 0.2);
 
     Double_t para_a, para_b;
     Long64_t nentries;
@@ -109,7 +109,7 @@
         }
     }
 
-    Int_t stacks[] = {4};
+    Int_t stacks[] = {1,3};
 
     for (Int_t sector = 0; sector < numfiles; sector++)
     {
@@ -161,12 +161,12 @@
     Bool_t kfit = kTRUE;
     if (kfit)
     {
-        TF1 *g0 = new TF1("g0", "gaus", 0.07, 0.12);
-        TF1 *g1 = new TF1("g1", "gaus", 0.05, 0.12);
+        TF1 *g0 = new TF1("g0", "gaus", 0.10, 0.17);
+        TF1 *g1 = new TF1("g1", "gaus", 0.05, 0.14);
         TF1 *g2 = new TF1("g2", "gaus", 0.05, 0.12);
         TF1 *g3 = new TF1("g3", "gaus", 0.05, 0.12);
         TF1 *g4 = new TF1("g4", "gaus", 0.05, 0.12);
-        TF1 *g5 = new TF1("g5", "gaus", 0.05, 0.12);
+        TF1 *g5 = new TF1("g5", "gaus", 0.05, 0.1);
         h_0->Fit(g0, "R W");
         h_1->Fit(g1, "R W");
         h_2->Fit(g2, "R W");
@@ -182,8 +182,8 @@
     h_4->GetFunction("g4")->SetLineColor(palette[4]);
     h_5->GetFunction("g5")->SetLineColor(palette[5]);
 
-    h_0->GetYaxis()->SetRangeUser(0, 0.7);
-    h_0->GetXaxis()->SetRangeUser(0.055, 0.1);
+    h_0->GetYaxis()->SetRangeUser(0, 1);
+    h_0->GetXaxis()->SetRangeUser(0.02, 0.1);
 
 
     h_0->Draw("9 PLC PMC");

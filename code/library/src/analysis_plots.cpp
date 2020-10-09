@@ -10,10 +10,12 @@ plots::plots(const Int_t sector_n)
     plots::HistOffset();
 }
 
-plots::plots(const Int_t sector_n, const std::vector<std::string> &luminosity_labels, const std::vector<Double_t> &luminosity_points)
+plots::plots(const Int_t sector_n, const std::vector<std::string> &luminosity_labels, const std::vector<Double_t> &luminosity_points, std::string gain_map)
 {
     sector = sector_n;
     plots::ChamberWeightsInit();
+    plots::GainWeightsInit(gain_map);
+    plots::WeightsInit();
     plots::ChannelNames();
     plots::Canvas();
     plots::HistSector();
@@ -392,17 +394,27 @@ void plots::FitSlopeOffset(const std::vector<Double_t> &fit_a_v, const std::vect
 
     for (Int_t i = 0; i < 6; i++)
     {
-        h_b_0->Fill(fit_b_v[i], chambers_weights[i]);
-        h_b_1->Fill(fit_b_v[i + 1 * 6], chambers_weights[i + 1 * 6]);
-        h_b_2->Fill(fit_b_v[i + 2 * 6], chambers_weights[i + 2 * 6]);
-        h_b_3->Fill(fit_b_v[i + 3 * 6], chambers_weights[i + 3 * 6]);
-        h_b_4->Fill(fit_b_v[i + 4 * 6], chambers_weights[i + 4 * 6]);
+        //h_b_0->Fill(fit_b_v[i], weights[i + 0 * 6 + sector*30]);
+        //h_b_1->Fill(fit_b_v[i + 1 * 6], weights[i + 1 * 6 + sector*30]);
+        //h_b_2->Fill(fit_b_v[i + 2 * 6], weights[i + 2 * 6 + sector*30]);
+        //h_b_3->Fill(fit_b_v[i + 3 * 6], weights[i + 3 * 6 + sector*30]);
+        //h_b_4->Fill(fit_b_v[i + 4 * 6], weights[i + 4 * 6 + sector*30]);
+        //h_a_0->Fill(fit_a_v[i], weights[i + 0 * 6 + sector * 30]);
+        //h_a_1->Fill(fit_a_v[i + 1 * 6], weights[i + 1 * 6 + sector*30]);
+        //h_a_2->Fill(fit_a_v[i + 2 * 6], weights[i + 2 * 6 + sector*30]);
+        //h_a_3->Fill(fit_a_v[i + 3 * 6], weights[i + 3 * 6 + sector*30]);
+        //h_a_4->Fill(fit_a_v[i + 4 * 6], weights[i + 4 * 6 + sector*30]);
 
-        h_a_0->Fill(fit_a_v[i], chambers_weights[i]);
-        h_a_1->Fill(fit_a_v[i + 1 * 6], chambers_weights[i + 1 * 6]);
-        h_a_2->Fill(fit_a_v[i + 2 * 6], chambers_weights[i + 2 * 6]);
-        h_a_3->Fill(fit_a_v[i + 3 * 6], chambers_weights[i + 3 * 6]);
-        h_a_4->Fill(fit_a_v[i + 4 * 6], chambers_weights[i + 4 * 6]);
+        h_b_0->Fill(fit_b_v[i]);
+        h_b_1->Fill(fit_b_v[i + 1 * 6]);
+        h_b_2->Fill(fit_b_v[i + 2 * 6]);
+        h_b_3->Fill(fit_b_v[i + 3 * 6]);
+        h_b_4->Fill(fit_b_v[i + 4 * 6]);
+        h_a_0->Fill(fit_a_v[i]);
+        h_a_1->Fill(fit_a_v[i + 1 * 6]);
+        h_a_2->Fill(fit_a_v[i + 2 * 6]);
+        h_a_3->Fill(fit_a_v[i + 3 * 6]);
+        h_a_4->Fill(fit_a_v[i + 4 * 6]);
     }
 
     h_a->GetXaxis()->SetTitle("a");
@@ -413,8 +425,10 @@ void plots::FitSlopeOffset(const std::vector<Double_t> &fit_a_v, const std::vect
     //for (Int_t i = n_not_working_chambers; i < fit_a_v.size(); i++)
     for (Int_t i = 0; i < 30; i++)
     {
-        h_a->Fill(fit_a_v[i], chambers_weights[i]);
-        h_b->Fill(fit_b_v[i], chambers_weights[i]);
+        //h_a->Fill(fit_a_v[i], weights[i+sector*30]);
+        //h_b->Fill(fit_b_v[i], weights[i+sector*30]);
+        h_a->Fill(fit_a_v[i]);
+        h_b->Fill(fit_b_v[i]);
     }
     // Fit
     h_b->Fit("gaus", "WW", "", 0.04, 0.2);
@@ -457,7 +471,7 @@ void plots::FitSlopeOffset(const std::vector<Double_t> &fit_a_v, const std::vect
 
 void plots::ChamberWeightsInit()
 {
-    Double_t norm = 1430 * 1430;
+    Double_t norm = 1060*1060;
     std::vector<Double_t> area = {
         1200 * 1200,
         1200 * 1200,
@@ -497,5 +511,78 @@ void plots::ChamberWeightsInit()
         // thus one needs to correct them by considering their surface
         // area.
         chambers_weights.push_back(1 / (area[i] / norm));
+        // Norm to absolute chamber size
+        //chambers_weights.push_back(1 / area[i]);
+    }
+}
+
+void plots::GainWeightsInit(std::string gain_map)
+{
+    // Open the ROOT file.
+    TFile *f = TFile::Open(gain_map.c_str(), "READ");
+    if (f == 0)
+    {
+
+        // If we cannot open the ROOT file, print an error message and return immediately.
+        printf("Error: cannot open file");
+        return;
+    }
+
+    Double_t run;
+    Float_t gain;
+    Double_t absolute_mean = 0.0;
+
+    TBranch *gainBranch = 0;
+    TBranch *runBranch = 0;
+
+    std::vector<Double_t> meangain(540, 0.0);
+    //vector<Double_t> gain_v(1620, 0.0);
+
+    // Get a pointer to the tree.
+    TTree *tree = (TTree *)f->Get("Results");
+
+    // Use SetBranchAddress() with simple types (e.g. double, int) instead of objects (e.g. std::vector<Particle>).
+    tree->SetMakeClass(1);
+
+    // Connect the branch "fEventSize" with the variable eventSize that we want to contain the data.
+    // While we are at it, ask the tree to save the branch in eventSizeBranch.
+    tree->SetBranchAddress("gain", &gain, &gainBranch);
+    //tree->SetBranchAddress("run", &run, &runBranch);
+    // First, get the total number of entries.
+    Long64_t nentries = tree->GetEntries();
+
+    // Then loop over all of them.
+    for (Long64_t i = 0; i < nentries; i++)
+    {
+        tree->GetEntry(i);
+        meangain[i % 540] += gain;
+        absolute_mean += gain;
+        //gain_v[i] = gain;
+    }
+    // Mean
+    for (Int_t i = 0; i < 540; i++)
+    {
+        meangain[i] /= 3;
+    }
+    absolute_mean /= nentries;
+    for (Int_t i = 0; i < 540; i++)
+    {
+        gain_weights.push_back(meangain[i] / absolute_mean);
+    }
+}
+
+void plots::WeightsInit()
+{
+    Double_t _temp;
+    for (Int_t sector = 0; sector < 18; sector++)
+    {
+        for (Int_t stack = 0; stack < 5; stack++)
+        {
+            for (Int_t layer = 0; layer < 6; layer++)
+            {
+                _temp = gain_weights[sector * 30 + stack * 6 + layer] * chambers_weights[layer + stack * 6];
+                weights.push_back(_temp);
+            }
+        }
     }
 }

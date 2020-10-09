@@ -123,7 +123,7 @@
         }
     }
 
-    auto hist = new TH2D("hist", "Gain vs. Slope", 50, 0.2, 0.7, 30, 0.04, 0.15);
+    auto hist = new TH2D("hist", "Gain vs. Slope", 50, 0.2, 0.7, 30, 0.02, 0.11);
     for (Int_t i = 0; i < 540; i++)
     {
         //hist->Fill(meangain[i], fit_b[i]);

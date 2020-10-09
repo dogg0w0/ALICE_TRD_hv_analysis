@@ -33,10 +33,12 @@ public:
     std::vector<Double_t> mean_current_all_chambers = {0.0};
     std::vector<Double_t> mean_current_all_chambers_err = {0.0};
     std::vector<Double_t> chambers_weights;
+    std::vector<Double_t> gain_weights;
+    std::vector<Double_t> weights;
     //std::vector<std::string> luminosity_labels;
 
     plots(const Int_t sector_n);
-    plots(const Int_t sector_n, const std::vector<std::string> &luminosity_labels, const std::vector<Double_t> &luminosity_points);
+    plots(const Int_t sector_n, const std::vector<std::string> &luminosity_labels, const std::vector<Double_t> &luminosity_points, std::string gain_map);
     ~plots();
     void Draw(const Double_t overall_mean_current, const Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map,
               std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_offset_map);
@@ -49,6 +51,8 @@ public:
     void WriteLumi(const std::string time_stamp);
     void ChannelNames();
     void ChamberWeightsInit();
+    void GainWeightsInit(std::string gain_map);
+    void WeightsInit();
     void FitInit(const std::vector<std::string> &luminosity_labels);
     void FitUpdate(const Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_std_current_map,
                    std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map);

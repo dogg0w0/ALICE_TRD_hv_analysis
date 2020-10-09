@@ -59,7 +59,7 @@
     const int numfiles = 18;
 
     auto c0 = new TCanvas("c0", "Slope Distribution", 10, 10, 1800, 1600);
-    auto hist = new TH1D("hist", "Add of all Slope Hists", 30, 0, 0.15);
+    auto hist = new TH1D("hist", "Add of all Slope Hists", 30, 0, 0.2);
 
     TFile *s[numfiles];
     for (Int_t i = 0; i < numfiles; i++)

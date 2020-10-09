@@ -115,14 +115,14 @@
     h_0->GetXaxis()->SetTitle("offset parameter [current]");
     h_0->GetYaxis()->SetTitle("n. entries");
     // FIT
-    Bool_t kfit = kFALSE;
+    Bool_t kfit = kTRUE;
     if (kfit)
     {
-        TF1 *g0 = new TF1("g0", "gaus", 0.09, 0.15);
-        TF1 *g1 = new TF1("g1", "gaus", 0.05, 0.12);
-        TF1 *g2 = new TF1("g2", "gaus", 0.03, 0.12);
-        TF1 *g3 = new TF1("g3", "gaus", 0.05, 0.12);
-        TF1 *g4 = new TF1("g4", "gaus", 0.05, 0.12);
+        TF1 *g0 = new TF1("g0", "gaus", 0.01, 0.1);
+        TF1 *g1 = new TF1("g1", "gaus", 0.01, 0.1);
+        TF1 *g2 = new TF1("g2", "gaus", 0.01, 0.1);
+        TF1 *g3 = new TF1("g3", "gaus", 0.01, 0.1);
+        TF1 *g4 = new TF1("g4", "gaus", 0.01, 0.1);
         h_0->Fit(g0, "R W");
         h_1->Fit(g1, "R W");
         h_2->Fit(g2, "R W");
@@ -137,14 +137,14 @@
     //h_4->GetFunction("g4")->SetLineColor(palette[4]);
 //
     //h_0->GetYaxis()->SetRangeUser(0, 0.4);
-    //h_0->GetXaxis()->SetRangeUser(0.02, 0.15);
+    //h_0->GetXaxis()->SetRangeUser(0.02, 0.2);
     
 
     h_0->Draw("9 PLC PMC");
-    h_1->Draw("9 SAME PLC PMC");
+    //h_1->Draw("9 SAME PLC PMC");
     h_2->Draw("9 SAME PLC PMC");
-    h_3->Draw("9 SAME PLC PMC");
-    h_4->Draw("9 SAME PLC PMC");
+    //h_3->Draw("9 SAME PLC PMC");
+    //h_4->Draw("9 SAME PLC PMC");
     gPad->BuildLegend(0.75, 0.75, 0.9, 0.9);
 
     //TLatex *tex = new TLatex();

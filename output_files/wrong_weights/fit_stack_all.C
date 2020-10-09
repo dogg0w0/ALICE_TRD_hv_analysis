@@ -71,11 +71,11 @@
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
 
-    auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Stack 0", 30, 0, 0.15);
-    auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Stack 1", 30, 0, 0.15);
-    auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Stack 2", 30, 0, 0.15);
-    auto h_3 = new TH1D("h_3", "Slope Fit Param Hists in Stack 3", 30, 0, 0.15);
-    auto h_4 = new TH1D("h_4", "Slope Fit Param Hists in Stack 4", 30, 0, 0.15);
+    auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Stack 0", 30, 0, 0.2);
+    auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Stack 1", 30, 0, 0.2);
+    auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Stack 2", 30, 0, 0.2);
+    auto h_3 = new TH1D("h_3", "Slope Fit Param Hists in Stack 3", 30, 0, 0.2);
+    auto h_4 = new TH1D("h_4", "Slope Fit Param Hists in Stack 4", 30, 0, 0.2);
 
     TFile *s[numfiles];
     for (Int_t i = 0; i < numfiles; i++)
@@ -118,7 +118,7 @@
     Bool_t kfit = kTRUE;
     if (kfit)
     {
-        TF1 *g0 = new TF1("g0", "gaus", 0.09, 0.15);
+        TF1 *g0 = new TF1("g0", "gaus", 0.09, 0.2);
         TF1 *g1 = new TF1("g1", "gaus", 0.05, 0.12);
         TF1 *g2 = new TF1("g2", "gaus", 0.03, 0.12);
         TF1 *g3 = new TF1("g3", "gaus", 0.05, 0.12);

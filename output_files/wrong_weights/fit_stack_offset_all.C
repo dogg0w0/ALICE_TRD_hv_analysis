@@ -118,7 +118,7 @@
     Bool_t kfit = kFALSE;
     if (kfit)
     {
-        TF1 *g0 = new TF1("g0", "gaus", 0.09, 0.15);
+        TF1 *g0 = new TF1("g0", "gaus", 0.09, 0.2);
         TF1 *g1 = new TF1("g1", "gaus", 0.05, 0.12);
         TF1 *g2 = new TF1("g2", "gaus", 0.03, 0.12);
         TF1 *g3 = new TF1("g3", "gaus", 0.05, 0.12);

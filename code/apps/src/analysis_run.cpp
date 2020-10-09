@@ -5,7 +5,7 @@
 #include "analysis_hv.hpp"
 #include "analysis_dates.hpp"
 
-void analysis_run(Int_t sector_number, std::string input_data_dir, std::string input_outfile, std::string date)
+void analysis_run(Int_t sector_number, std::string input_data_dir, std::string input_outfile, std::string date, std::string gain_map)
 {
     std::string file_dir = input_data_dir + "sorted_%d.csv.root";
     std::string line, channel_name, crate_name, measurement_type;
@@ -35,7 +35,7 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
     std::vector<std::string> luminosity_labels = dates_temp.luminosity_labels;
     std::vector<Double_t> luminosity_points = dates_temp.luminosity_points;
 
-    plots plotter(sector_n, luminosity_labels, luminosity_points);
+    plots plotter(sector_n, luminosity_labels, luminosity_points, gain_map);
 
     Int_t date_time = std::get<1>(timestamps[0]);
     TTimeStamp time_stamp;
@@ -92,13 +92,13 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
                         mean_and_std_pair = current.Loop();
                         mean_current = mean_and_std_pair.first;
                         mean_std_current = mean_and_std_pair.second;
-                        mean_current_map[stack][layer] = ((mean_current - offset.offset) < 0) ? 0 : (mean_current - offset.offset) * plotter.chambers_weights[layer + stack * 6];
-                        mean_std_current_map[stack][layer] = mean_std_current * plotter.chambers_weights[layer + stack * 6];
+                        mean_current_map[stack][layer] = ((mean_current - offset.offset) < 0) ? 0 : (mean_current - offset.offset) * plotter.weights[layer + stack * 6 + sector * 30];
+                        mean_std_current_map[stack][layer] = mean_std_current * plotter.weights[layer + stack * 6 + sector * 30];
 
                         // Calculate mean
                         if (mean_hv_map[stack][layer])
                         {
-                            overall_mean_current += mean_current;
+                            overall_mean_current += mean_current_map[stack][layer];
                             mean_n++;
                         }
                         // Print Information
@@ -134,16 +134,17 @@ void invokeStyle();
 int main(int argc, char const *argv[])
 {
     invokeStyle();
-    if (argc == 5)
+    if (argc == 6)
     {
-        analysis_run((std::stoi(argv[1])), (std::string)argv[2], (std::string)argv[3], (std::string)argv[4]);
+        analysis_run((std::stoi(argv[1])), (std::string)argv[2], (std::string)argv[3], (std::string)argv[4], (std::string)argv[5]);
     }
     else
     {
         std::cerr << "Usage:\t" << argv[0] << "\t sector number"
                   << "\t input data dir "
                   << "\t input_file.txt "
-                  << "\t Date" << std::endl;
+                  << "\t Date "
+                  << "\t gain_map.root" << std::endl;
     }
     return 0;
 }

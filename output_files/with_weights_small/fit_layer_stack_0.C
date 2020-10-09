@@ -72,13 +72,13 @@
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
 
-    Int_t  nbins = 6;
-    auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Layer 0", nbins, 0.08, 0.15);
-    auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Layer 1", nbins, 0.08, 0.15);
-    auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Layer 2", nbins, 0.08, 0.15);
-    auto h_3 = new TH1D("h_3", "Slope Fit Param Hists in Layer 3", nbins, 0.08, 0.15);
-    auto h_4 = new TH1D("h_4", "Slope Fit Param Hists in Layer 4", nbins, 0.08, 0.15);
-    auto h_5 = new TH1D("h_5", "Slope Fit Param Hists in Layer 5", nbins, 0.08, 0.15);
+    Int_t  nbins = 30;
+    auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Layer 0", nbins, 0.02, 0.2);
+    auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Layer 1", nbins, 0.02, 0.2);
+    auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Layer 2", nbins, 0.02, 0.2);
+    auto h_3 = new TH1D("h_3", "Slope Fit Param Hists in Layer 3", nbins, 0.02, 0.2);
+    auto h_4 = new TH1D("h_4", "Slope Fit Param Hists in Layer 4", nbins, 0.02, 0.2);
+    auto h_5 = new TH1D("h_5", "Slope Fit Param Hists in Layer 5", nbins, 0.02, 0.2);
 
     Double_t para_a, para_b;
     Long64_t nentries;
@@ -114,15 +114,6 @@
 
     for (Int_t sector = 0; sector < numfiles; sector++)
     {
-        //for (Int_t stack = 0; stack < 5; stack++)
-        //{
-        //    h_0->Fill(fit_b[30 * sector + stack * 6 + 0]);
-        //    h_1->Fill(fit_b[30 * sector + stack * 6 + 1]);
-        //    h_2->Fill(fit_b[30 * sector + stack * 6 + 2]);
-        //    h_3->Fill(fit_b[30 * sector + stack * 6 + 3]);
-        //    h_4->Fill(fit_b[30 * sector + stack * 6 + 4]);
-        //    h_5->Fill(fit_b[30 * sector + stack * 6 + 5]);
-        //}
         for (auto &&stack : stacks)
         {
             h_0->Fill(fit_b[30 * sector + stack * 6 + 0]);
@@ -162,12 +153,12 @@
     Bool_t kfit = kTRUE;
     if (kfit)
     {
-        TF1 *g0 = new TF1("g0", "gaus", 0.09, 0.15);
-        TF1 *g1 = new TF1("g1", "gaus", 0.09, 0.15);
-        TF1 *g2 = new TF1("g2", "gaus", 0.09, 0.15);
-        TF1 *g3 = new TF1("g3", "gaus", 0.09, 0.15);
-        TF1 *g4 = new TF1("g4", "gaus", 0.09, 0.15);
-        TF1 *g5 = new TF1("g5", "gaus", 0.09, 0.15);
+        TF1 *g0 = new TF1("g0", "gaus", 0.02, 0.2);
+        TF1 *g1 = new TF1("g1", "gaus", 0.02, 0.2);
+        TF1 *g2 = new TF1("g2", "gaus", 0.02, 0.2);
+        TF1 *g3 = new TF1("g3", "gaus", 0.02, 0.2);
+        TF1 *g4 = new TF1("g4", "gaus", 0.02, 0.2);
+        TF1 *g5 = new TF1("g5", "gaus", 0.02, 0.2);
         h_0->Fit(g0, "R W");
         h_1->Fit(g1, "R W");
         h_2->Fit(g2, "R W");
@@ -183,8 +174,8 @@
     h_4->GetFunction("g4")->SetLineColor(palette[4]);
     h_5->GetFunction("g5")->SetLineColor(palette[5]);
 
-    h_0->GetYaxis()->SetRangeUser(0, 1);
-    h_0->GetXaxis()->SetRangeUser(0.1, 0.15);
+    h_0->GetYaxis()->SetRangeUser(0, 0.55);
+    h_0->GetXaxis()->SetRangeUser(0.04, 0.12);
 
 
     h_0->Draw("9 PLC PMC");
