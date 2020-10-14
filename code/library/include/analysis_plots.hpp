@@ -32,8 +32,9 @@ public:
     std::vector<Double_t> luminosities = {0.0};
     std::vector<Double_t> mean_current_all_chambers = {0.0};
     std::vector<Double_t> mean_current_all_chambers_err = {0.0};
-    std::vector<Double_t> chambers_weights;
-    std::vector<Double_t> gain_weights;
+    std::vector<Double_t> chambers_weights = std::vector<Double_t>(30, 1.0);
+    std::vector<Double_t> gain_weights = std::vector<Double_t>(540, 1.0);
+    std::vector<Double_t> radial_weights = std::vector<Double_t>(6, 1.0);
     std::vector<Double_t> weights;
     //std::vector<std::string> luminosity_labels;
 
@@ -52,6 +53,7 @@ public:
     void ChannelNames();
     void ChamberWeightsInit();
     void GainWeightsInit(std::string gain_map);
+    void RadialWeightsInit();
     void WeightsInit();
     void FitInit(const std::vector<std::string> &luminosity_labels);
     void FitUpdate(const Int_t luminosity_index, std::map<Int_t, std::map<Int_t, Double_t>> &mean_current_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_std_current_map,

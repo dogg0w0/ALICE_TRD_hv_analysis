@@ -14,7 +14,8 @@ plots::plots(const Int_t sector_n, const std::vector<std::string> &luminosity_la
 {
     sector = sector_n;
     plots::ChamberWeightsInit();
-    plots::GainWeightsInit(gain_map);
+    //plots::GainWeightsInit(gain_map);
+    plots::RadialWeightsInit();
     plots::WeightsInit();
     plots::ChannelNames();
     plots::Canvas();
@@ -471,7 +472,7 @@ void plots::FitSlopeOffset(const std::vector<Double_t> &fit_a_v, const std::vect
 
 void plots::ChamberWeightsInit()
 {
-    Double_t norm = 1060*1060;
+    Double_t norm = 1060 * 1060;
     std::vector<Double_t> area = {
         1200 * 1200,
         1200 * 1200,
@@ -510,7 +511,7 @@ void plots::ChamberWeightsInit()
         // Larger chambers produce more current than smaller ones,
         // thus one needs to correct them by considering their surface
         // area.
-        chambers_weights.push_back(1 / (area[i] / norm));
+        chambers_weights[i] = (1 / (area[i] / norm));
         // Norm to absolute chamber size
         //chambers_weights.push_back(1 / area[i]);
     }
@@ -567,7 +568,15 @@ void plots::GainWeightsInit(std::string gain_map)
     absolute_mean /= nentries;
     for (Int_t i = 0; i < 540; i++)
     {
-        gain_weights.push_back(meangain[i] / absolute_mean);
+        gain_weights[i] = (meangain[i] / absolute_mean);
+    }
+}
+
+void plots::RadialWeightsInit()
+{
+    for (Int_t i = 0; i < 6; i++)
+    {
+        radial_weights[i] = 0.13 * (i + 1) / 0.78;
     }
 }
 
@@ -580,7 +589,7 @@ void plots::WeightsInit()
         {
             for (Int_t layer = 0; layer < 6; layer++)
             {
-                _temp = gain_weights[sector * 30 + stack * 6 + layer] * chambers_weights[layer + stack * 6];
+                _temp = gain_weights[sector * 30 + stack * 6 + layer] * chambers_weights[layer + stack * 6] * radial_weights[layer];
                 weights.push_back(_temp);
             }
         }
