@@ -19,7 +19,7 @@ void analysis_working::Write(Int_t sector)
     // Write Tree for correlation with gain
     TTree tree("working_chambers", Form("Working Chambers for Sector %d", sector));
     Bool_t working;
-    tree.Branch("working", &working, "working/B");
+    tree.Branch("working", &working, "working/O");
     for (Int_t stack = 0; stack < 5; stack++)
     {
         for (Int_t layer = 0; layer < 6; layer++)
@@ -29,4 +29,5 @@ void analysis_working::Write(Int_t sector)
         }
     }
     tree.Write();
+    out->Close();
 }
