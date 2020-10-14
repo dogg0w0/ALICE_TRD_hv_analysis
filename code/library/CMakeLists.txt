@@ -12,6 +12,7 @@ set(HEADER_LIST
     "${CMAKE_CURRENT_SOURCE_DIR}/include/analysis_plots.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/analysis_hv.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/analysis_dates.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/analysis_working.hpp"
 )
 set(DEFLINK "${CMAKE_CURRENT_SOURCE_DIR}/include/DictLinkDef.h")
 
@@ -33,6 +34,7 @@ target_sources(DictROOT
     PRIVATE "src/analysis_plots.cpp"
     PRIVATE "src/analysis_hv.cpp"
     PRIVATE "src/analysis_dates.cpp"
+    PRIVATE "src/analysis_working.cpp"
     PUBLIC  "${HEADER_LIST}"
 )
 

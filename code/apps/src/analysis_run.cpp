@@ -4,6 +4,7 @@
 #include "analysis_plots.hpp"
 #include "analysis_hv.hpp"
 #include "analysis_dates.hpp"
+#include "analysis_working.hpp"
 
 void analysis_run(Int_t sector_number, std::string input_data_dir, std::string input_outfile, std::string date, std::string gain_map)
 {
@@ -36,6 +37,7 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
     std::vector<Double_t> luminosity_points = dates_temp.luminosity_points;
 
     plots plotter(sector_n, luminosity_labels, luminosity_points, gain_map);
+    analysis_working working;
 
     Int_t date_time = std::get<1>(timestamps[0]);
     TTimeStamp time_stamp;
@@ -82,6 +84,7 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
                         mean_hv = mean_and_std_pair.first;
                         mean_std_hv = mean_and_std_pair.second;
                         mean_hv_map[stack][layer] = (mean_hv > 1420) ? kTRUE : kFALSE;
+                        working.Update(stack, layer, mean_hv_map[stack][layer]);
 
                         // Anlysis for current
                         analysis current(Form(file_dir.c_str(), file_index),
@@ -125,6 +128,7 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
         plotter.Write();
         file.close();
     }
+    working.Write(sector_n);
     plotter.FitDraw();
     plotter.WriteLumi(((std::string)time_stamp.AsString()).substr(5, 11));
 }
