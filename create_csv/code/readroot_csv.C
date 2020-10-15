@@ -43,6 +43,9 @@ void readroot_csv::Loop(Int_t start_time, Int_t end_time)
        << ","
        << "HV" << std::endl;
 
+   Int_t offset = - 2*60*60;
+   //offset = 0;
+
    Long64_t nentries = fChain->GetEntriesFast();
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry = 0; jentry < nentries; jentry++)
@@ -52,14 +55,14 @@ void readroot_csv::Loop(Int_t start_time, Int_t end_time)
          break;
       nb = fChain->GetEntry(jentry);
       nbytes += nb;
-      if (fSec < start_time)
+      if (fSec < start_time +  offset)
       {
          continue;
       }
-      if (fSec > end_time)
+      if (fSec > end_time + offset)
          break;
 
-      out << fSec << "," << fNanoSec << "," << HV << std::endl;
+      out << (fSec - offset) << "," << fNanoSec << "," << HV << std::endl;
    }
    out.close();
 }

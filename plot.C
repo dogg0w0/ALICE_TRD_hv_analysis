@@ -33,10 +33,13 @@ void plot::Loop()
       return;
 
    Long64_t nentries = fChain->GetEntriesFast();
+   auto c1 = new TCanvas();
+   auto c2 = new TCanvas();
    TMultiGraph *grs = new TMultiGraph();
    auto g1 = new TGraph();
    auto g2 = new TGraph();
    auto g3 = new TGraph();
+   auto g4 = new TGraph();
    Long64_t gentry = 0;
    TTimeStamp *ttime = new TTimeStamp();
    Long64_t nbytes = 0, nb = 0;
@@ -53,8 +56,10 @@ void plot::Loop()
       g1->SetPoint(gentry, ttime->AsDouble(), current);
       g2->SetPoint(gentry, ttime->AsDouble(), T0_Luminosity);
       g3->SetPoint(gentry, ttime->AsDouble(), Luminosity);
+      g4->SetPoint(gentry, Luminosity, current);
       gentry++;
    }
+   c1->cd();
    g1->SetMarkerStyle(8);
    g1->SetMarkerSize(1);
    g1->SetMarkerColorAlpha(kRed, 1);
@@ -73,6 +78,13 @@ void plot::Loop()
    grs->GetXaxis()->SetLabelOffset(0.02);
    grs->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M\:%S}}");
    grs->GetXaxis()->SetTitle("Time");
-   grs->GetYaxis()->SetTitle("HV [V]");
+   grs->GetYaxis()->SetTitle("");
    grs->Draw("AP");
+
+   c2->cd();
+   g4->SetMarkerColorAlpha(kBlue, 0.4);
+   g4->SetMarkerStyle(7);
+   g4->GetXaxis()->SetTitle("Lumi");
+   g4->GetYaxis()->SetTitle("Current [A]");
+   g4->Draw("AP");
 }
