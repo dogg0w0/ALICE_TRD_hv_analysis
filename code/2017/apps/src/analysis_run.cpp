@@ -155,55 +155,57 @@ int main(int argc, char const *argv[])
 
 void invokeStyle()
 {
-    //..alice style from RooLogon.C in workdir
-    TStyle *aliceStyle = new TStyle("alice", "alice approved plots style");
+    //..BABAR style from RooLogon.C in workdir
+    TStyle *babarStyle = new TStyle("BABAR", "BaBar approved plots style");
 
     // use plain black on white colors
-    aliceStyle->SetFrameBorderMode(0);
-    aliceStyle->SetCanvasBorderMode(0);
-    aliceStyle->SetPadBorderMode(0);
-    aliceStyle->SetPadColor(0);
-    aliceStyle->SetCanvasColor(0);
-    aliceStyle->SetStatColor(0);
+    babarStyle->SetFrameBorderMode(0);
+    babarStyle->SetCanvasBorderMode(0);
+    babarStyle->SetPadBorderMode(0);
+    babarStyle->SetPadColor(0);
+    babarStyle->SetCanvasColor(0);
+    babarStyle->SetStatColor(0);
 
     // set the paper & margin sizes
-    aliceStyle->SetPaperSize(20, 26);
-    aliceStyle->SetPadTopMargin(0.05);
-    aliceStyle->SetPadRightMargin(0.05);
-    aliceStyle->SetPadBottomMargin(0.16);
-    aliceStyle->SetPadLeftMargin(0.12);
+    babarStyle->SetPaperSize(20, 26);
+    babarStyle->SetPadTopMargin(0.05);
+    babarStyle->SetPadRightMargin(0.05);
+    babarStyle->SetPadBottomMargin(0.16);
+    babarStyle->SetPadLeftMargin(0.12);
 
     // use large Times-Roman fonts
-    aliceStyle->SetTextFont(132);
-    aliceStyle->SetTextSize(0.08);
-    aliceStyle->SetLabelFont(132, "x");
-    aliceStyle->SetLabelFont(132, "y");
-    aliceStyle->SetLabelFont(132, "z");
-    aliceStyle->SetLabelSize(0.05, "x");
-    aliceStyle->SetTitleSize(0.06, "x");
-    aliceStyle->SetLabelSize(0.05, "y");
-    aliceStyle->SetTitleSize(0.06, "y");
-    aliceStyle->SetLabelSize(0.05, "z");
-    aliceStyle->SetTitleSize(0.06, "z");
+    babarStyle->SetTextFont(132);
+    babarStyle->SetTextSize(0.08);
+    babarStyle->SetLabelFont(132, "x");
+    babarStyle->SetLabelFont(132, "y");
+    babarStyle->SetLabelFont(132, "z");
+    babarStyle->SetLabelSize(0.05, "x");
+    babarStyle->SetTitleSize(0.06, "x");
+    babarStyle->SetLabelSize(0.05, "y");
+    babarStyle->SetTitleSize(0.06, "y");
+    babarStyle->SetLabelSize(0.05, "z");
+    babarStyle->SetTitleSize(0.06, "z");
 
     // use bold lines and markers
-    aliceStyle->SetMarkerStyle(20);
-    aliceStyle->SetHistLineWidth(1);
-    aliceStyle->SetLineStyleString(2, "[12 12]"); // postscript dashes
+    babarStyle->SetMarkerStyle(20);
+    babarStyle->SetHistLineWidth(1.85);
+    babarStyle->SetLineStyleString(2, "[12 12]"); // postscript dashes
 
     // get rid of X error bars and y error bar caps
-    aliceStyle->SetErrorX(0.001);
+    babarStyle->SetErrorX(0.001);
 
     // do not display any of the standard histogram decorations
-    aliceStyle->SetOptTitle(0);
-    aliceStyle->SetOptStat(0);
-    aliceStyle->SetOptFit(0);
+    //babarStyle->SetOptTitle(0);
+    babarStyle->SetOptStat(0);
+    babarStyle->SetOptFit(0);
 
     // put tick marks on top and RHS of plots
-    aliceStyle->SetPadTickX(1);
-    aliceStyle->SetPadTickY(1);
+    babarStyle->SetPadTickX(1);
+    babarStyle->SetPadTickY(1);
 
-    gROOT->SetStyle("alice");
+    gROOT->SetStyle("BABAR");
+
+    ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
     gROOT->ForceStyle();
     TH1::SetDefaultSumw2(kTRUE);
     TH2::SetDefaultSumw2(kTRUE);
