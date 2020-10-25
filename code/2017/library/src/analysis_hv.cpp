@@ -1,6 +1,6 @@
 #include "analysis_hv.hpp"
 
-void analysis_hv::Loop()
+std::pair<Double_t, Double_t> analysis_hv::Loop()
 {
     Long64_t nentries = fChain->GetEntriesFast();
     auto myfile = new TFile(outfile_name.c_str(), "UPDATE");

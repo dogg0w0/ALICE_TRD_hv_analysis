@@ -99,6 +99,8 @@ int main(int argc, char const *argv[])
     //style->SetOptTitle(1);
     gROOT->SetStyle("ATLAS");
     gROOT->ForceStyle();
+    TH1::SetDefaultSumw2(kTRUE);
+    TH2::SetDefaultSumw2(kTRUE);
     if (argc == 7)
     {
         analysis_run((std::stoi(argv[1])), (std::string)argv[2], (std::string)argv[3], (std::string)argv[4], (std::stoi(argv[5])), (std::stoi(argv[6])));

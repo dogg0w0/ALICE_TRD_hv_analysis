@@ -4,6 +4,8 @@
 output_plots/
 website/
 */build/
+*/build/*
+/build/*
 test_dir/build/
 *.o
 *.tiff
