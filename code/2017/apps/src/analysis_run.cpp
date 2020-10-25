@@ -137,7 +137,9 @@ void invokeStyle();
 
 int main(int argc, char const *argv[])
 {
-    invokeStyle();
+    //invokeStyle();
+    gROOT->SetStyle("ATLAS");
+    gROOT->ForceStyle();
     if (argc == 6)
     {
         analysis_run((std::stoi(argv[1])), (std::string)argv[2], (std::string)argv[3], (std::string)argv[4], (std::string)argv[5]);

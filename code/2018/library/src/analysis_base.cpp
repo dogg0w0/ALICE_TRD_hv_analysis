@@ -14,7 +14,7 @@ void analysis::Loop()
     auto c = new TCanvas((channel_name + "_" + measurement_type).c_str(),
                          (channel_name + "_" + measurement_type).c_str(),
                          10, 10, 1600, 900);
-    c->Divide(2, 1);
+    c->Divide(3, 1);
     auto *grs = new TMultiGraph();
     auto *gr45 = new TMultiGraph();
     auto g0 = new TGraph();
@@ -23,10 +23,41 @@ void analysis::Loop()
     auto g3 = new TGraph();
     auto g4 = new TGraph();
     auto g5 = new TGraph();
-    Long64_t gentry = 0;
+    auto g6 = new TGraph();
+    auto gT0Errors = new TGraph();
+    auto gECALErrors = new TGraph();
+    auto dummyhist = new TH1D();
+    auto dummygraphT0 = new TGraph();
+    auto dummygraphECAL = new TGraph();
+
+    Double_t delta = 1;
+    Long64_t gentry = 0, gerrorsentry = 0, g4entry = 0, g5entry = 0;
     Double_t current_cor = 0;
     TTimeStamp *ttime = new TTimeStamp();
     Long64_t nbytes = 0, nb = 0;
+    Double_t maxLumi = 0;
+
+    for (Long64_t jentry = 0; jentry < nentries; jentry++)
+    {
+        Long64_t ientry = LoadTree(jentry);
+        if (ientry < 0)
+            break;
+        fChain->GetEntry(jentry);
+        if (HV < 0)
+            continue;
+        // if (Cut(ientry) < 0) continue;
+        dummygraphT0->SetPoint(gentry, Luminosity, current);
+        dummygraphECAL->SetPoint(gentry, T0_Luminosity, current);
+        gentry++;
+    }
+
+    // Mark Outliers
+    dummygraphT0->Fit("pol1", "Q");
+    dummygraphECAL->Fit("pol1", "Q");
+    auto fT0 = dummygraphT0->GetFunction("pol1");
+    auto fECAL = dummygraphECAL->GetFunction("pol1");
+
+    gentry = 0;
     for (Long64_t jentry = 0; jentry < nentries; jentry++)
     {
 
@@ -38,114 +69,143 @@ void analysis::Loop()
         nb = fChain->GetEntry(jentry);
         nbytes += nb;
         // if (Cut(ientry) < 0) continue;
+        if (HV < 0)
+            continue;
+
+        current_cor = (current - offset < 0) ? 0 : current - offset;
         ttime->SetSec(fSec);
         ttime->SetNanoSec(fNanoSec);
-        current_cor = (current - offset < 0) ? 0 : current - offset;
-        g0->SetPoint(gentry, ttime->AsDouble(), HV);
-        g1->SetPoint(gentry, ttime->AsDouble(), current_cor);
-        g2->SetPoint(gentry, ttime->AsDouble(), T0_Luminosity);
-        g3->SetPoint(gentry, ttime->AsDouble(), Luminosity);
-        g4->SetPoint(gentry, Luminosity, current_cor);
-        g5->SetPoint(gentry, T0_Luminosity, current_cor);
-        gentry++;
+        if (TMath::Abs(fECAL->Eval(Luminosity) - current) < delta)
+        {
+            g4->SetPoint(g4entry, Luminosity, current_cor);
+            g4entry++;
+        }
+        if (TMath::Abs(fT0->Eval(T0_Luminosity) - current) < delta)
+        {
+            g5->SetPoint(g5entry, T0_Luminosity, current_cor);
+            g5entry++;
+        }
+        else
+        {
+            gT0Errors->SetPoint(gerrorsentry, T0_Luminosity, current_cor);
+            gECALErrors->SetPoint(gerrorsentry, Luminosity, current_cor);
+            gerrorsentry++;
+        }
+        if (TMath::Abs(fT0->Eval(T0_Luminosity) - current) < delta && TMath::Abs(fECAL->Eval(Luminosity) - current) < delta)
+        {
+            g0->SetPoint(gentry, ttime->AsDouble(), HV);
+            g1->SetPoint(gentry, ttime->AsDouble(), current_cor);
+            g2->SetPoint(gentry, ttime->AsDouble(), T0_Luminosity);
+            g3->SetPoint(gentry, ttime->AsDouble(), Luminosity);
+            g6->SetPoint(gentry, T0_Luminosity, Luminosity);
+            gentry++;
+            if (maxLumi < Luminosity)
+                maxLumi = Luminosity;
+        }
     }
+    g4->SetPoint(gentry, 0, 0);
+    g5->SetPoint(gentry, 0, 0);
     // Find average HV
     g0->Fit("pol0", "Q");
     mean_hv = g0->GetFunction("pol0")->GetParameter(0);
 
     c->cd(1);
-    TPad *pad1 = new TPad("pad1", "", 0, 0, 1, 1);
-    TPad *pad2 = new TPad("pad2", "", 0, 0, 1, 1);
-    pad1->Draw();
-    pad1->cd();
-    g1->SetMarkerStyle(20);
-    g1->SetMarkerSize(0.5);
-    g1->SetMarkerColorAlpha(1, 1);
-
-    g1->GetXaxis()->SetTimeOffset(0, "gmt");
-    g1->GetXaxis()->SetTimeDisplay(1);
-    g1->GetXaxis()->SetLabelOffset(0.02);
-    g1->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M}}");
-    g1->GetXaxis()->SetTitle("");
-    g1->GetYaxis()->SetTitle("Current (A)");
-    g1->Draw("AP");
-
-    pad2->SetFrameFillStyle(0);
-    pad2->SetFillStyle(4000);
-    pad2->Draw();
-    pad2->cd();
+    dummyhist->Draw();
     g2->SetMarkerStyle(20);
-    g2->SetMarkerSize(0.5);
-    g2->SetMarkerColorAlpha(4, 0.4);
-    g3->SetMarkerStyle(7);
-    g3->SetMarkerSize(0.5);
-    g3->SetMarkerColorAlpha(3, 0.35);
+    g2->SetMarkerSize(0.7);
+    g2->SetMarkerColor(8);
+    g3->SetMarkerStyle(21);
+    g3->SetMarkerSize(0.7);
+    g3->SetMarkerColor(9);
     grs->Add(g2);
     grs->Add(g3);
     grs->SetTitle(channel_name.c_str());
     grs->GetXaxis()->SetTimeOffset(0, "gmt");
     grs->GetXaxis()->SetTimeDisplay(1);
     grs->GetXaxis()->SetLabelOffset(0.02);
-    grs->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M}}");
-    grs->GetXaxis()->SetTitle("");
-    grs->GetYaxis()->SetTitle("");
-    grs->Draw("AP");
+    grs->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
+    grs->GetXaxis()->SetTitle("Time #splitline{H}{M}");
+    grs->GetYaxis()->SetTitle("Luminostiy (HZ/#mub)  #color[2]{Current (A)}");
+    grs->Draw("AP SAME");
 
-    // Draw the axis of the 2nd TMultiGraph
-    TAxis *mg2Xaxis = grs->GetHistogram()->GetXaxis();
-    TAxis *mg2Yaxis = grs->GetHistogram()->GetYaxis();
-    Double_t xmin = mg2Xaxis->GetXmin();
-    Double_t xmax = mg2Xaxis->GetXmax();
-    Double_t ymin = mg2Yaxis->GetXmin();
-    Double_t ymax = mg2Yaxis->GetXmax();
-    mg2Xaxis->SetLabelSize(0);
-    mg2Xaxis->SetTickLength(0);
-    mg2Yaxis->SetLabelSize(0);
-    mg2Yaxis->SetTickLength(0);
-    TGaxis *yaxis = new TGaxis(xmax, ymin, xmax, ymax, ymin, ymax, 510, "+L");
-    TGaxis *xaxis = new TGaxis(xmin, ymax, xmax, ymax, xmin, xmax, 510, "-L");
-    xaxis->SetLabelColor(kRed);
-    yaxis->SetTextColor(kRed);
-    xaxis->SetTimeOffset(0, "gmt");
-    xaxis->SetLabelOffset(0.005);
-    xaxis->SetTimeFormat("%H\:%M");
-    xaxis->SetTitle("");
-    yaxis->SetTitle("Luminostiy (HZ/#mub)");
-    xaxis->Draw();
-    yaxis->SetLabelColor(kRed);
-    yaxis->Draw();
+    g1->SetMarkerStyle(2);
+    g1->SetMarkerSize(0.7);
+    g1->SetMarkerColor(kRed);
+
+    g1->GetXaxis()->SetTimeOffset(0, "gmt");
+    g1->GetXaxis()->SetTimeDisplay(1);
+    g1->GetXaxis()->SetLabelOffset(0.03);
+    g1->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
+    //g1->GetXaxis()->SetTitle("");
+    //g1->GetYaxis()->SetTitle("Current (A)");
+    g1->Draw("P SAME");
 
     //Legend
-    auto legend = new TLegend(0.55, 0.15, 0.8, 0.3);
-    legend->SetHeader("small offset in times", "C"); // option "C" allows to center the header
-    legend->AddEntry(g1, "current", "lp");
-    legend->AddEntry(g2, "T0 Luminosity", "lp");
-    legend->AddEntry(g3, "ECal Luminosity", "lp");
+    auto legend = new TLegend(0.55, 0.3, 0.8, 0.45);
+    //legend->SetHeader("small offset in times","C"); // option "C" allows to center the header
+    legend->AddEntry(g1, "current", "p");
+    legend->AddEntry(g2, "T0 Luminosity", "p");
+    legend->AddEntry(g3, "ECal Luminosity", "p");
     legend->Draw();
 
     c->cd(2);
-    g4->SetMarkerColorAlpha(3, 0.2);
+    g4->SetMarkerColor(8);
+    g4->SetMarkerSize(0.5);
     g4->SetMarkerStyle(20);
 
-    g4->SetName("T0 Luminosity");
-    g5->SetName("ECal Luminosity");
-
-    g5->SetMarkerColorAlpha(4, 0.2);
-    g5->SetMarkerStyle(22);
+    g5->SetMarkerColor(9);
+    g5->SetMarkerSize(0.5);
+    g5->SetMarkerStyle(21);
 
     t0_lumi_gr = new TGraph(*g4);
     tof_lumi_gr = new TGraph(*g5);
 
+    g4->Fit("pol1", "Q");
+    g5->Fit("pol1", "Q");
+    g4->GetFunction("pol1")->SetLineColor(8);
+    g5->GetFunction("pol1")->SetLineColor(9);
+
+    gT0Errors->SetMarkerColor(kRed);
+    gT0Errors->SetMarkerSize(0.3);
+    gT0Errors->SetMarkerStyle(3);
+
+    gECALErrors->SetMarkerColor(kRed);
+    gECALErrors->SetMarkerSize(0.3);
+    gECALErrors->SetMarkerStyle(4);
+
     gr45->Add(g4);
     gr45->Add(g5);
+    gr45->Add(gT0Errors);
+    gr45->Add(gECALErrors);
+    gr45->SetTitle("Luminosity Current Correlation");
     gr45->GetXaxis()->SetTitle("Luminostiy (HZ/#mub)");
     gr45->GetYaxis()->SetTitle("Current (A)");
-    gr45->SetTitle("Luminosity Current");
     gr45->Draw("AP");
-    auto legend1 = new TLegend(0.55, 0.15, 0.8, 0.3);
-    legend1->AddEntry(g4, "T0 Luminosity", "lp");
-    legend1->AddEntry(g5, "ECal Luminosity", "lp");
+    auto legend1 = new TLegend(0.55, 0.3, 0.8, 0.45);
+    legend1->AddEntry(g4, "T0 Luminosity", "p");
+    legend1->AddEntry(g5, "ECal Luminosity", "p");
+    legend1->AddEntry(gT0Errors, "T0 Outliers", "p");
+    legend1->AddEntry(gECALErrors, "ECal Outliers", "p");
     legend1->Draw();
+
+    c->cd(3);
+    auto fDiag = new TF1("fDiag", "x", 0, maxLumi);
+    g6->GetXaxis()->SetTitle("T0 Lumi");
+    g6->GetYaxis()->SetTitle("ECal Lumi");
+    g6->SetTitle("Luminosities Correlation");
+    g6->SetMarkerStyle(28);
+    g6->SetMarkerColor(8);
+    g6->SetMarkerSize(0.6);
+    g6->Fit("pol1", "Q");
+    g6->Draw("AP");
+    fDiag->SetLineColor(kMagenta + 1);
+    fDiag->Draw("SAME");
+
+    auto legend2 = new TLegend(0.55, 0.3, 0.8, 0.45);
+    //legend->SetHeader("small offset in times","C"); // option "C" allows to center the header
+    legend2->AddEntry(fDiag, "Perfect Correlation", "l");
+    legend2->AddEntry(g6, "Correlation", "lp");
+    legend2->Draw();
 
     c->Write();
     //g4->Write();
@@ -163,12 +223,28 @@ void analysis::Loop()
         delete g4;
     if (g5)
         delete g5;
+    if (g6)
+        delete g6;
+    if (gT0Errors)
+        delete gT0Errors;
+    if (gECALErrors)
+        delete gECALErrors;
+    if (dummyhist)
+        delete dummyhist;
+    if (dummygraphT0)
+        delete dummygraphT0;
+    if (dummygraphECAL)
+        delete dummygraphECAL;
     if (c)
         delete c;
     if (legend)
         delete legend;
     if (legend1)
         delete legend1;
+    if (legend2)
+        delete legend2;
+    if (fDiag)
+        delete fDiag;
 }
 
 analysis::analysis(const std::string filename, const std::string outfile, const std::string channel, const Int_t offset_start, const Int_t offset_end)
@@ -217,7 +293,7 @@ void analysis::Offset()
     auto myfile = new TFile(outfile_name.c_str(), "UPDATE");
     TDirectory *subdir = (gDirectory->FindObjectAny("offset")) ? (TDirectory *)gDirectory->FindObjectAny("offset") : myfile->mkdir("offset");
     subdir->cd();
-    auto c = new TCanvas(channel_name.c_str(), ("Offset @" + channel_name).c_str(), 1600, 900);
+    auto c = new TCanvas(channel_name.c_str(), ("Offset @ " + channel_name).c_str(), 1600, 900);
     // Called inside Loop
     auto g0 = new TGraph();
     TTimeStamp *ttime = new TTimeStamp();
@@ -252,7 +328,7 @@ void analysis::Offset()
     g0->GetXaxis()->SetTimeOffset(0, "gmt");
     g0->GetXaxis()->SetTimeDisplay(1);
     g0->GetXaxis()->SetLabelOffset(0.02);
-    g0->GetXaxis()->SetTimeFormat("{%H\:%M}}");
+    g0->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
     g0->GetYaxis()->SetTitle("offset current (A)");
     g0->SetTitle(title.c_str());
     g0->Fit("pol0", "Q");

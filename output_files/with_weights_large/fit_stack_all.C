@@ -154,7 +154,7 @@
     char buffer_M[100],
         buffer_S[100],
         buffer_Chi[100];
-    sprintf(buffer_M, "M_{Z} = %.3f #pm %.3f", g0->GetParameter(1), g0->GetParError(1));
+    sprintf(buffer_M, "#mu = %.3f #pm %.3f", g0->GetParameter(1), g0->GetParError(1));
     sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g0->GetParameter(2), g0->GetParError(2));
     sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f", g0->GetChisquare() / g0->GetNDF());
     tex->DrawLatex(0.15, 0.85, buffer_M);
@@ -162,7 +162,7 @@
     tex->DrawLatex(0.15, 0.79, buffer_Chi);
 
     tex->DrawLatex(0.15, 0.75, "Gauss Fit Stack 1");
-    sprintf(buffer_M, "M_{Z} = %.3f #pm %.3f", g1->GetParameter(1), g1->GetParError(1));
+    sprintf(buffer_M, "#mu = %.3f #pm %.3f", g1->GetParameter(1), g1->GetParError(1));
     sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g1->GetParameter(2), g1->GetParError(2));
     sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f", g1->GetChisquare() / g1->GetNDF());
     tex->DrawLatex(0.15, 0.72, buffer_M);
@@ -170,7 +170,7 @@
     tex->DrawLatex(0.15, 0.66, buffer_Chi);
 
     tex->DrawLatex(0.15, 0.62, "Gauss Fit Stack 2");
-    sprintf(buffer_M, "M_{Z} = %.3f #pm %.3f", g2->GetParameter(1), g2->GetParError(1));
+    sprintf(buffer_M, "#mu = %.3f #pm %.3f", g2->GetParameter(1), g2->GetParError(1));
     sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g2->GetParameter(2), g2->GetParError(2));
     sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f", g2->GetChisquare() / g2->GetNDF());
     tex->DrawLatex(0.15, 0.59, buffer_M);
@@ -178,7 +178,7 @@
     tex->DrawLatex(0.15, 0.53, buffer_Chi);
 
     tex->DrawLatex(0.15, 0.49, "Gauss Fit Stack 3");
-    sprintf(buffer_M, "M_{Z} = %.3f #pm %.3f", g3->GetParameter(1), g3->GetParError(1));
+    sprintf(buffer_M, "#mu = %.3f #pm %.3f", g3->GetParameter(1), g3->GetParError(1));
     sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g3->GetParameter(2), g3->GetParError(2));
     sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f", g3->GetChisquare() / g3->GetNDF());
     tex->DrawLatex(0.15, 0.46, buffer_M);
@@ -186,7 +186,7 @@
     tex->DrawLatex(0.15, 0.40, buffer_Chi);
 
     tex->DrawLatex(0.15, 0.36, "Gauss Fit Stack 4");
-    sprintf(buffer_M, "M_{Z} = %.3f #pm %.3f", g4->GetParameter(1), g4->GetParError(1));
+    sprintf(buffer_M, "#mu = %.3f #pm %.3f", g4->GetParameter(1), g4->GetParError(1));
     sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g4->GetParameter(2), g4->GetParError(2));
     sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f", g4->GetChisquare() / g4->GetNDF());
     tex->DrawLatex(0.15, 0.33, buffer_M);

@@ -206,7 +206,7 @@ void plots::WriteLumi(const std::string time_stamp)
     gr_lumi_fit = new TGraphErrors(luminosities.size());
     gr_lumi_fit->SetName(Form("sector_%d_hist_lumi_fit", sector));
     gr_lumi_fit->SetTitle("Average Anode Current");
-    gr_lumi_fit->GetXaxis()->SetTitle("Luminosity [Hz/#mub]");
+    gr_lumi_fit->GetXaxis()->SetTitle("Luminosity (A/(Hz/#mub))");
     gr_lumi_fit->GetYaxis()->SetTitle("Current [#muA]");
 
     for (Int_t i = 0; i < luminosities.size(); i++)
@@ -271,7 +271,7 @@ void plots::FitInit(const std::vector<std::string> &luminosity_labels)
             gr_lumi_fit_single.push_back(new TGraphErrors(luminosity_labels.size() + 1));
             gr_lumi_fit_single[layer + stack * 6]->SetTitle(Form("%02d_%d_%d Fit Current", sector, stack, layer));
             gr_lumi_fit_single[layer + stack * 6]->SetName(Form("%02d_%d_%d_fit", sector, stack, layer));
-            gr_lumi_fit_single[layer + stack * 6]->GetXaxis()->SetTitle("Luminosity [Hz/#mub]");
+            gr_lumi_fit_single[layer + stack * 6]->GetXaxis()->SetTitle("Luminosity (A/(Hz/#mub))");
             gr_lumi_fit_single[layer + stack * 6]->GetYaxis()->SetTitle("Current [#muA]");
             gr_lumi_fit_single[layer + stack * 6]->SetPoint(0, 0.0, 0.0);
             gr_lumi_fit_single[layer + stack * 6]->SetPointError(0, 0.0, 0.0);

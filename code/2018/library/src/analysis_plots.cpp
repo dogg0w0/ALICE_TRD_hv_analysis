@@ -110,11 +110,11 @@ void plots::FitInit()
         for (Int_t layer = 0; layer < 6; layer++)
         {
             gr_lumi_fit_single_t0[layer + stack * 6]->SetTitle(Form("%02d_%d_%d Fit T0", sector, stack, layer));
-            gr_lumi_fit_single_t0[layer + stack * 6]->SetName(Form("%02d_%d_%d_fit_t0", sector, stack, layer));
+            gr_lumi_fit_single_t0[layer + stack * 6]->SetName(Form("%02d_%d_%d_fit_T0", sector, stack, layer));
             gr_lumi_fit_single_t0[layer + stack * 6]->GetXaxis()->SetTitle("Luminosity (Hz/#mub)");
             gr_lumi_fit_single_t0[layer + stack * 6]->GetYaxis()->SetTitle("Current (#muA)");
-            gr_lumi_fit_single_tof[layer + stack * 6]->SetTitle(Form("%02d_%d_%d Fit TOF", sector, stack, layer));
-            gr_lumi_fit_single_tof[layer + stack * 6]->SetName(Form("%02d_%d_%d_fit_tof", sector, stack, layer));
+            gr_lumi_fit_single_tof[layer + stack * 6]->SetTitle(Form("%02d_%d_%d Fit ECAL", sector, stack, layer));
+            gr_lumi_fit_single_tof[layer + stack * 6]->SetName(Form("%02d_%d_%d_fit_ECAL", sector, stack, layer));
             gr_lumi_fit_single_tof[layer + stack * 6]->GetXaxis()->SetTitle("Luminosity (Hz/#mub)");
             gr_lumi_fit_single_tof[layer + stack * 6]->GetYaxis()->SetTitle("Current (#muA)");
         }
@@ -193,14 +193,15 @@ void plots::FitSlopeOffset(const std::vector<Double_t> &fit_a_v, const std::vect
 
     // Histogramms for slope and offset distribution
     Int_t nbins = 30;
+    Double_t xbins = 0.15;
     auto h_a = new TH1D("h_a", "Distribution of Offset", nbins, 0, 0.1);
-    auto h_b = new TH1D("h_b", "Distribution of Slope", nbins, 0, 0.2);
+    auto h_b = new TH1D("h_b", "Distribution of Slope", nbins, 0, xbins);
 
-    auto h_b_0 = new TH1D("h_b_0", "Distribution of Slope 0", nbins, 0, 0.2);
-    auto h_b_1 = new TH1D("h_b_1", "Distribution of Slope 1", nbins, 0, 0.2);
-    auto h_b_2 = new TH1D("h_b_2", "Distribution of Slope 2", nbins, 0, 0.2);
-    auto h_b_3 = new TH1D("h_b_3", "Distribution of Slope 3", nbins, 0, 0.2);
-    auto h_b_4 = new TH1D("h_b_4", "Distribution of Slope 4", nbins, 0, 0.2);
+    auto h_b_0 = new TH1D("h_b_0", "Distribution of Slope 0", nbins, 0, xbins);
+    auto h_b_1 = new TH1D("h_b_1", "Distribution of Slope 1", nbins, 0, xbins);
+    auto h_b_2 = new TH1D("h_b_2", "Distribution of Slope 2", nbins, 0, xbins);
+    auto h_b_3 = new TH1D("h_b_3", "Distribution of Slope 3", nbins, 0, xbins);
+    auto h_b_4 = new TH1D("h_b_4", "Distribution of Slope 4", nbins, 0, xbins);
 
     auto h_a_0 = new TH1D("h_a_0", "Distribution of Offset 0", nbins, 0, 0.1);
     auto h_a_1 = new TH1D("h_a_1", "Distribution of Offset 1", nbins, 0, 0.1);
@@ -247,7 +248,7 @@ void plots::FitSlopeOffset(const std::vector<Double_t> &fit_a_v, const std::vect
         h_b->Fill(fit_b_v[i]);
     }
     // Fit
-    h_b->Fit("gaus", "WWQ", "", 0.04, 0.2);
+    h_b->Fit("gaus", "WWQ", "", 0.04, xbins);
     h_b->SetStats(0);
 
     auto c1 = new TCanvas(Form("sector_lumi_fit_%d", sector), Form("Sector %02d", sector), 10, 10, 800, 600);

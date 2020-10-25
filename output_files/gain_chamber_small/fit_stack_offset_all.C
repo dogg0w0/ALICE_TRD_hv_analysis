@@ -154,31 +154,31 @@
     //tex->DrawLatex(0.15, 0.88, "Gauss Fit Stack 0");
     //char buffer_M[100],
     //    buffer_S[100];
-    //sprintf(buffer_M, "M_{Z} = %.3f #pm %.3f", g0->GetParameter(1), g0->GetParError(1));
+    //sprintf(buffer_M, "#mu = %.3f #pm %.3f", g0->GetParameter(1), g0->GetParError(1));
     //sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g0->GetParameter(2), g0->GetParError(2));
     //tex->DrawLatex(0.15, 0.85, buffer_M);
     //tex->DrawLatex(0.15, 0.82, buffer_S);
 //
     //tex->DrawLatex(0.15, 0.78, "Gauss Fit Stack 1");
-    //sprintf(buffer_M, "M_{Z} = %.3f #pm %.3f", g1->GetParameter(1), g1->GetParError(1));
+    //sprintf(buffer_M, "#mu = %.3f #pm %.3f", g1->GetParameter(1), g1->GetParError(1));
     //sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g1->GetParameter(2), g1->GetParError(2));
     //tex->DrawLatex(0.15, 0.75, buffer_M);
     //tex->DrawLatex(0.15, 0.72, buffer_S);
 //
     //tex->DrawLatex(0.15, 0.68, "Gauss Fit Stack 2");
-    //sprintf(buffer_M, "M_{Z} = %.3f #pm %.3f", g2->GetParameter(1), g2->GetParError(1));
+    //sprintf(buffer_M, "#mu = %.3f #pm %.3f", g2->GetParameter(1), g2->GetParError(1));
     //sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g2->GetParameter(2), g2->GetParError(2));
     //tex->DrawLatex(0.15, 0.65, buffer_M);
     //tex->DrawLatex(0.15, 0.62, buffer_S);
 //
     //tex->DrawLatex(0.15, 0.58, "Gauss Fit Stack 3");
-    //sprintf(buffer_M, "M_{Z} = %.3f #pm %.3f", g3->GetParameter(1), g3->GetParError(1));
+    //sprintf(buffer_M, "#mu = %.3f #pm %.3f", g3->GetParameter(1), g3->GetParError(1));
     //sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g3->GetParameter(2), g3->GetParError(2));
     //tex->DrawLatex(0.15, 0.55, buffer_M);
     //tex->DrawLatex(0.15, 0.52, buffer_S);
 //
     //tex->DrawLatex(0.15, 0.48, "Gauss Fit Stack 4");
-    //sprintf(buffer_M, "M_{Z} = %.3f #pm %.3f", g4->GetParameter(1), g4->GetParError(1));
+    //sprintf(buffer_M, "#mu = %.3f #pm %.3f", g4->GetParameter(1), g4->GetParError(1));
     //sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g4->GetParameter(2), g4->GetParError(2));
     //tex->DrawLatex(0.15, 0.45, buffer_M);
     //tex->DrawLatex(0.15, 0.42, buffer_S);

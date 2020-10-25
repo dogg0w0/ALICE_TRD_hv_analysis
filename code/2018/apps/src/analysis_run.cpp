@@ -63,7 +63,7 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
                                    Form("sm_%d.root", sector),
                                    channel_name, 'I', offset.offset);
                         a.Loop();
-                        mean_hv_map[stack][layer] = (a.mean_hv > 1420) ? kTRUE : kFALSE;
+                        mean_hv_map[stack][layer] = (a.mean_hv > 1220) ? kTRUE : kFALSE;
                         working.Update(stack, layer, mean_hv_map[stack][layer]);
 
                         // Print Information
@@ -94,7 +94,11 @@ void invokeStyle();
 
 int main(int argc, char const *argv[])
 {
-    invokeStyle();
+    //invokeStyle();
+    //auto style = gROOT->GetStyle("ATLAS");
+    //style->SetOptTitle(1);
+    gROOT->SetStyle("ATLAS");
+    gROOT->ForceStyle();
     if (argc == 7)
     {
         analysis_run((std::stoi(argv[1])), (std::string)argv[2], (std::string)argv[3], (std::string)argv[4], (std::stoi(argv[5])), (std::stoi(argv[6])));

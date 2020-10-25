@@ -5,7 +5,7 @@ Double_t mean_std(const std::vector<Double_t> *v, const Double_t mean)
     {
         standardDeviation += TMath::Power(element - mean, 2);
     }
-    return TMath::Sqrt(standardDeviation / ((Double_t)(v->size()-1)));
+    return TMath::Sqrt(standardDeviation / ((Double_t)(v->size() - 1)));
 }
 
 Double_t mean_se(const std::vector<Double_t> *v, const Double_t mean)
@@ -15,11 +15,12 @@ Double_t mean_se(const std::vector<Double_t> *v, const Double_t mean)
     {
         standardDeviation += TMath::Power(element - mean, 2);
     }
-    standardDeviation =  TMath::Sqrt(standardDeviation / ((Double_t)(v->size()-1)));
-    return standardDeviation/TMath::Sqrt(v->size());
+    standardDeviation = TMath::Sqrt(standardDeviation / ((Double_t)(v->size() - 1)));
+    return standardDeviation / TMath::Sqrt(v->size());
 }
 
-void eta_phi(){
+void eta_phi()
+{
     //..BABAR style from RooLogon.C in workdir
     TStyle *babarStyle = new TStyle("BABAR", "BaBar approved plots style");
 
@@ -83,14 +84,18 @@ void eta_phi(){
 
     Double_t para_a, para_b;
     Long64_t nentries;
+    Bool_t work;
 
     TBranch *para_aBranch = 0;
     TBranch *para_bBranch = 0;
+    TBranch *para_wBranch = 0;
 
     vector<Double_t>
         fit_a(540, 0.0),
         fit_b(540, 0.0);
+    vector<Bool_t> working_chamber;
     TTree *tree = 0;
+    TTree *tree_w = 0;
 
     TFile *s[numfiles];
     for (Int_t i = 0; i < numfiles; i++)
@@ -101,13 +106,20 @@ void eta_phi(){
         tree->SetBranchAddress("fit_a", &para_a, &para_aBranch);
         tree->SetBranchAddress("fit_b", &para_b, &para_bBranch);
         nentries = tree->GetEntries();
+        //cout << "HER---------------------------------------" << endl;
+        tree_w = (TTree *)s[i]->Get("working_chambers");
+        tree_w->SetMakeClass(1);
+        tree_w->SetBranchAddress("working", &work, &para_wBranch);
 
         // Then loop over all of them.
         for (Long64_t j = 0; j < nentries; j++)
         {
             tree->GetEntry(j);
+            tree_w->GetEntry(j);
             fit_a[30 * i + j] = para_a;
             fit_b[30 * i + j] = para_b;
+            working_chamber.push_back(work);
+            cout << work << endl;
         }
     }
 
@@ -125,26 +137,36 @@ void eta_phi(){
         for (Int_t layer = 0; layer < x_bins_layer; layer++)
         {
             Double_t _mean = 0.0;
+            Int_t _counter = 0;
             vector<Double_t> _std;
             for (Int_t stack = 0; stack < x_bins_stack; stack++)
             {
-                _mean += fit_b[sector * 30 + layer + stack * 6];
-                _std.push_back(fit_b[sector * 30 + layer + stack * 6]);
+                if (working_chamber[sector * 30 + layer + stack * 6])
+                {
+                    _mean += fit_b[sector * 30 + layer + stack * 6];
+                    _std.push_back(fit_b[sector * 30 + layer + stack * 6]);
+                    _counter++;
+                }
             }
-            _mean /= x_bins_stack;
+            _mean /= (_counter > 0) ? _counter : -1;
             v_layer[sector * x_bins_layer + layer] = _mean;
             v_layer_err[sector * x_bins_layer + layer] = mean_se(&_std, _mean);
         }
         for (Int_t stack = 0; stack < x_bins_stack; stack++)
         {
             Double_t _mean = 0.0;
+            Int_t _counter = 0;
             vector<Double_t> _std;
             for (Int_t layer = 0; layer < x_bins_layer; layer++)
             {
-                _mean += fit_b[sector * 30 + stack * 6 + layer];
-                _std.push_back(fit_b[sector * 30 + stack * 6 + layer]);
+                if (working_chamber[sector * 30 + layer + stack * 6])
+                {
+                    _mean += fit_b[sector * 30 + stack * 6 + layer];
+                    _std.push_back(fit_b[sector * 30 + stack * 6 + layer]);
+                    _counter++;
+                }
             }
-            _mean /= x_bins_layer;
+            _mean /= (_counter > 0) ? _counter : -1;
             v_stack[sector * x_bins_stack + stack] = _mean;
             v_stack_err[sector * x_bins_stack + stack] = mean_se(&_std, _mean);
         }

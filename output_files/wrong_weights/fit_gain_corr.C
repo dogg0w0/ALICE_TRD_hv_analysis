@@ -132,7 +132,7 @@
         hist->Fill(gain_v[i + 880], fit_b[i]);
     }
     hist->GetXaxis()->SetTitle("Gain");
-    hist->GetYaxis()->SetTitle("slope parameter [Hz/#mub]");
+    hist->GetYaxis()->SetTitle("slope parameter (A/(Hz/#mub))");
 
     TH1 *hpro1 = hist->ProjectionY("", 1, 25 , "");
     hpro1->SetTitle("Cut [gain<0.45]");
