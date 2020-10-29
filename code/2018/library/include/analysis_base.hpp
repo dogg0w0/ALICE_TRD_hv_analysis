@@ -71,7 +71,7 @@ public:
     virtual Long64_t LoadTree(const Long64_t entry);
     virtual void Init(TTree *tree);
     virtual void InitOffset(TTree *tree);
-    virtual void Loop();
+    virtual void Loop(Double_t weight_channel);
     virtual Bool_t Notify();
     virtual void Show(const Long64_t entry = -1);
     Double_t mean(const std::vector<Double_t> *v);

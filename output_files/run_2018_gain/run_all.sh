@@ -2,8 +2,7 @@
 
 pathTOsorted="/home/doggo/Downloads/ALICE_TRD/hv_ALICE_Data/"
 pathToExecutable="/home/doggo/Downloads/ALICE_TRD/code/2018/build/apps/analysis_run"
-declare -a listGainIndex=("-1" "-1" "-1")
-
+declare -a listGainIndex=("1" "2" "2")
 
 rm analysis_run
 rm -rf output

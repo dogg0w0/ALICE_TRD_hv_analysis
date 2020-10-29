@@ -4,7 +4,6 @@ pathTOsorted="/home/doggo/Downloads/ALICE_TRD/hv_ALICE_Data/"
 pathToExecutable="/home/doggo/Downloads/ALICE_TRD/code/2018/build/apps/analysis_run"
 declare -a listGainIndex=("-1" "-1" "-1")
 
-
 rm analysis_run
 rm -rf output
 rm sm_*.root

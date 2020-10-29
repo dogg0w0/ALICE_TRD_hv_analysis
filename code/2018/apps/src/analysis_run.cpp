@@ -4,7 +4,7 @@
 #include "analysis_plots.hpp"
 #include "analysis_working.hpp"
 
-void analysis_run(Int_t sector_number, std::string input_data_dir, std::string input_outfile, std::string file_offset_dir, Int_t offset_start, Int_t offset_end)
+void analysis_run(Int_t sector_number, std::string input_data_dir, std::string input_outfile, std::string file_offset_dir, Int_t offset_start, Int_t offset_end, Int_t gain_index)
 {
     std::string file_dir = input_data_dir + "sorted_%d.csv.root";
     std::string file_dir_offset = file_offset_dir + "sorted_%d.csv.root";
@@ -21,7 +21,7 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
     // Map for if Current per Stack should be included in further Calculations <Stack, <Layer,  True/False>>
     std::map<Int_t, std::map<Int_t, Bool_t>> mean_hv_map;
 
-    plots plotter(sector_n);
+    plots plotter(sector_n, "/home/doggo/Downloads/ALICE_TRD/gain/trendingOCDB_2018.root", gain_index);
     analysis_working working;
 
     //Int_t date_time = std::get<1>(timestamps[0]);
@@ -62,8 +62,8 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
                         analysis a(Form(file_dir.c_str(), file_index),
                                    Form("sm_%d.root", sector),
                                    channel_name, 'I', offset.offset);
-                        a.Loop();
-                        mean_hv_map[stack][layer] = (a.mean_hv > 1220) ? kTRUE : kFALSE;
+                        a.Loop(plotter.weights[30 * sector + 6 * stack + layer]);
+                        mean_hv_map[stack][layer] = (a.mean_hv > 1000) ? kTRUE : kFALSE;
                         working.Update(stack, layer, mean_hv_map[stack][layer]);
 
                         // Print Information
@@ -101,9 +101,9 @@ int main(int argc, char const *argv[])
     gROOT->ForceStyle();
     TH1::SetDefaultSumw2(kTRUE);
     TH2::SetDefaultSumw2(kTRUE);
-    if (argc == 7)
+    if (argc == 8)
     {
-        analysis_run((std::stoi(argv[1])), (std::string)argv[2], (std::string)argv[3], (std::string)argv[4], (std::stoi(argv[5])), (std::stoi(argv[6])));
+        analysis_run((std::stoi(argv[1])), (std::string)argv[2], (std::string)argv[3], (std::string)argv[4], (std::stoi(argv[5])), (std::stoi(argv[6])), std::stoi(argv[7]));
     }
     else
     {
@@ -112,7 +112,8 @@ int main(int argc, char const *argv[])
                   << "\t input_file.txt "
                   << "\t input_offset_dir"
                   << "\t offset_start"
-                  << "\t offset_end" << std::endl;
+                  << "\t offset_end"
+                  << "\t Gain Index negative if to be ignored" << std::endl;
     }
     return 0;
 }

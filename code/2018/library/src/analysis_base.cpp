@@ -1,6 +1,6 @@
 #include "analysis_base.hpp"
 
-void analysis::Loop()
+void analysis::Loop(Double_t weight_channel)
 {
 
     if (fChain == 0)
@@ -8,13 +8,14 @@ void analysis::Loop()
 
     Long64_t nentries = fChain->GetEntriesFast();
     auto myfile = new TFile(outfile_name.c_str(), "UPDATE");
-    TDirectory *subdir = (gDirectory->FindObjectAny("lumi_cur")) ? (TDirectory *)gDirectory->FindObjectAny("lumi_cur") : myfile->mkdir("lumi_cur");
-    subdir->cd();
+    myfile->mkdir("lumi_cur", "", true);
+    myfile->mkdir("quality_assurance", "", true);
+    myfile->cd("lumi_cur");
 
     auto c = new TCanvas((channel_name + "_" + measurement_type).c_str(),
                          (channel_name + "_" + measurement_type).c_str(),
                          10, 10, 1600, 900);
-    c->Divide(3, 1);
+    c->Divide(2, 1);
     auto *grs = new TMultiGraph();
     auto *gr45 = new TMultiGraph();
     auto g0 = new TGraph();
@@ -29,9 +30,10 @@ void analysis::Loop()
     auto dummyhist = new TH1D();
     auto dummygraphT0 = new TGraph();
     auto dummygraphECAL = new TGraph();
+    auto current_tof_cur = new TGraph();
 
     Double_t delta = 1;
-    Long64_t gentry = 0, gerrorsentry = 0, g4entry = 0, g5entry = 0;
+    Long64_t gentry = 0, gerrorsentryT0 = 0, gerrorsentryECAL = 0, g4entry = 0, g5entry = 0;
     Double_t current_cor = 0;
     TTimeStamp *ttime = new TTimeStamp();
     Long64_t nbytes = 0, nb = 0;
@@ -71,8 +73,10 @@ void analysis::Loop()
         // if (Cut(ientry) < 0) continue;
         if (HV < 0)
             continue;
+        if (Luminosity > 51)
+            continue;
 
-        current_cor = (current - offset < 0) ? 0 : current - offset;
+        current_cor = (current - offset < 0) ? 0 : (current - offset) * weight_channel;
         ttime->SetSec(fSec);
         ttime->SetNanoSec(fNanoSec);
         if (TMath::Abs(fECAL->Eval(Luminosity) - current) < delta)
@@ -80,6 +84,12 @@ void analysis::Loop()
             g4->SetPoint(g4entry, Luminosity, current_cor);
             g4entry++;
         }
+        else
+        {
+            gECALErrors->SetPoint(gerrorsentryECAL, Luminosity, current_cor);
+            gerrorsentryECAL++;
+        }
+
         if (TMath::Abs(fT0->Eval(T0_Luminosity) - current) < delta)
         {
             g5->SetPoint(g5entry, T0_Luminosity, current_cor);
@@ -87,9 +97,8 @@ void analysis::Loop()
         }
         else
         {
-            gT0Errors->SetPoint(gerrorsentry, T0_Luminosity, current_cor);
-            gECALErrors->SetPoint(gerrorsentry, Luminosity, current_cor);
-            gerrorsentry++;
+            gT0Errors->SetPoint(gerrorsentryT0, T0_Luminosity, current_cor);
+            gerrorsentryT0++;
         }
         if (TMath::Abs(fT0->Eval(T0_Luminosity) - current) < delta && TMath::Abs(fECAL->Eval(Luminosity) - current) < delta)
         {
@@ -98,6 +107,7 @@ void analysis::Loop()
             g2->SetPoint(gentry, ttime->AsDouble(), T0_Luminosity);
             g3->SetPoint(gentry, ttime->AsDouble(), Luminosity);
             g6->SetPoint(gentry, T0_Luminosity, Luminosity);
+            current_tof_cur->SetPoint(gentry, current_cor, TOF_average_current);
             gentry++;
             if (maxLumi < Luminosity)
                 maxLumi = Luminosity;
@@ -188,10 +198,20 @@ void analysis::Loop()
     legend1->AddEntry(gECALErrors, "ECal Outliers", "p");
     legend1->Draw();
 
-    c->cd(3);
+    c->Write();
+    myfile->Write();
+    myfile->cd("..");
+    myfile->cd("quality_assurance");
+
+    auto c1 = new TCanvas((channel_name + "_" + measurement_type + "assurance").c_str(),
+                          (channel_name + "_" + measurement_type).c_str(),
+                          10, 10, 1600, 900);
+    c1->Divide(2, 1);
+
+    c1->cd(1);
     auto fDiag = new TF1("fDiag", "x", 0, maxLumi);
-    g6->GetXaxis()->SetTitle("T0 Lumi");
-    g6->GetYaxis()->SetTitle("ECal Lumi");
+    g6->GetXaxis()->SetTitle("T0 Luminosity (Hz/#mub)");
+    g6->GetYaxis()->SetTitle("ECal Luminosity (Hz/#mub)");
     g6->SetTitle("Luminosities Correlation");
     g6->SetMarkerStyle(28);
     g6->SetMarkerColor(8);
@@ -207,12 +227,18 @@ void analysis::Loop()
     legend2->AddEntry(g6, "Correlation", "lp");
     legend2->Draw();
 
-    c->Write();
-    //g4->Write();
-    //g5->Write();
-
+    c1->cd(2);
+    current_tof_cur->GetXaxis()->SetTitle("Anode Current (A)");
+    current_tof_cur->GetYaxis()->SetTitle("TOF Current (A)");
+    current_tof_cur->SetTitle("Correlation TOF-TRD Current");
+    current_tof_cur->SetMarkerStyle(28);
+    current_tof_cur->SetMarkerColor(8);
+    current_tof_cur->SetMarkerSize(0.6);
+    current_tof_cur->Draw("AP");
+    c1->Write();
     myfile->Write();
     myfile->Close();
+
     if (g1)
         delete g1;
     if (g2)
@@ -237,6 +263,8 @@ void analysis::Loop()
         delete dummygraphECAL;
     if (c)
         delete c;
+    if (c1)
+        delete c1;
     if (legend)
         delete legend;
     if (legend1)
@@ -245,6 +273,10 @@ void analysis::Loop()
         delete legend2;
     if (fDiag)
         delete fDiag;
+    if (current_tof_cur)
+    {
+        delete current_tof_cur;
+    }
 }
 
 analysis::analysis(const std::string filename, const std::string outfile, const std::string channel, const Int_t offset_start, const Int_t offset_end)

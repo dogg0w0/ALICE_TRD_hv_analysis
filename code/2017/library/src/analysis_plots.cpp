@@ -15,7 +15,7 @@ plots::plots(const Int_t sector_n, const std::vector<std::string> &luminosity_la
     sector = sector_n;
     plots::ChamberWeightsInit();
     //plots::GainWeightsInit(gain_map);
-    plots::RadialWeightsInit();
+    //plots::RadialWeightsInit();
     plots::WeightsInit();
     plots::ChannelNames();
     plots::Canvas();

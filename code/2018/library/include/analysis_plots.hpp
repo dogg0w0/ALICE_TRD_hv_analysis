@@ -32,7 +32,7 @@ public:
     std::vector<Double_t> weights;
 
     plots(const Int_t sector_n);
-    plots(const Int_t sector_n, const std::string gain_map);
+    plots(const Int_t sector_n, const std::string gain_map, const Int_t gain_index);
     ~plots();
     void Draw(std::map<Int_t, std::map<Int_t, Bool_t>> &mean_hv_map, std::map<Int_t, std::map<Int_t, Double_t>> &mean_offset_map);
     void Canvas();
@@ -40,7 +40,7 @@ public:
     void Write();
     void ChannelNames();
     void ChamberWeightsInit();
-    void GainWeightsInit(std::string gain_map);
+    void GainWeightsInit(const std::string gain_map, const Int_t gain_index);
     void RadialWeightsInit();
     void WeightsInit();
     void FitInit();

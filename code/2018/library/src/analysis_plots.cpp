@@ -3,7 +3,7 @@
 plots::plots(const Int_t sector_n)
 {
     sector = sector_n;
-    plots::ChamberWeightsInit();
+    //plots::ChamberWeightsInit();
     //plots::GainWeightsInit(gain_map);
     //plots::RadialWeightsInit();
     plots::WeightsInit();
@@ -12,11 +12,11 @@ plots::plots(const Int_t sector_n)
     plots::HistOffset();
 }
 
-plots::plots(const Int_t sector_n, std::string gain_map)
+plots::plots(const Int_t sector_n, std::string gain_map, const Int_t gain_index)
 {
     sector = sector_n;
     plots::ChamberWeightsInit();
-    //plots::GainWeightsInit(gain_map);
+    //plots::GainWeightsInit(gain_map, gain_index);
     //plots::RadialWeightsInit();
     plots::WeightsInit();
     plots::ChannelNames();
@@ -333,13 +333,14 @@ void plots::ChamberWeightsInit()
     }
 }
 
-void plots::GainWeightsInit(std::string gain_map)
+void plots::GainWeightsInit(const std::string gain_map, const Int_t gain_index)
 {
+    if (gain_index < 0)
+        return;
     // Open the ROOT file.
     TFile *f = TFile::Open(gain_map.c_str(), "READ");
     if (f == 0)
     {
-
         // If we cannot open the ROOT file, print an error message and return immediately.
         printf("Error: cannot open file");
         return;
@@ -352,7 +353,6 @@ void plots::GainWeightsInit(std::string gain_map)
     TBranch *gainBranch = 0;
     TBranch *runBranch = 0;
 
-    std::vector<Double_t> meangain(540, 0.0);
     //vector<Double_t> gain_v(1620, 0.0);
 
     // Get a pointer to the tree.
@@ -366,25 +366,21 @@ void plots::GainWeightsInit(std::string gain_map)
     tree->SetBranchAddress("gain", &gain, &gainBranch);
     //tree->SetBranchAddress("run", &run, &runBranch);
     // First, get the total number of entries.
-    Long64_t nentries = tree->GetEntries();
+    Long64_t nentries = tree->GetEntriesFast();
+    Long64_t start_index = 0 + 540 * gain_index;
+    Long64_t end_index = 0 + 540 * (gain_index + 1);
 
     // Then loop over all of them.
-    for (Long64_t i = 0; i < nentries; i++)
+    for (Long64_t i = start_index; i < end_index; i++)
     {
         tree->GetEntry(i);
-        meangain[i % 540] += gain;
         absolute_mean += gain;
-        //gain_v[i] = gain;
-    }
-    // Mean
-    for (Int_t i = 0; i < 540; i++)
-    {
-        meangain[i] /= 3;
     }
     absolute_mean /= nentries;
-    for (Int_t i = 0; i < 540; i++)
+    for (Long64_t i = start_index; i < end_index; i++)
     {
-        gain_weights[i] = (meangain[i] / absolute_mean);
+        tree->GetEntry(i);
+        gain_weights[i%540] = (gain / absolute_mean);
     }
 }
 
