@@ -2,6 +2,7 @@
 import sys
 import numpy as np
 import pandas as pd
+print("Entered Matched Lumi Current")
 df1 = pd.read_csv(str(sys.argv[1]), header=0)  # matched hv_current
 df2 = pd.read_csv(str(sys.argv[2]), header=0)  # matched luminosities
 
@@ -13,3 +14,4 @@ df = df[df['current'].notna()]
 
 df.to_csv(path_or_buf=str(sys.argv[3]),
           index=False, sep=' ', header=False)
+print("Exited Matched Lumi Current")

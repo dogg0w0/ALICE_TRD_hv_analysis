@@ -73,8 +73,6 @@ void analysis::Loop(Double_t weight_channel)
         // if (Cut(ientry) < 0) continue;
         if (HV < 0)
             continue;
-        if (Luminosity > 51)
-            continue;
 
         current_cor = (current - offset < 0) ? 0 : (current - offset) * weight_channel;
         ttime->SetSec(fSec);
