@@ -24,7 +24,7 @@
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
 
-    Int_t nbins = 70;
+    Int_t nbins = 30;
     auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Layer 0", nbins, 0.0, 0.15);
     auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Layer 1", nbins, 0.0, 0.15);
     auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Layer 2", nbins, 0.0, 0.15);
@@ -130,8 +130,8 @@
         h_5->GetFunction("g5")->SetLineColor(palette[5]);
     }
 
-    h_0->GetYaxis()->SetRangeUser(0, 0.5);
-    h_0->GetXaxis()->SetRangeUser(0.02, 0.08);
+    h_0->GetYaxis()->SetRangeUser(0, 0.7);
+    //h_0->GetXaxis()->SetRangeUser(0.02, 0.14);
 
     h_0->Draw("9 PLC PMC");
     h_1->Draw("9 SAME PLC PMC");

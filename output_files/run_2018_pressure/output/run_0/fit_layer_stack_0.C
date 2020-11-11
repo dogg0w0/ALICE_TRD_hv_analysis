@@ -24,7 +24,7 @@
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
 
-    Int_t nbins = 70;
+    Int_t  nbins = 30;
     auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Layer 0", nbins, 0.0, 0.15);
     auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Layer 1", nbins, 0.0, 0.15);
     auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Layer 2", nbins, 0.0, 0.15);
@@ -62,7 +62,7 @@
         }
     }
 
-    Int_t stacks[] = {1,3};
+    Int_t stacks[] = {0};
 
     for (Int_t sector = 0; sector < numfiles; sector++)
     {
@@ -75,8 +75,9 @@
             h_4->Fill(fit_b[30 * sector + stack * 6 + 4]);
             h_5->Fill(fit_b[30 * sector + stack * 6 + 5]);
         }
+        
     }
-
+    
     //Norm
     Double_t scale_0 = 1 / h_0->Integral();
     Double_t scale_1 = 1 / h_1->Integral();
@@ -90,7 +91,7 @@
     h_3->Scale(scale_3);
     h_4->Scale(scale_4);
     h_5->Scale(scale_5);
-
+    
     h_0->SetMarkerStyle(kFullCircle);
     h_1->SetMarkerStyle(kFullSquare);
     h_2->SetMarkerStyle(kFullTriangleUp);
@@ -130,8 +131,9 @@
         h_5->GetFunction("g5")->SetLineColor(palette[5]);
     }
 
-    h_0->GetYaxis()->SetRangeUser(0, 0.5);
-    h_0->GetXaxis()->SetRangeUser(0.02, 0.08);
+    h_0->GetYaxis()->SetRangeUser(0, 0.55);
+    //h_0->GetXaxis()->SetRangeUser(0.02, 0.14);
+
 
     h_0->Draw("9 PLC PMC");
     h_1->Draw("9 SAME PLC PMC");
@@ -185,5 +187,5 @@
         sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g5->GetParameter(2), g5->GetParError(2));
         tex->DrawLatex(0.25, 0.35, buffer_M);
         tex->DrawLatex(0.25, 0.32, buffer_S);
-    }
+    }  
 }

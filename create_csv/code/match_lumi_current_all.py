@@ -38,7 +38,7 @@ for time in main_df['fSec']:
     _current = []
     for df in dfs:
         result_index = df['fSec'].sub(time).abs().idxmin()
-        if df['HV'][result_index] > 1000: #only working chambers
+        if df['HV'][result_index] > 1100: #only working chambers
             _current.append(df['current'][result_index])
     mean_current.append(np.mean(_current))
     std_current.append(np.std(_current, ddof=1))

@@ -33,6 +33,7 @@ public:
    Double_t current;
    Double_t mean_current;
    Double_t std_current;
+   Double_t pressure;
 
    // List of branches
    TBranch *b_fSec;                //!
@@ -45,6 +46,7 @@ public:
    TBranch *b_current;             //!
    TBranch *b_mean_current;        //!
    TBranch *b_std_current;         //!
+   TBranch *b_pressure;
 
    all(std::string filename);
    virtual ~all();
@@ -132,6 +134,7 @@ void all::Init(TTree *tree)
    fChain->SetBranchAddress("current", &current, &b_current);
    fChain->SetBranchAddress("mean_current", &mean_current, &b_mean_current);
    fChain->SetBranchAddress("std_current", &std_current, &b_std_current);
+   fChain->SetBranchAddress("pressure", &pressure, &b_pressure);
    Notify();
 }
 

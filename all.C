@@ -57,6 +57,7 @@ void all::Loop()
    auto dummygraphT0 = new TGraph();
    auto dummygraphECAL = new TGraph();
    auto current_tof_cur = new TGraph();
+   auto press = new TGraph();
 
    //Bool_t markT0[nentries],
    //      markECAL[nentries];
@@ -97,7 +98,7 @@ void all::Loop()
       if (TMath::Abs(fECAL->Eval(Luminosity) - mean_current) < delta)
       {
          g4->SetPoint(g4entry, Luminosity, mean_current);
-         //g4->SetPointError(g4entry,0.01, std_current);
+         //g4->SetPointError(g4entry, 0.01, std_current);
          g4entry++;
       }
       else
@@ -125,6 +126,7 @@ void all::Loop()
          g3->SetPoint(gentry, ttime->AsDouble(), Luminosity);
          g6->SetPoint(gentry, T0_Luminosity, Luminosity);
          current_tof_cur->SetPoint(gentry, mean_current, TOF_average_current);
+         press->SetPoint(gentry, pressure, mean_current);
          gentry++;
          if (maxLumi < Luminosity)
             maxLumi = Luminosity;
@@ -150,9 +152,9 @@ void all::Loop()
    g3->SetMarkerStyle(21);
    g3->SetMarkerSize(0.7);
    g3->SetMarkerColorAlpha(9, 1);
-   grs->Add(g2);
+   //grs->Add(g2);
    grs->Add(g3);
-   grs->SetTitle("CHANNEL_NAME");
+   grs->SetTitle("All");
    grs->GetXaxis()->SetTimeOffset(0, "gmt");
    grs->GetXaxis()->SetTimeDisplay(1);
    grs->GetXaxis()->SetLabelOffset(0.02);
@@ -177,7 +179,7 @@ void all::Loop()
    auto legend = new TLegend(0.55, 0.3, 0.8, 0.45);
    //legend->SetHeader("small offset in times","C"); // option "C" allows to center the header
    legend->AddEntry(g1, "mean_current", "p");
-   legend->AddEntry(g2, "T0 Luminosity", "p");
+   //legend->AddEntry(g2, "T0 Luminosity", "p");
    legend->AddEntry(g3, "ECal Luminosity", "p");
    legend->Draw();
 
@@ -191,9 +193,9 @@ void all::Loop()
    g5->SetMarkerStyle(21);
 
    g4->Fit("pol1");
-   g5->Fit("pol1");
+   //g5->Fit("pol1");
    g4->GetFunction("pol1")->SetLineColor(8);
-   g5->GetFunction("pol1")->SetLineColor(9);
+   //g5->GetFunction("pol1")->SetLineColor(9);
 
    gT0Errors->SetMarkerColorAlpha(kRed, 0.2);
    gT0Errors->SetMarkerSize(0.3);
@@ -203,37 +205,40 @@ void all::Loop()
    gECALErrors->SetMarkerSize(0.3);
    gECALErrors->SetMarkerStyle(4);
 
-   gr45->Add(g4);
-   gr45->Add(g5);
-   gr45->Add(gT0Errors);
-   gr45->Add(gECALErrors);
-   gr45->SetTitle("Luminosity Current Correlation");
-   gr45->GetXaxis()->SetTitle("Luminostiy (HZ/#mub)");
-   gr45->GetYaxis()->SetTitle("Current (A)");
-   gr45->Draw("AP");
+   //gr45->Add(g4);
+   //gr45->Add(g5);
+   //gr45->Add(gT0Errors);
+   //gr45->Add(gECALErrors);
+   g4->SetTitle("Luminosity Current Correlation");
+   g4->GetXaxis()->SetTitle("Luminostiy (HZ/#mub)");
+   g4->GetYaxis()->SetTitle("Current (A)");
+   g4->Draw("AP");
+   gECALErrors->Draw("P SAME");
    auto legend1 = new TLegend(0.55, 0.3, 0.8, 0.45);
-   legend1->AddEntry(g4, "T0 Luminosity", "p");
-   legend1->AddEntry(g5, "ECal Luminosity", "p");
-   legend1->AddEntry(gT0Errors, "T0 Errors", "p");
+   legend1->AddEntry(g4, "ECal Luminosity", "p");
+   //legend1->AddEntry(g5, "T0 Luminosity", "p");
+   //legend1->AddEntry(gT0Errors, "T0 Errors", "p");
    legend1->AddEntry(gECALErrors, "ECal Errors", "p");
    legend1->Draw();
 
-   // c->cd(3);
-   // auto fDiag = new TF1("fDiag", "x", 0, maxLumi);
-   // g6->GetXaxis()->SetTitle("T0 Lumi");
-   // g6->GetYaxis()->SetTitle("ECal Lumi");
-   // g6->SetTitle("Luminosities Correlation");
-   // g6->SetMarkerStyle(28);
-   // g6->SetMarkerColorAlpha(8, 1);
-   // g6->SetMarkerSize(0.6);
-   // g6->Fit("pol1");
-   // g6->Draw("AP");
-   // fDiag->SetLineColor(kMagenta + 1);
-   // fDiag->Draw("SAME");
+   TF1 *f1 = (TF1 *)g4->GetFunction("pol1");
+   TLatex *tex = new TLatex();
+   tex->SetNDC(kTRUE);
+   tex->SetTextSize(0.035);
+   tex->SetTextColor(kBlack);
+   char buffer_M[100],
+       buffer_S[100],
+       buffer_Chi[100];
+   tex->DrawLatex(0.25, 0.85, "Fit ECAL");
+   sprintf(buffer_M, "p0 = %.3f #pm %.3f", f1->GetParameter(0), f1->GetParError(0));
+   sprintf(buffer_S, "p1 = %.3f #pm %.3f", f1->GetParameter(1), f1->GetParError(1));
+   sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f / %d", f1->GetChisquare(), f1->GetNDF());
+   tex->DrawLatex(0.25, 0.80, buffer_M);
+   tex->DrawLatex(0.25, 0.75, buffer_S);
+   tex->DrawLatex(0.25, 0.70, buffer_Chi);
+   tex->Draw();
 
-   // auto legend2 = new TLegend(0.55, 0.3, 0.8, 0.45);
-   // //legend->SetHeader("small offset in times","C"); // option "C" allows to center the header
-   // legend2->AddEntry(fDiag, "Perfect Correlation", "l");
-   // legend2->AddEntry(g6, "Correlation", "lp");
-   // legend2->Draw();
+   auto c2 = new TCanvas();
+   c2->cd();
+   press->Draw("AP");
 }

@@ -25,10 +25,7 @@
 
     Double_t par[6];
     TF1 *g1 = new TF1("g1", "gaus", 0.0, 0.1);
-    g1->SetParameter(1, 0.7);
     hist->Fit(g1, "R");
-    TF1 *g2 = new TF1("g2", "gaus", 0.09, 0.15);
-    hist->Fit(g2, "R+");
 
     hist->GetXaxis()->SetTitle("Slope Parameter");
     hist->GetYaxis()->SetTitle("entries");
@@ -42,19 +39,11 @@
     char buffer_M[100],
         buffer_S[100],
         buffer_Chi[100];
-    tex->DrawLatex(0.25, 0.85, "Gauss Fit Left");
+    tex->DrawLatex(0.25, 0.85, "Gauss Fit");
     sprintf(buffer_M, "#mu = %.3f #pm %.3f", g1->GetParameter(1), g1->GetParError(1));
     sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g1->GetParameter(2), g1->GetParError(2));
     sprintf(buffer_Chi, "#chi^{2}_{red} = %.1f", g1->GetChisquare() / g1->GetNDF());
     tex->DrawLatex(0.25, 0.80, buffer_M);
     tex->DrawLatex(0.25, 0.75, buffer_S);
     tex->DrawLatex(0.25, 0.70, buffer_Chi);
-
-    tex->DrawLatex(0.25, 0.60, "Gauss Fit Right");
-    sprintf(buffer_M, "#mu = %.3f #pm %.3f", g2->GetParameter(1), g2->GetParError(1));
-    sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g2->GetParameter(2), g2->GetParError(2));
-    sprintf(buffer_Chi, "#chi^{2}_{red} = %.1f", g2->GetChisquare() / g2->GetNDF());
-    tex->DrawLatex(0.25, 0.55, buffer_M);
-    tex->DrawLatex(0.25, 0.50, buffer_S);
-    tex->DrawLatex(0.25, 0.45, buffer_Chi);
 }
