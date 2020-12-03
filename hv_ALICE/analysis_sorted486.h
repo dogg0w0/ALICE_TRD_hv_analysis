@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Wed Sep 16 09:32:24 2020 by ROOT version 6.22/03
+// Thu Nov 12 09:47:03 2020 by ROOT version 6.22/03
 // from TTree Tree_TRD_HV/Tree_TRD_HV
-// found on file: sorted_1.csv.root
+// found on file: sorted_486.csv.root
 //////////////////////////////////////////////////////////
 
-#ifndef analysis_sorted1_h
-#define analysis_sorted1_h
+#ifndef analysis_sorted486_h
+#define analysis_sorted486_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -15,7 +15,7 @@
 // Header file for the classes stored in the TTree if any.
 #include "TTimeStamp.h"
 
-class analysis_sorted1 {
+class analysis_sorted486 {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -33,8 +33,8 @@ public :
    TBranch        *b_time_fSec;   //!
    TBranch        *b_time_fNanoSec;   //!
 
-   analysis_sorted1(std::string filename);
-   virtual ~analysis_sorted1();
+   analysis_sorted486(TTree *tree=0);
+   virtual ~analysis_sorted486();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -46,35 +46,35 @@ public :
 
 #endif
 
-#ifdef analysis_sorted1_cxx
-analysis_sorted1::analysis_sorted1(std::string filename)
+#ifdef analysis_sorted486_cxx
+analysis_sorted486::analysis_sorted486(TTree *tree) : fChain(0) 
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
-TTree *tree = 0;
-auto f = new TFile(filename.c_str(), "READ");
-if (!f || !f->IsOpen())
-{
-   std::cerr << "cannot open file:\t" << filename << std::endl;
-}
-f->GetObject("Tree_TRD_HV", tree);
+   if (tree == 0) {
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("sorted_486.csv.root");
+      if (!f || !f->IsOpen()) {
+         f = new TFile("sorted_486.csv.root");
+      }
+      f->GetObject("Tree_TRD_HV",tree);
 
-Init(tree);
+   }
+   Init(tree);
 }
 
-analysis_sorted1::~analysis_sorted1()
+analysis_sorted486::~analysis_sorted486()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
 
-Int_t analysis_sorted1::GetEntry(Long64_t entry)
+Int_t analysis_sorted486::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!fChain) return 0;
    return fChain->GetEntry(entry);
 }
-Long64_t analysis_sorted1::LoadTree(Long64_t entry)
+Long64_t analysis_sorted486::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!fChain) return -5;
@@ -87,7 +87,7 @@ Long64_t analysis_sorted1::LoadTree(Long64_t entry)
    return centry;
 }
 
-void analysis_sorted1::Init(TTree *tree)
+void analysis_sorted486::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -109,7 +109,7 @@ void analysis_sorted1::Init(TTree *tree)
    Notify();
 }
 
-Bool_t analysis_sorted1::Notify()
+Bool_t analysis_sorted486::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -120,18 +120,18 @@ Bool_t analysis_sorted1::Notify()
    return kTRUE;
 }
 
-void analysis_sorted1::Show(Long64_t entry)
+void analysis_sorted486::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t analysis_sorted1::Cut(Long64_t entry)
+Int_t analysis_sorted486::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
    return 1;
 }
-#endif // #ifdef analysis_sorted1_cxx
+#endif // #ifdef analysis_sorted486_cxx

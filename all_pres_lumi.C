@@ -1,4 +1,4 @@
-void all_pres()
+void all_pres_lumi()
 {
     gROOT->SetStyle("ATLAS");
     gROOT->ForceStyle();
@@ -38,22 +38,17 @@ void all_pres()
     nentries2 = tree2->GetEntries();
 
     Int_t gentry = 0;
+    Int_t gentry1 = 0;
+    Int_t gentry2 = 0;
     auto g1 = new TGraph();
     auto g2 = new TGraph();
-    auto g21 = new TGraph();
-    auto g22 = new TGraph();
-
     auto g12 = new TMultiGraph();
     auto g3 = new TGraph();
     auto g4 = new TGraph();
+    auto g34 = new TMultiGraph();
     auto g5 = new TGraph();
     auto g6 = new TGraph();
-    auto g7 = new TGraph();
-    auto g67 = new TMultiGraph();
-
-    auto hist1 = new TH1D("hist1", "T;#DeltaA;entries", 100, -0.15, 0.15);
-    auto hist2 = new TH1D("hist2", "T;#DeltaA;entries", 100, -0.15, 0.15);
-    auto stack = new THStack();
+    auto g56 = new TMultiGraph();
 
     for (Long64_t i = 0; i < nentries1; i++)
     {
@@ -61,22 +56,21 @@ void all_pres()
         for (Long64_t j = 0; j < nentries2; j++)
         {
             tree2->GetEntry(j);
-            if (TMath::Abs(Luminosity1 - Luminosity2) < 0.005)
+            if (TMath::Abs(mean_current1 - mean_current2) < 0.0001)
             {
-                g1->SetPoint(gentry, gentry, pressure1);
-                g3->SetPoint(gentry, gentry, mean_current1 - mean_current2);
-                g4->SetPoint(gentry, gentry, Luminosity1);
-                if (gentry < 650)
+                if (pressure2 - pressure1 > 0.45)
                 {
-                    g6->SetPoint(gentry, pressure2 - pressure1, mean_current2 - mean_current1);
-                    g21->SetPoint(gentry, gentry, pressure2);
-                    hist1->Fill(mean_current1 - mean_current2);
+                    g1->SetPoint(gentry1, pressure2 - pressure1, Luminosity2 - Luminosity1);
+                    g3->SetPoint(gentry1, gentry, Luminosity1);
+                    g5->SetPoint(gentry1, gentry, pressure2 - pressure1);
+                    gentry1++;
                 }
                 else
                 {
-                    g7->SetPoint(gentry - 650, pressure2 - pressure1, mean_current2 - mean_current1);
-                    g22->SetPoint(gentry - 650, gentry, pressure2);
-                    hist2->Fill(mean_current1 - mean_current2);
+                    g2->SetPoint(gentry2, pressure2 - pressure1, Luminosity2 - Luminosity1);
+                    g4->SetPoint(gentry2, gentry, Luminosity1);
+                    g6->SetPoint(gentry2, gentry, pressure2 - pressure1);
+                    gentry2++;
                 }
 
                 gentry++;
@@ -84,46 +78,32 @@ void all_pres()
         }
     }
     cout << gentry << endl;
+    auto c = new TCanvas();
+    c->Divide(2, 1);
+    c->cd(1);
     g1->SetMarkerColor(kRed);
-    g21->SetMarkerColor(kGreen);
-    g22->SetMarkerColor(kBlue);
+    g2->SetMarkerColor(kBlue);
     g12->Add(g1);
-    g12->Add(g21);
-    g12->Add(g22);
-    g12->GetXaxis()->SetTitle("entry");
-    g12->GetYaxis()->SetTitle("pressure (mbar)");
-    g4->GetXaxis()->SetTitle("entry");
-    g4->GetYaxis()->SetTitle("Luminosity (Hz/#mub)");
-
-    auto c1 = new TCanvas("c1", "Canvas", 10, 10, 800, 600);
-    c1->Divide(2, 2);
-    c1->cd(1);
-    g3->GetXaxis()->SetTitle("entry");
-    g3->GetYaxis()->SetTitle("difference in current at same Luminosity (A)");
-    g3->Draw("AP");
-    c1->cd(2);
+    g12->Add(g2);
+    g12->GetXaxis()->SetTitle("#Deltap (mbar)");
+    g12->GetYaxis()->SetTitle("#DeltaLumi (Hz/#mub)");
     g12->Draw("AP");
-    c1->cd(3);
-    hist1->SetFillColor(kRed);
-    hist2->SetFillColor(kGreen);
-    stack->Add(hist2);
-
-    stack->Add(hist1);
-    stack->Draw();
-    //g4->Draw("AP");
-    //g12->Draw("AP");
-    //g1->Draw("AP");
-    //g2->Draw("P SAME");
-    c1->cd(4);
-    //g6->GetYaxis()->SetTitle("difference in current at same Luminosity (A)");
-    //g6->GetXaxis()->SetTitle("difference in pressure at same Luminosity (A)");
-    //g6->Draw("AP");
-    g6->SetMarkerColor(kGreen);
-    g7->SetMarkerColor(kBlue);
-    g67->Add(g6);
-    g67->Add(g7);
-    g67->GetYaxis()->SetTitle("#DeltaA at same Luminosity (A)");
-    g67->GetXaxis()->SetTitle("#Deltap at same Luminosity (A)");
-    g67->Draw("AP");
-    c1->Draw();
+    TVirtualPad *pad = c->GetPad(2);
+    pad->Divide(1, 2);
+    pad->cd(1);
+    g3->SetMarkerColor(kRed);
+    g4->SetMarkerColor(kBlue);
+    g34->Add(g3);
+    g34->Add(g4);
+    g34->GetXaxis()->SetTitle("time (a.u.)");
+    g34->GetYaxis()->SetTitle("Luminosity (Hz/#mub)");
+    g34->Draw("AP");
+    pad->cd(2);
+    g5->SetMarkerColor(kRed);
+    g6->SetMarkerColor(kBlue);
+    g56->Add(g5);
+    g56->Add(g6);
+    g56->GetXaxis()->SetTitle("time (a.u.)");
+    g56->GetYaxis()->SetTitle("#Deltap (mbar)");
+    g56->Draw("AP");
 }

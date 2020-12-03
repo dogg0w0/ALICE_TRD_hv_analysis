@@ -1,16 +1,14 @@
-#define readroot_csv_cxx
-#include "readroot_csv.h"
+#define analysis_sorted486_cxx
+#include "analysis_sorted486.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
-#include <iostream>
-#include <fstream>
 
-void readroot_csv::Loop(Int_t start_time, Int_t end_time)
+void analysis_sorted486::Loop()
 {
    //   In a ROOT session, you can do:
-   //      root> .L readroot_csv.C
-   //      root> readroot_csv t
+   //      root> .L analysis_sorted486.C
+   //      root> analysis_sorted486 t
    //      root> t.GetEntry(12); // Fill t data members with entry number 12
    //      root> t.Show();       // Show values of entry 12
    //      root> t.Show(16);     // Read and show values of entry 16
@@ -34,18 +32,13 @@ void readroot_csv::Loop(Int_t start_time, Int_t end_time)
    if (fChain == 0)
       return;
 
-   // create outfile
-   std::ofstream out;
-   out.open(outfile);
-   out << "fSec"
-       << ","
-       << "fNanoSec"
-       << ","
-       << "HV" << std::endl;
-
-   Int_t offset = - 2*60*60;
-
    Long64_t nentries = fChain->GetEntriesFast();
+   //auto myfile = new TFile("output.root", "UPDATE");
+   auto g = new TGraph();
+   TTimeStamp *ttime = new TTimeStamp();
+   auto c0 = new TCanvas("c0", "Kanal 00_0_2A", 10, 10, 1000, 1000);
+   c0->cd();
+   Long64_t gentry = 0;
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry = 0; jentry < nentries; jentry++)
    {
@@ -54,21 +47,33 @@ void readroot_csv::Loop(Int_t start_time, Int_t end_time)
          break;
       nb = fChain->GetEntry(jentry);
       nbytes += nb;
-      if (fSec < start_time +  offset)
+      // if (Cut(ientry) < 0) continue;
+      if (HV < 0)
+         continue;
+      //if (fSec < 1504399786 || fSec > 1504401590)
+      if (fSec < 1521057600)
       {
          continue;
       }
-      if (fSec > end_time + offset)
+      if (fSec > 1521086400)
          break;
-
-      out << (fSec - offset) << "," << fNanoSec << "," << HV << std::endl;
+      ttime->SetSec(fSec);
+      ttime->SetNanoSec(fNanoSec);
+      g->SetPoint(gentry, ttime->AsDouble(), HV);
+      gentry++;
    }
-   out.close();
-}
-
-int main(int argc, char const *argv[])
-{
-   readroot_csv t((std::string)argv[1], (std::string)argv[2]);
-   t.Loop(std::stoi(argv[3]), std::stoi(argv[4]));
-   return 0;
+   g->Draw();
+   g->SetTitle("Kanal 06_0_0A");
+   //g->GetXaxis()->SetRangeUser(1.5184e9, 1.5444e9);
+   g->GetXaxis()->SetTimeOffset(0, "gmt");
+   g->GetXaxis()->SetTimeDisplay(1);
+   g->GetXaxis()->SetLabelOffset(0.02);
+   g->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M\:%S}}");
+   g->GetXaxis()->SetTitle("Time");
+   g->GetYaxis()->SetTitle("Current [#muA]");
+   g->SetMarkerStyle(8);
+   g->SetMarkerSize(0.5);
+   g->SetMarkerColorAlpha(kRed, 0.35);
+   g->Draw("AP");
+   c0->Draw();
 }

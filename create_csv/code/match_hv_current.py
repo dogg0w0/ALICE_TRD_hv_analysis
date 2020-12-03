@@ -11,7 +11,7 @@ mean_hv = df2['HV'].mean()
 
 df1['HV'] = mean_hv
 
-if sys.argc > 4:
+if len(sys.argv) > 4:
     df = pd.read_csv(str(sys.argv[4]), header=1)  # TOF
     df[df.columns[0]] = pd.to_datetime(df[df.columns[0]])
     df.drop(df.columns[2], axis=1, inplace=True)
