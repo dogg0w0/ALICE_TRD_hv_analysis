@@ -59,7 +59,7 @@ void analysis_sorted122::Loop()
    g0->GetXaxis()->SetTimeDisplay(1);
    g0->GetXaxis()->SetLabelOffset(0.02);
    g0->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M}}");
-   g0->GetYaxis()->SetTitle("offset current (A)");
+   g0->GetYaxis()->SetTitle("offset current (#muA)");
    g0->Fit("pol0", "Q");
    g0->Draw("AP");
 }

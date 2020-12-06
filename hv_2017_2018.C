@@ -17,7 +17,7 @@ using namespace std;
 
 void hv_2017_2018()
 {
-    gROOT->SetStyle("ATLAS");
+    gROOT->SetStyle("Pub");
     gROOT->ForceStyle();
     TH1::SetDefaultSumw2(kTRUE);
 

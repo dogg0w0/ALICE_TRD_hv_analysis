@@ -32,10 +32,10 @@ void all::Loop()
    if (fChain == 0)
       return;
    //invokeStyle();
-   //auto style = gROOT->GetStyle("ATLAS");
+   //auto style = gROOT->GetStyle("Pub");
    //style->SetOptTitle(1);
    //style->SetPadTopMargin(0.1);
-   //gROOT->SetStyle("ATLAS");
+   //gROOT->SetStyle("Pub");
 
    Double_t delta = 0.3;
 
@@ -160,7 +160,7 @@ void all::Loop()
    grs->GetXaxis()->SetLabelOffset(0.02);
    grs->GetXaxis()->SetTimeFormat("%H\:%M");
    grs->GetXaxis()->SetTitle("");
-   grs->GetYaxis()->SetTitle("Luminostiy (HZ/#mub)  #color[2]{Current (A)}");
+   grs->GetYaxis()->SetTitle("Luminostiy (HZ/#mub)  #color[2]{Current (#muA)}");
    grs->Draw("AP SAME");
 
    g1->SetMarkerStyle(2);
@@ -172,7 +172,7 @@ void all::Loop()
    g1->GetXaxis()->SetLabelOffset(0.03);
    g1->GetXaxis()->SetTimeFormat("%H\:%M");
    //g1->GetXaxis()->SetTitle("");
-   //g1->GetYaxis()->SetTitle("Current (A)");
+   //g1->GetYaxis()->SetTitle("Current (#muA)");
    g1->Draw("P SAME");
 
    //Legend
@@ -211,7 +211,7 @@ void all::Loop()
    //gr45->Add(gECALErrors);
    g4->SetTitle("Luminosity Current Correlation");
    g4->GetXaxis()->SetTitle("Luminostiy (HZ/#mub)");
-   g4->GetYaxis()->SetTitle("Current (A)");
+   g4->GetYaxis()->SetTitle("Current (#muA)");
    g4->Draw("AP");
    gECALErrors->Draw("P SAME");
    auto legend1 = new TLegend(0.55, 0.3, 0.8, 0.45);

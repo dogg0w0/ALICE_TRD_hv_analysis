@@ -83,8 +83,8 @@ void analysis_sorted6::Loop()
    g->GetXaxis()->SetTimeDisplay(1);
    g->GetXaxis()->SetLabelOffset(0.02);
    g->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M\:%S}}");
-   g->GetXaxis()->SetTitle("Time");
-   g->GetYaxis()->SetTitle("Current [#muA]");
+   g->GetXaxis()->SetTitle("");
+   g->GetYaxis()->SetTitle("Current (#muA)");
    g->SetMarkerStyle(8);
    g->SetMarkerSize(1);
    g->SetMarkerColorAlpha(kRed, 0.35);

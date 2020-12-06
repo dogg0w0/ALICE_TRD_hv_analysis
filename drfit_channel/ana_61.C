@@ -65,7 +65,7 @@ void ana_61::Loop()
    gI->GetXaxis()->SetTimeDisplay(1);
    gI->GetXaxis()->SetLabelOffset(0.02);
    gI->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M\:%S}}");
-   gI->GetXaxis()->SetTitle("Time");
+   gI->GetXaxis()->SetTitle("");
    gI->GetYaxis()->SetTitle("Current (#muA)");
    gI->SetMarkerStyle(8);
    gI->SetMarkerSize(0.5);
@@ -75,7 +75,7 @@ void ana_61::Loop()
    gH->GetXaxis()->SetTimeDisplay(1);
    gH->GetXaxis()->SetLabelOffset(0.02);
    gH->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M\:%S}}");
-   gH->GetXaxis()->SetTitle("Time");
+   gH->GetXaxis()->SetTitle("");
    gH->GetYaxis()->SetTitle("HV (V)");
    gH->SetMarkerStyle(8);
    gH->SetMarkerSize(0.5);
@@ -85,7 +85,7 @@ void ana_61::Loop()
    gL->GetXaxis()->SetTimeDisplay(1);
    gL->GetXaxis()->SetLabelOffset(0.02);
    gL->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M\:%S}}");
-   gL->GetXaxis()->SetTitle("Time");
+   gL->GetXaxis()->SetTitle("");
    gL->GetYaxis()->SetTitle("Luminosity (Hz/#mub)");
    gL->SetMarkerStyle(8);
    gL->SetMarkerSize(0.5);

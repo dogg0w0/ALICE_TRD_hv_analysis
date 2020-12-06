@@ -1,5 +1,5 @@
 {
-    gROOT->SetStyle("ATLAS");
+    gROOT->SetStyle("Pub");
     gROOT->ForceStyle();
 
     Int_t palette[5];

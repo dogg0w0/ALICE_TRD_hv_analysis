@@ -95,9 +95,9 @@ void invokeStyle();
 int main(int argc, char const *argv[])
 {
     //invokeStyle();
-    //auto style = gROOT->GetStyle("ATLAS");
+    //auto style = gROOT->GetStyle("Pub");
     //style->SetOptTitle(1);
-    gROOT->SetStyle("ATLAS");
+    gROOT->SetStyle("Pub");
     gROOT->ForceStyle();
     TH1::SetDefaultSumw2(kTRUE);
     TH2::SetDefaultSumw2(kTRUE);

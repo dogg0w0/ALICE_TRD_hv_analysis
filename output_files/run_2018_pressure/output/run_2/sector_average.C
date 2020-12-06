@@ -1,6 +1,6 @@
 void sector_average()
 {
-    gROOT->SetStyle("ATLAS");
+    gROOT->SetStyle("Pub");
     gROOT->ForceStyle();
 
     std::vector<TString> root_File_Names;

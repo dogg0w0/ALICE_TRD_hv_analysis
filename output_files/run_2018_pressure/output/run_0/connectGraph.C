@@ -1,5 +1,5 @@
 {
-    gROOT->SetStyle("ATLAS");
+    gROOT->SetStyle("Pub");
     gROOT->ForceStyle();
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
     gStyle->SetOptFit(0);

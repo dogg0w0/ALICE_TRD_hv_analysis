@@ -15,7 +15,7 @@ plots::plots(const Int_t sector_n)
 plots::plots(const Int_t sector_n, std::string gain_map, const Int_t gain_index)
 {
     sector = sector_n;
-    plots::ChamberWeightsInit();
+    //plots::ChamberWeightsInit();
     //plots::GainWeightsInit(gain_map, gain_index);
     //plots::RadialWeightsInit();
     plots::WeightsInit();
@@ -64,7 +64,7 @@ void plots::Canvas()
 
 void plots::HistOffset()
 {
-    hist_offset = new TH2D(Form("sector_%d_hist_offset", sector), "Offset [#muA]", 5, 0, 5, 6, 0, 6);
+    hist_offset = new TH2D(Form("sector_%d_hist_offset", sector), "Offset (#muA)", 5, 0, 5, 6, 0, 6);
     hist_offset->GetXaxis()->SetTitle("Stack");
     hist_offset->GetYaxis()->SetTitle("Layer");
     hist_offset->GetXaxis()->SetNdivisions(8, 8, 0, kTRUE);
@@ -154,8 +154,8 @@ void plots::FitDraw()
 
             // Fit Results
             tex->DrawLatex(0.18, 0.75, "Pol1 Fit f(x) = a + b*x");
-            std::sprintf(buffer_a, "a = %.3f #pm %.3f", fit->GetParameter(0), fit->GetParError(0));
-            std::sprintf(buffer_b, "b = %.3f #pm %.3f", fit->GetParameter(1), fit->GetParError(1));
+            std::sprintf(buffer_a, "a = %.3f #pm %.3f (#muA)", fit->GetParameter(0), fit->GetParError(0));
+            std::sprintf(buffer_b, "b = %.3f #pm %.3f (#muA/(Hz/#mub))", fit->GetParameter(1), fit->GetParError(1));
             std::sprintf(buffer_Chi, "#chi^{2}_{red} = %.2f", fit->GetChisquare() / fit->GetNDF());
             tex->DrawLatex(0.20, 0.70, buffer_a);
             tex->DrawLatex(0.20, 0.65, buffer_b);

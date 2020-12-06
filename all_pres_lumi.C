@@ -1,6 +1,6 @@
 void all_pres_lumi()
 {
-    gROOT->SetStyle("ATLAS");
+    gROOT->SetStyle("Pub");
     gROOT->ForceStyle();
 
     Double_t mean_current1, std_current1, Luminosity1, pressure1;

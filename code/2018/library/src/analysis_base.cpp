@@ -132,8 +132,8 @@ void analysis::Loop(Double_t weight_channel)
     grs->GetXaxis()->SetTimeDisplay(1);
     grs->GetXaxis()->SetLabelOffset(0.02);
     grs->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
-    grs->GetXaxis()->SetTitle("Time #splitline{H}{M}");
-    grs->GetYaxis()->SetTitle("Luminostiy (HZ/#mub)  #color[2]{Current (A)}");
+    grs->GetXaxis()->SetTitle("");
+    grs->GetYaxis()->SetTitle("Luminostiy (HZ/#mub)  #color[2]{Current (#muA)}");
     grs->Draw("AP SAME");
 
     g1->SetMarkerStyle(2);
@@ -145,7 +145,7 @@ void analysis::Loop(Double_t weight_channel)
     g1->GetXaxis()->SetLabelOffset(0.03);
     g1->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
     //g1->GetXaxis()->SetTitle("");
-    //g1->GetYaxis()->SetTitle("Current (A)");
+    //g1->GetYaxis()->SetTitle("Current (#muA)");
     g1->Draw("P SAME");
 
     //Legend
@@ -187,7 +187,7 @@ void analysis::Loop(Double_t weight_channel)
     gr45->Add(gECALErrors);
     gr45->SetTitle("Luminosity Current Correlation");
     gr45->GetXaxis()->SetTitle("Luminostiy (HZ/#mub)");
-    gr45->GetYaxis()->SetTitle("Current (A)");
+    gr45->GetYaxis()->SetTitle("Current (#muA)");
     gr45->Draw("AP");
     auto legend1 = new TLegend(0.55, 0.3, 0.8, 0.45);
     legend1->AddEntry(g4, "T0 Luminosity", "p");
@@ -226,7 +226,7 @@ void analysis::Loop(Double_t weight_channel)
     legend2->Draw();
 
     c1->cd(2);
-    current_tof_cur->GetXaxis()->SetTitle("Anode Current (A)");
+    current_tof_cur->GetXaxis()->SetTitle("Anode Current (#muA)");
     current_tof_cur->GetYaxis()->SetTitle("TOF Current (A)");
     current_tof_cur->SetTitle("Correlation TOF-TRD Current");
     current_tof_cur->SetMarkerStyle(28);
@@ -354,12 +354,12 @@ void analysis::Offset()
     Int_t date_time = offset_start_time;
     TTimeStamp time_stamp;
     time_stamp.SetSec(date_time);
-    std::string title = "Offset current" + ((std::string)time_stamp.AsString()).substr(5, 11);
+    std::string title = "Offset Current @ " + ((std::string)time_stamp.AsString()).substr(5, 11);
     g0->GetXaxis()->SetTimeOffset(0, "gmt");
     g0->GetXaxis()->SetTimeDisplay(1);
     g0->GetXaxis()->SetLabelOffset(0.02);
     g0->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
-    g0->GetYaxis()->SetTitle("offset current (A)");
+    g0->GetYaxis()->SetTitle("offset current (#muA)");
     g0->SetTitle(title.c_str());
     g0->Fit("pol0", "Q");
     offset = g0->GetFunction("pol0")->GetParameter(0);

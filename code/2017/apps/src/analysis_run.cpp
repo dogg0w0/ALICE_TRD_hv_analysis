@@ -83,7 +83,7 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
                         mean_and_std_pair = hv.Loop();
                         mean_hv = mean_and_std_pair.first;
                         mean_std_hv = mean_and_std_pair.second;
-                        mean_hv_map[stack][layer] = (mean_hv > 1420) ? kTRUE : kFALSE;
+                        mean_hv_map[stack][layer] = (mean_hv > 1000) ? kTRUE : kFALSE;
                         working.Update(stack, layer, mean_hv_map[stack][layer]);
 
                         // Anlysis for current
@@ -138,8 +138,7 @@ void invokeStyle();
 int main(int argc, char const *argv[])
 {
     //invokeStyle();
-    gROOT->SetStyle("ATLAS");
-    gROOT->ForceStyle();
+    gROOT->SetStyle("Pub");
     gROOT->ForceStyle();
     TH1::SetDefaultSumw2(kTRUE);
     TH2::SetDefaultSumw2(kTRUE);

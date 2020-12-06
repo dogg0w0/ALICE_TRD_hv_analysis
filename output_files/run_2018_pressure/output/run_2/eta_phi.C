@@ -21,7 +21,7 @@ Double_t mean_se(const std::vector<Double_t> *v, const Double_t mean)
 
 void eta_phi()
 {
-    gROOT->SetStyle("ATLAS");
+    gROOT->SetStyle("Pub");
     gROOT->ForceStyle();
 
     std::vector<TString> root_File_Names;

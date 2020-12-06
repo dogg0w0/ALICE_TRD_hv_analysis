@@ -80,7 +80,7 @@ void analysis_sorted1::Loop()
    g->GetXaxis()->SetTimeDisplay(1);
    g->GetXaxis()->SetLabelOffset(0.02);
    g->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M\:%S}}");
-   g->GetXaxis()->SetTitle("Time");
+   g->GetXaxis()->SetTitle("");
    g->GetYaxis()->SetTitle("HV [V]");
    g->SetMarkerStyle(8);
    g->SetMarkerSize(0.5);

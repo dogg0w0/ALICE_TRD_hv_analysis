@@ -20,7 +20,7 @@ dates::dates(std::string date)
             {6, 1504608000, 1504610700},
             {7, 1504611900, 1504615800},
             {8, 1504617600, 1504626600}};
-        luminosity_labels = {"2.6 Hz/#mub", "9 Hz/#mub", "15 Hz/#mub", "30 Hz/#mub", "40 Hz/#mub", "52 Hz/#mub", "64 Hz/#mub", "70 Hz/#mub"};
+        luminosity_labels = {"2.6" , "9", "15", "30", "40", "52", "64", "70"};
         luminosity_points = {2.6, 9.0, 15.0, 30.0, 40.0, 52.0, 64.0, 70.0};
     }
     else

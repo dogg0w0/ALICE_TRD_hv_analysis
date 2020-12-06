@@ -1,5 +1,5 @@
 {
-    gROOT->SetStyle("ATLAS");
+    gROOT->SetStyle("Pub");
     gROOT->ForceStyle();
 
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
@@ -64,7 +64,7 @@
     h_3->SetMarkerStyle(kFullTriangleDown);
     h_4->SetMarkerStyle(kOpenCircle);
 
-    h_0->GetXaxis()->SetTitle("offset parameter (A)");
+    h_0->GetXaxis()->SetTitle("offset parameter (#muA)");
     h_0->GetYaxis()->SetTitle("nor. entries");
     // FIT
     Bool_t kfit = kFALSE;

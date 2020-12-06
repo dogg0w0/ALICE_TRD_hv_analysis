@@ -52,7 +52,7 @@ void plots::Draw(Double_t overall_mean_current, Int_t luminosity_index, std::map
 {
     canvas->SetName(Form("sector_%d_%d", sector, luminosity_index));
     canvas->SetTitle(Form("Sector %d Luminosity %d", sector, luminosity_index));
-    hist_perc->SetTitle(Form("Anode Current to Baseline %f [#muA] in Sector 6", overall_mean_current));
+    hist_perc->SetTitle(Form("Anode Current to Baseline %f (#muA) in Sector 6", overall_mean_current));
     Double_t average_all_chambers = 0;
     Double_t number_active_chambers = 0;
     for (Int_t stack = 0; stack < 5; stack++)
@@ -93,13 +93,8 @@ void plots::Draw(Double_t overall_mean_current, Int_t luminosity_index, std::map
 
 void plots::Canvas()
 {
-    canvas = new TCanvas(Form("sector_%d", sector), Form("Sector %d", sector), 10, 10, 1800, 600);
+    canvas = new TCanvas(Form("sector_%d", sector), Form("Sector %d", sector), 10, 10, 2600, 800);
     canvas->Divide(3, 1);
-    canvas->SetLeftMargin(0.15);
-    canvas->SetBottomMargin(0.15);
-    canvas->GetPad(1)->SetRightMargin(0.12);
-    canvas->GetPad(2)->SetRightMargin(0.12);
-    canvas->GetPad(3)->SetRightMargin(0.12);
     canvas->GetPad(1)->SetGrid();
     canvas->GetPad(2)->SetGrid();
     canvas->GetPad(3)->SetGrid();
@@ -110,7 +105,7 @@ void plots::HistSector()
     hist_sector = new TH2D(Form("sector_%d_hist", sector), Form("Mean Anode Current in Sector %d", sector), 5, 0, 5, 6, 0, 6);
     hist_sector->GetXaxis()->SetTitle("Stack");
     hist_sector->GetYaxis()->SetTitle("Layer");
-    hist_sector->GetZaxis()->SetTitle("Current [#muA]");
+    hist_sector->GetZaxis()->SetTitle("Current (#muA)");
     hist_sector->GetXaxis()->SetNdivisions(8, 8, 0, kTRUE);
     for (Int_t stack = 1; stack < 6; stack++)
     {
@@ -134,9 +129,9 @@ void plots::HistLumi(const std::vector<std::string> &luminosity_labels, const st
     {
         hist_lumi->GetYaxis()->SetBinLabel(channels + 1, channel_labels[channels].c_str());
     }
-    hist_lumi->GetXaxis()->SetTitle("Luminosity");
-    hist_lumi->GetYaxis()->SetTitle("Channel");
-    hist_lumi->GetZaxis()->SetTitle("Current [#muA]");
+    hist_lumi->GetXaxis()->SetTitle("Luminosity (Hz/#mub)");
+    hist_lumi->GetYaxis()->SetTitle("");
+    hist_lumi->GetZaxis()->SetTitle("Current (#muA)");
     hist_lumi->SetStats(0);
     for (auto &&element : luminosity_points)
     {
@@ -149,7 +144,7 @@ void plots::HistPerc()
     hist_perc = new TH2D(Form("sector_%d_hist_perc", sector), "", 5, 0, 5, 6, 0, 6);
     hist_perc->GetXaxis()->SetTitle("Stack");
     hist_perc->GetYaxis()->SetTitle("Layer");
-    hist_perc->GetZaxis()->SetTitle("Percentage");
+    hist_perc->GetZaxis()->SetTitle("(%)");
     hist_perc->GetXaxis()->SetNdivisions(8, 8, 0, kTRUE);
     for (Int_t stack = 1; stack < 6; stack++)
     {
@@ -164,7 +159,7 @@ void plots::HistPerc()
 
 void plots::HistOffset()
 {
-    hist_offset = new TH2D(Form("sector_%d_hist_offset", sector), "Offset [#muA]", 5, 0, 5, 6, 0, 6);
+    hist_offset = new TH2D(Form("sector_%d_hist_offset", sector), "Offset (#muA)", 5, 0, 5, 6, 0, 6);
     hist_offset->GetXaxis()->SetTitle("Stack");
     hist_offset->GetYaxis()->SetTitle("Layer");
     hist_offset->GetXaxis()->SetNdivisions(8, 8, 0, kTRUE);
@@ -205,9 +200,9 @@ void plots::WriteLumi(const std::string time_stamp)
 
     gr_lumi_fit = new TGraphErrors(luminosities.size());
     gr_lumi_fit->SetName(Form("sector_%d_hist_lumi_fit", sector));
-    gr_lumi_fit->SetTitle("Average Anode Current");
-    gr_lumi_fit->GetXaxis()->SetTitle("Luminosity (A/(Hz/#mub))");
-    gr_lumi_fit->GetYaxis()->SetTitle("Current [#muA]");
+    gr_lumi_fit->SetTitle(Form("Average Anode Current in Sector %d", sector));
+    gr_lumi_fit->GetXaxis()->SetTitle("Luminosity (Hz/#mub)");
+    gr_lumi_fit->GetYaxis()->SetTitle("Current (#muA)");
 
     for (Int_t i = 0; i < luminosities.size(); i++)
     {
@@ -218,12 +213,8 @@ void plots::WriteLumi(const std::string time_stamp)
     gr_lumi_fit->Fit("pol1");
     TF1 *fit = gr_lumi_fit->GetFunction("pol1");
     hist_lumi->SetTitle(("Anode Current during HL @ " + time_stamp).c_str());
-    auto c0 = new TCanvas(Form("sector_lumi_%d", sector), Form("Sector %d", sector), 10, 10, 800, 600);
-    c0->SetLeftMargin(0.15);
-    c0->SetBottomMargin(0.15);
+    auto c0 = new TCanvas(Form("sector_lumi_%d", sector), Form("Sector %d", sector), 10, 10, 1000, 600);
     c0->Divide(2, 1);
-    c0->GetPad(1)->SetRightMargin(0.12);
-    c0->GetPad(1)->SetLeftMargin(0.12);
     c0->GetPad(1)->SetGrid();
     c0->cd(1);
     hist_lumi->Draw("colz");
@@ -239,8 +230,8 @@ void plots::WriteLumi(const std::string time_stamp)
     char buffer_a[100],
         buffer_b[100],
         buffer_Chi[100];
-    std::sprintf(buffer_a, "a = %.3f #pm %.3f", fit->GetParameter(0), fit->GetParError(0));
-    std::sprintf(buffer_b, "b = %.3f #pm %.3f", fit->GetParameter(1), fit->GetParError(1));
+    std::sprintf(buffer_a, "a = %.3f #pm %.3f (#muA)", fit->GetParameter(0), fit->GetParError(0));
+    std::sprintf(buffer_b, "b = %.3f #pm %.3f (#muA/(Hz/#mub))", fit->GetParameter(1), fit->GetParError(1));
     std::sprintf(buffer_Chi, "#chi^{2}_{red} = %.2f", fit->GetChisquare() / fit->GetNDF());
     tex->DrawLatex(0.20, 0.70, buffer_a);
     tex->DrawLatex(0.20, 0.65, buffer_b);
@@ -271,8 +262,9 @@ void plots::FitInit(const std::vector<std::string> &luminosity_labels)
             gr_lumi_fit_single.push_back(new TGraphErrors(luminosity_labels.size() + 1));
             gr_lumi_fit_single[layer + stack * 6]->SetTitle(Form("%02d_%d_%d Fit Current", sector, stack, layer));
             gr_lumi_fit_single[layer + stack * 6]->SetName(Form("%02d_%d_%d_fit", sector, stack, layer));
-            gr_lumi_fit_single[layer + stack * 6]->GetXaxis()->SetTitle("Luminosity (A/(Hz/#mub))");
-            gr_lumi_fit_single[layer + stack * 6]->GetYaxis()->SetTitle("Current [#muA]");
+            gr_lumi_fit_single[layer + stack * 6]->GetXaxis()->SetTitle("Luminosity (Hz/#mub)");
+            gr_lumi_fit_single[layer + stack * 6]->GetYaxis()->SetTitle("Current (#muA)");
+            gr_lumi_fit_single[layer + stack * 6]->GetYaxis()->SetTitleOffset(0.9);
             gr_lumi_fit_single[layer + stack * 6]->SetPoint(0, 0.0, 0.0);
             gr_lumi_fit_single[layer + stack * 6]->SetPointError(0, 0.0, 0.0);
         }
@@ -339,8 +331,8 @@ void plots::FitDraw()
 
             // Fit Results
             tex->DrawLatex(0.18, 0.75, "Pol1 Fit f(x) = a + b*x");
-            std::sprintf(buffer_a, "a = %.3f #pm %.3f", fit->GetParameter(0), fit->GetParError(0));
-            std::sprintf(buffer_b, "b = %.3f #pm %.3f", fit->GetParameter(1), fit->GetParError(1));
+            std::sprintf(buffer_a, "a = %.3f #pm %.3f (#muA)", fit->GetParameter(0), fit->GetParError(0));
+            std::sprintf(buffer_b, "b = %.3f #pm %.3f (#muA/(Hz/#mub))", fit->GetParameter(1), fit->GetParError(1));
             std::sprintf(buffer_Chi, "#chi^{2}_{red} = %.2f", fit->GetChisquare() / fit->GetNDF());
             tex->DrawLatex(0.20, 0.70, buffer_a);
             tex->DrawLatex(0.20, 0.65, buffer_b);

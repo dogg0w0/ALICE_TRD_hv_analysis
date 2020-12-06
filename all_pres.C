@@ -1,6 +1,6 @@
 void all_pres()
 {
-    gROOT->SetStyle("ATLAS");
+    gROOT->SetStyle("Pub");
     gROOT->ForceStyle();
 
     Double_t mean_current1, std_current1, Luminosity1, pressure1;
@@ -99,7 +99,7 @@ void all_pres()
     c1->Divide(2, 2);
     c1->cd(1);
     g3->GetXaxis()->SetTitle("entry");
-    g3->GetYaxis()->SetTitle("difference in current at same Luminosity (A)");
+    g3->GetYaxis()->SetTitle("difference in current at same Luminosity (#muA)");
     g3->Draw("AP");
     c1->cd(2);
     g12->Draw("AP");
@@ -115,15 +115,15 @@ void all_pres()
     //g1->Draw("AP");
     //g2->Draw("P SAME");
     c1->cd(4);
-    //g6->GetYaxis()->SetTitle("difference in current at same Luminosity (A)");
-    //g6->GetXaxis()->SetTitle("difference in pressure at same Luminosity (A)");
+    //g6->GetYaxis()->SetTitle("difference in current at same Luminosity (#muA)");
+    //g6->GetXaxis()->SetTitle("difference in pressure at same Luminosity (#muA)");
     //g6->Draw("AP");
     g6->SetMarkerColor(kGreen);
     g7->SetMarkerColor(kBlue);
     g67->Add(g6);
     g67->Add(g7);
-    g67->GetYaxis()->SetTitle("#DeltaA at same Luminosity (A)");
-    g67->GetXaxis()->SetTitle("#Deltap at same Luminosity (A)");
+    g67->GetYaxis()->SetTitle("#DeltaA at same Luminosity (#muA)");
+    g67->GetXaxis()->SetTitle("#Deltap at same Luminosity (#muA)");
     g67->Draw("AP");
     c1->Draw();
 }

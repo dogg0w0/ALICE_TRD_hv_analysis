@@ -32,7 +32,7 @@ void cor::Loop()
    if (fChain == 0)
       return;
 
-   //gROOT->SetStyle("ATLAS");
+   //gROOT->SetStyle("Pub");
    //gROOT->ForceStyle();
 
    auto h_p_g = new TH2F("h_p_g", "Gain vs. Pressure; Pressure (hPa); Gain (arb. u.)", 100, 967, 974, 100, 0.35, 0.6);
