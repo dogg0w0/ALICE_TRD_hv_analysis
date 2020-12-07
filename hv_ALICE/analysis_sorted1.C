@@ -29,15 +29,18 @@ void analysis_sorted1::Loop()
    // METHOD2: replace line
    //    fChain->GetEntry(jentry);       //read all branches
    //by  b_branchname->GetEntry(ientry); //read only this branch
+   gROOT->SetStyle("Pub");
    if (fChain == 0)
       return;
 
    Long64_t nentries = fChain->GetEntriesFast();
+   //auto myfile = new TFile("output.root", "UPDATE");
    auto g = new TGraph();
-   Long64_t gentry = 0;
    TTimeStamp *ttime = new TTimeStamp();
+   auto c0 = new TCanvas("c0", "Kanal 06_0_0V", 10, 10, 1000, 1000);
+   c0->cd();
+   Long64_t gentry = 0;
    Long64_t nbytes = 0, nb = 0;
-   vector<Double_t> hv_v;
    for (Long64_t jentry = 0; jentry < nentries; jentry++)
    {
       Long64_t ientry = LoadTree(jentry);
@@ -47,43 +50,30 @@ void analysis_sorted1::Loop()
       nbytes += nb;
       // if (Cut(ientry) < 0) continue;
       if (HV < 0)
+         continue;
+      //if (fSec < 1504399786 || fSec > 1504401590)
+      if (fSec < 1504580400)
       {
          continue;
       }
-      if (fSec < 1530316800)
-      {
-         continue;
-      }
-      if (fSec > 1530403200)
+      if (fSec > 1504635600)
          break;
       ttime->SetSec(fSec);
       ttime->SetNanoSec(fNanoSec);
       g->SetPoint(gentry, ttime->AsDouble(), HV);
-      hv_v.push_back(HV);
       gentry++;
    }
-   auto n = hv_v.size();
-   Double_t average = 0;
-   if (n != 0)
-   {
-      average = accumulate(hv_v.begin(), hv_v.end(), 0.0) / n;
-   }
-   double accum = 0.0;
-   std::for_each(std::begin(hv_v), std::end(hv_v), [&](const double d) {
-      accum += (d - average) * (d - average);
-   });
-
-   double stdev = sqrt(accum / (hv_v.size() - 1));
-   cout << average << "\t+-" << stdev <<endl;
-   g->SetTitle("CHANNEL_NAME");
+   g->Draw();
+   g->SetTitle("Kanal 06_0_0V");
+   //g->GetXaxis()->SetRangeUser(1.5184e9, 1.5444e9);
    g->GetXaxis()->SetTimeOffset(0, "gmt");
    g->GetXaxis()->SetTimeDisplay(1);
    g->GetXaxis()->SetLabelOffset(0.02);
-   g->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M\:%S}}");
+   g->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M}}");
    g->GetXaxis()->SetTitle("");
-   g->GetYaxis()->SetTitle("HV [V]");
+   g->GetYaxis()->SetTitle("Current (#muA)");
    g->SetMarkerStyle(8);
    g->SetMarkerSize(0.5);
    g->SetMarkerColorAlpha(kRed, 0.35);
-   g->Draw("ALP");
+   g->Draw("AP");
 }

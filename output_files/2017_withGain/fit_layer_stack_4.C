@@ -48,7 +48,7 @@
     babarStyle->SetPadTickX(1);
     babarStyle->SetPadTickY(1);
 
-    gROOT->SetStyle("BABAR");
+    gROOT->SetStyle("Pub");
 
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
     Int_t palette[6];
@@ -155,7 +155,7 @@
     h_4->SetMarkerStyle(kOpenCircle);
     h_5->SetMarkerStyle(kFullFourTrianglesPlus);
 
-    h_0->GetXaxis()->SetTitle("slope parameter (A/(Hz/#mub))");
+    h_0->GetXaxis()->SetTitle("slope parameter (#muA/(Hz/#mub))");
     h_0->GetYaxis()->SetTitle("nor. entries");
     // FIT
     Bool_t kfit = kTRUE;

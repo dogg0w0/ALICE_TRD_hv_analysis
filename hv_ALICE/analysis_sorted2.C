@@ -29,6 +29,7 @@ void analysis_sorted2::Loop()
    // METHOD2: replace line
    //    fChain->GetEntry(jentry);       //read all branches
    //by  b_branchname->GetEntry(ientry); //read only this branch
+   gROOT->SetStyle("Pub");
    if (fChain == 0)
       return;
 
@@ -51,11 +52,11 @@ void analysis_sorted2::Loop()
       if (HV < 0)
          continue;
       //if (fSec < 1504399786 || fSec > 1504401590)
-      if (fSec < 1530316800)
+      if (fSec < 1504580400)
       {
          continue;
       }
-      if (fSec > 1530403200)
+      if (fSec > 1504635600)
          break;
       ttime->SetSec(fSec);
       ttime->SetNanoSec(fNanoSec);
@@ -68,14 +69,14 @@ void analysis_sorted2::Loop()
    g->GetXaxis()->SetTimeOffset(0, "gmt");
    g->GetXaxis()->SetTimeDisplay(1);
    g->GetXaxis()->SetLabelOffset(0.02);
-   g->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M\:%S}}");
+   g->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M}}");
    g->GetXaxis()->SetTitle("");
    g->GetYaxis()->SetTitle("Current (#muA)");
    g->SetMarkerStyle(8);
    g->SetMarkerSize(0.5);
    g->SetMarkerColorAlpha(kRed, 0.35);
    g->Draw("AP");
-   c0->Draw();
    //c0->Write();
    //myfile->Close();
+   // Draw text Annotations
 }

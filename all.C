@@ -29,6 +29,7 @@ void all::Loop()
    // METHOD2: replace line
    //    fChain->GetEntry(jentry);       //read all branches
    //by  b_branchname->GetEntry(ientry); //read only this branch
+   gROOT->SetStyle("Pub");
    if (fChain == 0)
       return;
    //invokeStyle();
@@ -158,7 +159,7 @@ void all::Loop()
    grs->GetXaxis()->SetTimeOffset(0, "gmt");
    grs->GetXaxis()->SetTimeDisplay(1);
    grs->GetXaxis()->SetLabelOffset(0.02);
-   grs->GetXaxis()->SetTimeFormat("%H\:%M");
+   grs->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
    grs->GetXaxis()->SetTitle("");
    grs->GetYaxis()->SetTitle("Luminostiy (HZ/#mub)  #color[2]{Current (#muA)}");
    grs->Draw("AP SAME");
@@ -230,8 +231,8 @@ void all::Loop()
        buffer_S[100],
        buffer_Chi[100];
    tex->DrawLatex(0.25, 0.85, "Fit ECAL");
-   sprintf(buffer_M, "p0 = %.3f #pm %.3f", f1->GetParameter(0), f1->GetParError(0));
-   sprintf(buffer_S, "p1 = %.3f #pm %.3f", f1->GetParameter(1), f1->GetParError(1));
+   sprintf(buffer_M, "p0 = %.3f #pm %.3f (#muA)", f1->GetParameter(0), f1->GetParError(0));
+   sprintf(buffer_S, "p1 = %.3f #pm %.3f (#muA/(Hz/#mub))", f1->GetParameter(1), f1->GetParError(1));
    sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f / %d", f1->GetChisquare(), f1->GetNDF());
    tex->DrawLatex(0.25, 0.80, buffer_M);
    tex->DrawLatex(0.25, 0.75, buffer_S);

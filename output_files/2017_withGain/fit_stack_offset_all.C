@@ -48,7 +48,7 @@
     babarStyle->SetPadTickX(1);
     babarStyle->SetPadTickY(1);
 
-    gROOT->SetStyle("BABAR");
+    gROOT->SetStyle("Pub");
 
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
     Int_t palette[5];

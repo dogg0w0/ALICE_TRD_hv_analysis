@@ -139,7 +139,7 @@
     }
     
     g->GetXaxis()->SetTitle("Radius (cm)");
-    g->GetYaxis()->SetTitle("slope (A/(Hz/#mub))");
+    g->GetYaxis()->SetTitle("slope (#muA/(Hz/#mub))");
     g->Fit("pol1", "Q");
     g->Draw("AEP");
 

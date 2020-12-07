@@ -47,7 +47,7 @@
     babarStyle->SetPadTickX(1);
     babarStyle->SetPadTickY(1);
 
-    gROOT->SetStyle("BABAR");
+    gROOT->SetStyle("Pub");
 
     Int_t palette[5];
     palette[0] = 2;

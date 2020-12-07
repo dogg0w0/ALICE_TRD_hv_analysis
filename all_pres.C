@@ -1,7 +1,6 @@
 void all_pres()
 {
     gROOT->SetStyle("Pub");
-    gROOT->ForceStyle();
 
     Double_t mean_current1, std_current1, Luminosity1, pressure1;
     Double_t mean_current2, std_current2, Luminosity2, pressure2;
@@ -51,6 +50,10 @@ void all_pres()
     auto g7 = new TGraph();
     auto g67 = new TMultiGraph();
 
+    auto ggreen = new TGraph();
+    auto gred = new TGraph();
+
+
     auto hist1 = new TH1D("hist1", "T;#DeltaA;entries", 100, -0.15, 0.15);
     auto hist2 = new TH1D("hist2", "T;#DeltaA;entries", 100, -0.15, 0.15);
     auto stack = new THStack();
@@ -71,50 +74,92 @@ void all_pres()
                     g6->SetPoint(gentry, pressure2 - pressure1, mean_current2 - mean_current1);
                     g21->SetPoint(gentry, gentry, pressure2);
                     hist1->Fill(mean_current1 - mean_current2);
+                    ggreen->SetPoint(gentry,gentry, pressure2-pressure1);
                 }
                 else
                 {
                     g7->SetPoint(gentry - 650, pressure2 - pressure1, mean_current2 - mean_current1);
                     g22->SetPoint(gentry - 650, gentry, pressure2);
                     hist2->Fill(mean_current1 - mean_current2);
+                    gred->SetPoint(gentry,gentry, pressure2 - pressure1);
                 }
 
                 gentry++;
             }
         }
     }
-    cout << gentry << endl;
-    g1->SetMarkerColor(kRed);
-    g21->SetMarkerColor(kGreen);
-    g22->SetMarkerColor(kBlue);
-    g12->Add(g1);
-    g12->Add(g21);
-    g12->Add(g22);
-    g12->GetXaxis()->SetTitle("entry");
-    g12->GetYaxis()->SetTitle("pressure (mbar)");
-    g4->GetXaxis()->SetTitle("entry");
-    g4->GetYaxis()->SetTitle("Luminosity (Hz/#mub)");
+    // cout << gentry << endl;
+    // g1->SetMarkerColor(kRed);
+    // g21->SetMarkerColor(kGreen);
+    // g22->SetMarkerColor(kBlue);
+    // g12->Add(g1);
+    // g12->Add(g21);
+    // g12->Add(g22);
+    // g12->GetXaxis()->SetTitle("entry");
+    // g12->GetYaxis()->SetTitle("pressure (mbar)");
+    // g4->GetXaxis()->SetTitle("entry");
+    // g4->GetYaxis()->SetTitle("Luminosity (Hz/#mub)");
 
-    auto c1 = new TCanvas("c1", "Canvas", 10, 10, 800, 600);
-    c1->Divide(2, 2);
+//     auto c1 = new TCanvas("c1", "Canvas", 10, 10, 800, 600);
+//     c1->Divide(2,2);
+//     c1->cd(1);
+//     g3->GetXaxis()->SetTitle("entry");
+//     g3->GetYaxis()->SetTitle("difference in current at same Luminosity (#muA)");
+//     g3->Draw("AP");
+//     c1->cd(2);
+//     g12->Draw("AP");
+//     c1->cd(3);
+//     hist1->SetFillColor(kRed);
+//     hist2->SetFillColor(kGreen);
+//     stack->Add(hist2);
+
+//     stack->Add(hist1);
+//     stack->Draw();
+//     //g4->Draw("AP");
+//     //g12->Draw("AP");
+//     //g1->Draw("AP");
+//     //g2->Draw("P SAME");
+//     c1->cd(4);
+//     //g6->GetYaxis()->SetTitle("difference in current at same Luminosity (#muA)");
+//     //g6->GetXaxis()->SetTitle("difference in pressure at same Luminosity (#muA)");
+//     //g6->Draw("AP");
+//     g6->SetMarkerColor(kGreen);
+//     g7->SetMarkerColor(kBlue);
+//     g67->Add(g6);
+//     g67->Add(g7);
+//     g67->GetYaxis()->SetTitle("#DeltaA at same Luminosity (#muA)");
+//     g67->GetXaxis()->SetTitle("#Deltap at same Luminosity (#muA)");
+//     g67->Draw("AP");
+//     c1->Draw();
+    gred->SetMarkerColor(kRed);
+    gred->SetMarkerSize(100);
+    gred->SetDrawOption("P");
+    ggreen->SetMarkerColor(kGreen);
+    ggreen->SetMarkerSize(10);
+    g12->Add(gred);
+    g12->Add(ggreen);
+    g12->GetXaxis()->SetTitle("Time (a.u.)");
+    g12->GetYaxis()->SetTitle("#Deltap (mbar)");
+    auto c1 = new TCanvas("c1", "Canvas", 10, 10, 1000, 3000);
+    c1->Divide(1, 3);
     c1->cd(1);
-    g3->GetXaxis()->SetTitle("entry");
-    g3->GetYaxis()->SetTitle("difference in current at same Luminosity (#muA)");
-    g3->Draw("AP");
-    c1->cd(2);
     g12->Draw("AP");
-    c1->cd(3);
+    c1->cd(2);
     hist1->SetFillColor(kRed);
     hist2->SetFillColor(kGreen);
+
     stack->Add(hist2);
 
     stack->Add(hist1);
     stack->Draw();
+    stack->GetXaxis()->SetTitle("#DeltaA (#muA)");
+    stack->GetYaxis()->SetTitle("entries");
+
     //g4->Draw("AP");
     //g12->Draw("AP");
     //g1->Draw("AP");
     //g2->Draw("P SAME");
-    c1->cd(4);
+    c1->cd(3);
     //g6->GetYaxis()->SetTitle("difference in current at same Luminosity (#muA)");
     //g6->GetXaxis()->SetTitle("difference in pressure at same Luminosity (#muA)");
     //g6->Draw("AP");
@@ -123,7 +168,7 @@ void all_pres()
     g67->Add(g6);
     g67->Add(g7);
     g67->GetYaxis()->SetTitle("#DeltaA at same Luminosity (#muA)");
-    g67->GetXaxis()->SetTitle("#Deltap at same Luminosity (#muA)");
+    g67->GetXaxis()->SetTitle("#Deltap at same Luminosity (mbar)");
     g67->Draw("AP");
     c1->Draw();
 }

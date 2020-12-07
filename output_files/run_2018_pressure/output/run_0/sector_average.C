@@ -78,7 +78,7 @@ void sector_average()
     }
 
     auto C1 = new TCanvas("C1", "Layer", 10, 10, 800, 600);
-    auto h_sector = new TH1D("h_layer", "Mean Slope Para per Sector;Sector;Slope", y_bins, 0, y_bins);
+    auto h_sector = new TH1D("h_layer", "Mean Slope Para per Sector;Sector;Slope Parameter (#muA/(Hz/#mub))", y_bins, 0, y_bins);
     h_sector->GetXaxis()->SetNdivisions(20, 0, 0, kTRUE);
 
     for (Int_t sector = 0; sector < 18; sector++)

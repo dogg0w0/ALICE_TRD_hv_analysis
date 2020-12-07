@@ -19,28 +19,58 @@
 
     auto C = new TCanvas();
 
-    auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Stack 0", 30, 0, 0.15);
-    auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Stack 1", 30, 0, 0.15);
-    auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Stack 2", 30, 0, 0.15);
-    auto h_3 = new TH1D("h_3", "Slope Fit Param Hists in Stack 3", 30, 0, 0.15);
-    auto h_4 = new TH1D("h_4", "Slope Fit Param Hists in Stack 4", 30, 0, 0.15);
+    auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Stack 0", 32, 0.02, 0.15);
+    auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Stack 1", 32, 0.02, 0.15);
+    auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Stack 2", 32, 0.02, 0.15);
+    auto h_3 = new TH1D("h_3", "Slope Fit Param Hists in Stack 3", 20, 0.02, 0.15);
+    auto h_4 = new TH1D("h_4", "Slope Fit Param Hists in Stack 4", 28, 0.02, 0.15);
+
+    TTree *tree = 0;
+    TBranch *para_bBranch = 0;
+    Double_t para_a, para_b;
+    Long64_t nentries;
+
+    vector<Double_t>
+        fit_a(540, 0.0),
+        fit_b(540, 0.0);
 
     TFile *s[numfiles];
     for (Int_t i = 0; i < numfiles; i++)
     {
         s[i] = TFile::Open(root_File_Names[i], "READ");
 
+        tree = (TTree *)s[i]->Get("fits/fit_params");
+        tree->SetMakeClass(1);
+        tree->SetBranchAddress("fit_b", &para_b, &para_bBranch);
+        nentries = tree->GetEntries();
+
+        // Then loop over all of them.
+        for (Long64_t j = 0; j < nentries; j++)
+        {
+            tree->GetEntry(j);
+            fit_a[30 * i + j] = para_a;
+            fit_b[30 * i + j] = para_b;
+        }
+
         auto h0 = (TH1D *)s[i]->Get("fits/h_b_0");
         auto h1 = (TH1D *)s[i]->Get("fits/h_b_1");
         auto h2 = (TH1D *)s[i]->Get("fits/h_b_2");
         auto h3 = (TH1D *)s[i]->Get("fits/h_b_3");
         auto h4 = (TH1D *)s[i]->Get("fits/h_b_4");
+    }
 
-        h_0->Add(h0);
-        h_1->Add(h1);
-        h_2->Add(h2);
-        h_3->Add(h3);
-        h_4->Add(h4);
+    Int_t layers[] = {0,1,2, 3,4,5};
+
+    for (Int_t sector = 0; sector < numfiles; sector++)
+    {
+        for (auto &&layer : layers)
+        {
+            h_0->Fill(fit_b[30 * sector + 6 * 0 + layer]);
+            h_1->Fill(fit_b[30 * sector + 6 * 1 + layer]);
+            h_2->Fill(fit_b[30 * sector + 6 * 2 + layer]);
+            h_3->Fill(fit_b[30 * sector + 6 * 3 + layer]);
+            h_4->Fill(fit_b[30 * sector + 6 * 4 + layer]);
+        }
     }
     //Norm
     Double_t scale_0 = 1 / h_0->Integral();
@@ -60,17 +90,17 @@
     h_3->SetMarkerStyle(kFullTriangleDown);
     h_4->SetMarkerStyle(kOpenCircle);
 
-    h_0->GetXaxis()->SetTitle("slope parameter (A/(Hz/#mub))");
+    h_0->GetXaxis()->SetTitle("slope parameter (#muA/(Hz/#mub))");
     h_0->GetYaxis()->SetTitle("nor. entries");
     // FIT
     Bool_t kfit = kTRUE;
     if (kfit)
     {
-        TF1 *g0 = new TF1("g0", "gaus", 0.02, 0.14);
-        TF1 *g1 = new TF1("g1", "gaus", 0.02, 0.14);
-        TF1 *g2 = new TF1("g2", "gaus", 0.02, 0.14);
-        TF1 *g3 = new TF1("g3", "gaus", 0.02, 0.14);
-        TF1 *g4 = new TF1("g4", "gaus", 0.02, 0.14);
+        TF1 *g0 = new TF1("g0", "gaus", 0.01, 0.16);
+        TF1 *g1 = new TF1("g1", "gaus", 0.01, 0.16);
+        TF1 *g2 = new TF1("g2", "gaus", 0.01, 0.16);
+        TF1 *g3 = new TF1("g3", "gaus", 0.01, 0.16);
+        TF1 *g4 = new TF1("g4", "gaus", 0.01, 0.16);
         h_0->Fit(g0, "R W");
         h_1->Fit(g1, "R W");
         h_2->Fit(g2, "R W");
@@ -83,7 +113,7 @@
         h_4->GetFunction("g4")->SetLineColor(palette[4]);
     }
 
-    h_0->GetYaxis()->SetRangeUser(0, 0.5);
+    h_0->GetYaxis()->SetRangeUser(0, 0.3);
     //h_0->GetXaxis()->SetRangeUser(0.01, 0.12);
 
     h_0->Draw("9 PLC PMC");
@@ -99,47 +129,47 @@
         tex->SetNDC(kTRUE);
         tex->SetTextSize(0.02);
         tex->SetTextColor(kBlack);
-        tex->DrawLatex(0.25, 0.88, "Gauss Fit Stack 0");
+        tex->DrawLatex(0.65, 0.88, "Gauss Fit Stack 0");
         char buffer_M[100],
             buffer_S[100],
             buffer_Chi[100];
         sprintf(buffer_M, "#mu = %.3f #pm %.3f", g0->GetParameter(1), g0->GetParError(1));
         sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g0->GetParameter(2), g0->GetParError(2));
         sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f", g0->GetChisquare() / g0->GetNDF());
-        tex->DrawLatex(0.25, 0.85, buffer_M);
-        tex->DrawLatex(0.25, 0.82, buffer_S);
-        tex->DrawLatex(0.25, 0.79, buffer_Chi);
+        tex->DrawLatex(0.65, 0.85, buffer_M);
+        tex->DrawLatex(0.65, 0.82, buffer_S);
+        tex->DrawLatex(0.65, 0.79, buffer_Chi);
 
-        tex->DrawLatex(0.25, 0.75, "Gauss Fit Stack 1");
+        tex->DrawLatex(0.65, 0.75, "Gauss Fit Stack 1");
         sprintf(buffer_M, "#mu = %.3f #pm %.3f", g1->GetParameter(1), g1->GetParError(1));
         sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g1->GetParameter(2), g1->GetParError(2));
         sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f", g1->GetChisquare() / g1->GetNDF());
-        tex->DrawLatex(0.25, 0.72, buffer_M);
-        tex->DrawLatex(0.25, 0.69, buffer_S);
-        tex->DrawLatex(0.25, 0.66, buffer_Chi);
+        tex->DrawLatex(0.65, 0.72, buffer_M);
+        tex->DrawLatex(0.65, 0.69, buffer_S);
+        tex->DrawLatex(0.65, 0.66, buffer_Chi);
 
-        tex->DrawLatex(0.25, 0.62, "Gauss Fit Stack 2");
+        tex->DrawLatex(0.65, 0.62, "Gauss Fit Stack 2");
         sprintf(buffer_M, "#mu = %.3f #pm %.3f", g2->GetParameter(1), g2->GetParError(1));
         sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g2->GetParameter(2), g2->GetParError(2));
         sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f", g2->GetChisquare() / g2->GetNDF());
-        tex->DrawLatex(0.25, 0.59, buffer_M);
-        tex->DrawLatex(0.25, 0.56, buffer_S);
-        tex->DrawLatex(0.25, 0.53, buffer_Chi);
+        tex->DrawLatex(0.65, 0.59, buffer_M);
+        tex->DrawLatex(0.65, 0.56, buffer_S);
+        tex->DrawLatex(0.65, 0.53, buffer_Chi);
 
-        tex->DrawLatex(0.25, 0.49, "Gauss Fit Stack 3");
+        tex->DrawLatex(0.65, 0.49, "Gauss Fit Stack 3");
         sprintf(buffer_M, "#mu = %.3f #pm %.3f", g3->GetParameter(1), g3->GetParError(1));
         sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g3->GetParameter(2), g3->GetParError(2));
         sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f", g3->GetChisquare() / g3->GetNDF());
-        tex->DrawLatex(0.25, 0.46, buffer_M);
-        tex->DrawLatex(0.25, 0.43, buffer_S);
-        tex->DrawLatex(0.25, 0.40, buffer_Chi);
+        tex->DrawLatex(0.65, 0.46, buffer_M);
+        tex->DrawLatex(0.65, 0.43, buffer_S);
+        tex->DrawLatex(0.65, 0.40, buffer_Chi);
 
-        tex->DrawLatex(0.25, 0.36, "Gauss Fit Stack 4");
+        tex->DrawLatex(0.65, 0.36, "Gauss Fit Stack 4");
         sprintf(buffer_M, "#mu = %.3f #pm %.3f", g4->GetParameter(1), g4->GetParError(1));
         sprintf(buffer_S, "#sigma = %.3f #pm %.3f", g4->GetParameter(2), g4->GetParError(2));
         sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f", g4->GetChisquare() / g4->GetNDF());
-        tex->DrawLatex(0.25, 0.33, buffer_M);
-        tex->DrawLatex(0.25, 0.30, buffer_S);
-        tex->DrawLatex(0.25, 0.27, buffer_Chi);
+        tex->DrawLatex(0.65, 0.33, buffer_M);
+        tex->DrawLatex(0.65, 0.30, buffer_S);
+        tex->DrawLatex(0.65, 0.27, buffer_Chi);
     }
 }

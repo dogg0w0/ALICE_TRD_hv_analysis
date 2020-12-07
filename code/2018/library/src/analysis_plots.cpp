@@ -3,7 +3,7 @@
 plots::plots(const Int_t sector_n)
 {
     sector = sector_n;
-    //plots::ChamberWeightsInit();
+    plots::ChamberWeightsInit();
     //plots::GainWeightsInit(gain_map);
     //plots::RadialWeightsInit();
     plots::WeightsInit();
@@ -15,7 +15,7 @@ plots::plots(const Int_t sector_n)
 plots::plots(const Int_t sector_n, std::string gain_map, const Int_t gain_index)
 {
     sector = sector_n;
-    //plots::ChamberWeightsInit();
+    plots::ChamberWeightsInit();
     //plots::GainWeightsInit(gain_map, gain_index);
     //plots::RadialWeightsInit();
     plots::WeightsInit();

@@ -95,7 +95,7 @@ void all_pres_lumi()
     g4->SetMarkerColor(kBlue);
     g34->Add(g3);
     g34->Add(g4);
-    g34->GetXaxis()->SetTitle("time (a.u.)");
+    g34->GetXaxis()->SetTitle("Time (a.u.)");
     g34->GetYaxis()->SetTitle("Luminosity (Hz/#mub)");
     g34->Draw("AP");
     pad->cd(2);
@@ -103,7 +103,7 @@ void all_pres_lumi()
     g6->SetMarkerColor(kBlue);
     g56->Add(g5);
     g56->Add(g6);
-    g56->GetXaxis()->SetTitle("time (a.u.)");
+    g56->GetXaxis()->SetTitle("Time (a.u.)");
     g56->GetYaxis()->SetTitle("#Deltap (mbar)");
     g56->Draw("AP");
 }

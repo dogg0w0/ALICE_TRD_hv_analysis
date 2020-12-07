@@ -60,7 +60,7 @@
     h_3->SetMarkerStyle(kFullTriangleDown);
     h_4->SetMarkerStyle(kOpenCircle);
 
-    h_0->GetXaxis()->SetTitle("slope parameter (A/(Hz/#mub))");
+    h_0->GetXaxis()->SetTitle("slope parameter (#muA/(Hz/#mub))");
     h_0->GetYaxis()->SetTitle("nor. entries");
     // FIT
     Bool_t kfit = kTRUE;

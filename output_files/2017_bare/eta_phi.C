@@ -125,9 +125,9 @@ void eta_phi()
 
     auto C1 = new TCanvas("C1", "Layer", 10, 10, 800, 600);
     auto C2 = new TCanvas("C2", "Stack", 10, 10, 800, 600);
-    auto h_layer = new TH2D("h_layer", "Mean Slope per Layer;Layer;Sector;Slope", x_bins_layer, 0, x_bins_layer, y_bins, 0, y_bins);
+    auto h_layer = new TH2D("h_layer", "Mean Slope per Layer;Layer;Sector;Slope (#muA/(Hz/#mub))", x_bins_layer, 0, x_bins_layer, y_bins, 0, y_bins);
     auto h_layer_err = new TH2D("h_layer_err", "SE Slope per Layer;Layer;Sector;Slope Standard Error", x_bins_layer, 0, x_bins_layer, y_bins, 0, y_bins);
-    auto h_stack = new TH2D("h_stack", "Mean Slope per Stack;Stack;Sector;Slope", x_bins_stack, 0, x_bins_stack, y_bins, 0, y_bins);
+    auto h_stack = new TH2D("h_stack", "Mean Slope per Stack;Stack;Sector;Slope (#muA/(Hz/#mub))", x_bins_stack, 0, x_bins_stack, y_bins, 0, y_bins);
     auto h_stack_err = new TH2D("h_stack_err", "SE Slope per Stack;Stack;Sector;Slope Standard Error", x_bins_stack, 0, x_bins_stack, y_bins, 0, y_bins);
     h_layer->GetXaxis()->SetNdivisions(8, 0, 0, kTRUE);
     h_layer->GetYaxis()->SetNdivisions(20, 0, 0, kTRUE);
@@ -171,17 +171,19 @@ void eta_phi()
         }
     }
 
-    C1->Divide(2, 1);
-    C1->cd(1);
+    //C1->Divide(2, 1);
+    C1->SetRightMargin(0.2);
+    C1->cd();
     h_layer->Draw("colz");
-    C1->cd(2);
-    h_layer_err->Draw("colz");
+    //C1->cd(2);
+    //h_layer_err->Draw("colz");
     C1->Draw();
 
-    C2->Divide(2, 1);
-    C2->cd(1);
+    //C2->Divide(2, 1);
+    C2->SetRightMargin(0.2);
+    C2->cd();
     h_stack->Draw("colz");
-    C2->cd(2);
-    h_stack_err->Draw("colz");
-    C2->Draw();
+    //C2->cd(2);
+    //h_stack_err->Draw("colz");
+    //C2->Draw();
 }

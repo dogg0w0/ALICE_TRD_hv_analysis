@@ -168,7 +168,7 @@ void invokeStyle()
     babarStyle->SetPadTickX(1);
     babarStyle->SetPadTickY(1);
 
-    gROOT->SetStyle("BABAR");
+    gROOT->SetStyle("Pub");
 
     gROOT->ForceStyle();
     TH1::SetDefaultSumw2(kTRUE);
