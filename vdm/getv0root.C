@@ -1,7 +1,7 @@
 #include <iostream>
 #include <numeric>
 
-void getv0root(string filename)
+void getv0root(string filename, string corAnodefile)
 {
     gROOT->SetStyle("Pub");
     // Declaration of leaf types
@@ -52,9 +52,9 @@ void getv0root(string filename)
 
     TTimeStamp *ttime = new TTimeStamp();
 
-    TFile *f2 = TFile::Open("sorted_2.csv.root", "READ");
+    TFile *f2 = TFile::Open(corAnodefile.c_str(), "READ");
     TTree *tree2 = new TTree();
-    tree2 = (TTree *)f2->Get("Tree_TRD_HV");
+    tree2 = (TTree *)f2->Get("Tree_TRD_HV_cor");
     tree2->SetMakeClass(1);
     tree2->SetBranchAddress("HV", &HV, &b_HV);
     tree2->SetBranchAddress("fSec", &fSec, &b_time_fSec);
@@ -74,12 +74,13 @@ void getv0root(string filename)
 
     //__________________________________________________________
     Long64_t nentries = tree1->GetEntries();
+    Double_t v0rate_sum_cor = 0.0;
+
     Long64_t nentries2 = tree2->GetEntries();
     Long64_t gentry = 0;
     for (Long64_t jentry = 0; jentry < nentries; jentry++)
     {
         v0rate_sum = 0.0;
-        cout << "This entry in tree1:\t" << jentry << endl;
         tree1->GetEntry(jentry);
         if (aqflag)
             continue;
@@ -113,13 +114,13 @@ void getv0root(string filename)
                 if (abs(time - ttime->AsDouble()) <= 1.0)
                 {
                     g2->SetPoint(g2entry, nsep, HV);
-                    cout << g2entry << endl;
                     g2entry++;
                 }
             }
         }
         v0rate_sum = accumulate(v0rate, v0rate + 3564, v0rate_sum);
-        g->SetPoint(gentry, nsep, v0rate_sum / 10000);
+        v0rate_sum_cor = v0rate_sum  -0.150456 * (1501171000 - time);
+        g->SetPoint(gentry, nsep, v0rate_sum_cor / 10000);
         gentry++;
     }
 
@@ -146,7 +147,7 @@ void getv0root(string filename)
     sprintf(buffer_mu, "#mu = %.3f #pm %.3f", fgauss->GetParameter(1), fgauss->GetParError(1));
     sprintf(buffer_S, "#sigma = %.3f #pm %.3f", fgauss->GetParameter(2), fgauss->GetParError(2));
     sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f / %d", fgauss->GetChisquare(), fgauss->GetNDF());
-    sprintf(buffer_h, "h_{x} = #splitline{%.3f}{#pm %.3f} (#mum)", fgauss->Integral(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum(), fgauss->IntegralError(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum());
+    sprintf(buffer_h, "h_{y} = #splitline{%.3f}{#pm %.3f} (#mum)", fgauss->Integral(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum() *10, fgauss->IntegralError(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum() *10);
     tex->DrawLatex(0.60, 0.80, buffer_mu);
     tex->DrawLatex(0.60, 0.75, buffer_S);
     tex->DrawLatex(0.60, 0.70, buffer_Chi);
@@ -161,7 +162,7 @@ void getv0root(string filename)
     sprintf(buffer_mu, "#mu = %.3f #pm %.3f", fgauss->GetParameter(1), fgauss->GetParError(1));
     sprintf(buffer_S, "#sigma = %.3f #pm %.3f", fgauss->GetParameter(2), fgauss->GetParError(2));
     sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f / %d", fgauss->GetChisquare(), fgauss->GetNDF());
-    sprintf(buffer_h, "h_{y} = #splitline{%.3f}{#pm %.3f} (#mum)", fgauss->Integral(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum(), fgauss->IntegralError(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum());
+    sprintf(buffer_h, "h_{y} = #splitline{%.3f}{#pm %.3f} (#mum)", fgauss->Integral(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum() *10, fgauss->IntegralError(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum()*10);
     tex->DrawLatex(0.60, 0.80, buffer_mu);
     tex->DrawLatex(0.60, 0.75, buffer_S);
     tex->DrawLatex(0.60, 0.70, buffer_Chi);
