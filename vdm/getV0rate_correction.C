@@ -56,17 +56,19 @@ void getV0rate_correction(string filename)
     auto mg = new TMultiGraph();
 
     //----------------------------------------------------
-    Int_t start_time = 1501171600;
-    Int_t end_time = 1501172600;
-
-    //Int_t start_time = 1501172800;
-    //Int_t end_time = 1501173800;
-
-    Int_t time1 = 1501171100, time2 = 1501171470,
-          time4 = 1501172740, time3 = 1501172630,
-          time6 = 1501174000, time5 = 1501173900;
-
-    //__________________________________________________________16418
+    //6012
+    //Int_t time1 = 1501171100, time2 = 1501171470,
+    //      time4 = 1501172740, time3 = 1501172630,
+    //      time6 = 1501174000, time5 = 1501173900;
+    //
+    //____________________________________________________
+    //----------------------------------------------------
+    //7483
+    Int_t time1 = 1543479600, time2 = 1543480200,
+          time4 = 1543483500, time3 = 1543483100,
+          time6 = 1543489400, time5 = 1543488700;
+    //
+    //____________________________________________________
     Long64_t nentries = tree1->GetEntries();
     Long64_t gentry = 0;
     for (Long64_t jentry = 0; jentry < nentries; jentry++)
@@ -100,7 +102,7 @@ void getV0rate_correction(string filename)
         v0rate_sum = 0.0;
         //cout << "This entry in tree1:\t" << jentry << endl;
         tree1->GetEntry(jentry);
-        if (time >= 1501174150)
+        if (time >= time6)
         {
             break;
         }
@@ -108,7 +110,7 @@ void getV0rate_correction(string filename)
         //N_1 = accumulate(bunch1, bunch1 + 3564, N_1);
         //N_2 = accumulate(bunch2, bunch2 + 3564, N_2);
         //cout << -expo->GetParameter(1) * time << endl;
-        v0rate_sum_cor = v0rate_sum + pol1->GetParameter(1) * (1501171000-time);
+        v0rate_sum_cor = v0rate_sum + pol1->GetParameter(1) * (time1-time);
         g2->SetPoint(gentry, time, v0rate_sum_cor);
         gun->SetPoint(gentry, time, v0rate_sum);
         gentry++;
