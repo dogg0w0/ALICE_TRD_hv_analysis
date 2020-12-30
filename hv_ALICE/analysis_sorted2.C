@@ -52,11 +52,11 @@ void analysis_sorted2::Loop()
       if (HV < 0)
          continue;
       //if (fSec < 1504399786 || fSec > 1504401590)
-      if (fSec < 1504569600)
+      if (fSec < 1558000000)
       {
          continue;
       }
-      if (fSec > 1504652400)
+      if (fSec > 1560000000)
          break;
       ttime->SetSec(fSec);
       ttime->SetNanoSec(fNanoSec);

@@ -1,4 +1,4 @@
-void working()
+void working(Int_t sector_n)
 {
     gROOT->SetStyle("Pub");
     gStyle->SetOptTitle(kTRUE);
@@ -30,8 +30,14 @@ void working()
     TH2D *h[18];
     for (auto &&hs : h)
     {
-        hs = new TH2D("h", "", 5, 0, 5, 6, 0, 6);
-        hs->SetTitle(Form("Sector %d", j));
+        if (j == 15)
+        {
+            hs = new TH2D("h", Form("Sector %d;Stack;Layer", j), 5, 0, 5, 6, 0, 6);
+        }
+        else
+        {
+            hs = new TH2D("h", Form("Sector %d", j), 5, 0, 5, 6, 0, 6);
+        }
         for (Int_t layer = 1; layer < 7; layer++)
         {
             hs->GetYaxis()->SetBinLabel(layer, Form("%d", layer - 1));
@@ -48,108 +54,125 @@ void working()
     vector<string> drift;
     TLatex *t = new TLatex();
     t->SetTextFont(62);
-    t->SetTextColor(36);
-    t->SetTextSize(0.05);
+    t->SetTextColor(1);
+    t->SetTextSize(0.02);
 
-    auto c = new TCanvas("c", "Canvas", 10, 10, 1000, 6000);
-    c->Divide(3, 6);
-    for (Int_t sector_n = 0; sector_n < 1; sector_n++)
+    TCanvas c("c", "Canvas", 10, 10, 800, 600);
+    Int_t counter = 0;
+    c.SetGrid();
+    std::ifstream file("/media/felix/flush/ALICE_TRD/create_chamber_map/outfile.txt");
+    if (!file.is_open())
     {
-        Int_t counter = 0;
-        c->cd(sector_n + 1);
-        c->GetPad(sector_n)->SetGrid();
-        std::ifstream file("/media/felix/flush/ALICE_TRD/create_chamber_map/outfile.txt");
-        if (!file.is_open())
+        std::cout << "outfile not open" << std::endl;
+        return;
+    }
+    while (file >> crate_name >> file_index >> install_year >> measurement_type >> channel_name)
+    {
+        if ((file_index == 567) || (file_index == 2159))
         {
-            std::cout << "outfile not open" << std::endl;
-            return;
+            continue;
         }
-        while (file >> crate_name >> file_index >> install_year >> measurement_type >> channel_name)
+
+        if (measurement_type[0] == 'V')
         {
-            if (file_index == 567)
+            Int_t sector = std::stoi(channel_name.substr(0, 2));
+            Int_t stack = std::stoi(channel_name.substr(3, 1));
+            Int_t layer = std::stoi(channel_name.substr(5, 1));
+            char plate = channel_name[6];
+            if (sector == sector_n)
             {
-                continue;
-            }
-            
-            if (measurement_type[0] == 'V')
-            {
-                Int_t sector = std::stoi(channel_name.substr(0, 2));
-                Int_t stack = std::stoi(channel_name.substr(3, 1));
-                Int_t layer = std::stoi(channel_name.substr(5, 1));
-                char plate = channel_name[6];
-                if (sector == sector_n)
+                cout << file_index << endl;
+                s = TFile::Open(Form(file_dir.c_str(), file_index), "READ");
+                tree = (TTree *)s->Get("Tree_TRD_HV");
+                if (!tree || !s)
                 {
-                    cout << file_index << endl;
-                    s = TFile::Open(Form(file_dir.c_str(), file_index), "READ");
-                    tree = (TTree *)s->Get("Tree_TRD_HV");
-                    if (!tree || !s)
+                    continue;
+                }
+                tree->SetMakeClass(1);
+                tree->SetBranchAddress("HV", &HV, &b_HV);
+                tree->SetBranchAddress("fSec", &fSec, &b_time_fSec);
+                tree->SetBranchAddress("fNanoSec", &fNanoSec, &b_time_fNanoSec);
+                Int_t nentries = tree->GetEntries();
+
+                // while (fSec < 1536352131)
+                // {
+                //     tree->GetEntry(j);
+                //     j++;
+                // }
+                Double_t mean = 0;
+                vector<Double_t> temp;
+                // for (j = 0; j < nentries; j++)
+                // {
+                //     tree->GetEntry(j);
+                //     if ((fSec > 1504605300) && (fSec < 1504607400))
+                //     {
+                //         temp.push_back(HV);
+                //     }
+                //     if (fSec > 1504607400)
+                //     {
+                //         break;
+                //     }
+                // }
+                for (j = 0; j < nentries; j++)
+                {
+                    tree->GetEntry(j);
+                    if ((fSec > 1535962800) && (fSec < 1535972400))
                     {
-                        continue;
+                        temp.push_back(HV);
                     }
-                    tree->SetMakeClass(1);
-                    tree->SetBranchAddress("HV", &HV, &b_HV);
-                    tree->SetBranchAddress("fSec", &fSec, &b_time_fSec);
-                    tree->SetBranchAddress("fNanoSec", &fNanoSec, &b_time_fNanoSec);
-                    //nentries = tree->GetEntries();
-                    j = 0;
-                    
-                    while (fSec < 1536352131)
+                    if (fSec > 1535972400)
                     {
-                        tree->GetEntry(j);
-                        j++;
-                    }
-                    tree = 0, s = 0;
-                    fSec = 0;
-                    cout << HV << endl;
-                    if (plate == 'A')
-                    {
-                        cout << "looking closer at anode " << file_index << endl;
-                        working = 1;
-                        if ((HV < 1450) && (HV > 20))
-                        {
-                            working = 0;
-                        }
-                        else if (HV <= 20)
-                        {
-                            working = -1;
-                        }
-                        h[sector_n]->SetBinContent(stack + 1, layer + 1, working);
-                        counter++;
-                        cout << "stop looking at anode" << endl;
-                    }
-                    if (plate == 'D')
-                    {
-                        cout << "looking closer at Drift " << file_index << endl;
-                        drift.push_back("1");
-                        if ((HV < 1900) && (HV > 20))
-                        {
-                            drift.push_back("0");
-                        }
-                        else if (HV <= 20)
-                        {
-                            drift.push_back("-1");
-                        }
-                        x.push_back(h[sector_n]->GetXaxis()->GetBinCenter(h[sector_n]->GetXaxis()->FindBin(stack + 1)) - 1);
-                        y.push_back(h[sector_n]->GetYaxis()->GetBinCenter(h[sector_n]->GetYaxis()->FindBin(layer + 1)) - 1);
-                        counter++;
-                        cout << "stop looking at drift" << endl;
+                        break;
                     }
                 }
-            }
-            if (counter == 120)
-            {
-                cout << "breaking free" << endl;
-                break;
+                tree = 0, s = 0;
+                fSec = 0;
+                mean = accumulate(temp.begin(), temp.end(), 0.0) / temp.size();
+                cout << mean << endl;
+                if (plate == 'A')
+                {
+                    working = 1;
+                    if ((mean < 1450) && (mean > 20))
+                    {
+                        working = 0;
+                    }
+                    else if (mean <= 20)
+                    {
+                        working = -1;
+                    }
+                    h[sector_n]->SetBinContent(stack + 1, layer + 1, working);
+                    counter++;
+                }
+                if (plate == 'D')
+                {
+                    drift.push_back("drift on");
+                    if ((mean < 1900) && (mean > 20))
+                    {
+                        drift.push_back("drift red.");
+                    }
+                    else if (mean <= 20)
+                    {
+                        drift.push_back("drift off");
+                    }
+                    x.push_back(h[sector_n]->GetXaxis()->GetBinCenter(h[sector_n]->GetXaxis()->FindBin(stack + 1)) - 1.2);
+                    y.push_back(h[sector_n]->GetYaxis()->GetBinCenter(h[sector_n]->GetYaxis()->FindBin(layer + 1)) - 1.1);
+                    counter++;
+                }
             }
         }
-        cout << "drawing hist" << endl;
-        h[sector_n]->Draw("col");
-        for (Int_t i = 0; i < 30; i++)
+        if (counter == 120)
         {
-            t->DrawText(x[i], y[i], drift[i].c_str());
+            cout << "breaking free" << endl;
+            break;
         }
-
-        file.close();
     }
-    c->Draw();
+    cout << "drawing hist" << endl;
+    h[sector_n]->Draw("col");
+    for (Int_t i = 0; i < 30; i++)
+    {
+        t->DrawText(x[i], y[i], drift[i].c_str());
+    }
+
+    file.close();
+    c.SaveAs(Form("2018/sector_%d.pdf", sector_n));
 }
