@@ -128,7 +128,7 @@ void detect()
     s->GetXaxis()->SetLabelOffset(0.02);
     s->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M}}");
     s->GetXaxis()->SetTitle("");
-    s->GetYaxis()->SetTitle("Current (#muA)");
+    s->GetYaxis()->SetTitle("");
     s->SetMarkerStyle(8);
     s->SetMarkerSize(0.5);
     s->SetMarkerColor(kRed);
