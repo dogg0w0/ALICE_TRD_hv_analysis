@@ -101,30 +101,30 @@ void working(Int_t sector_n)
                 // }
                 Double_t mean = 0;
                 vector<Double_t> temp;
-                // for (j = 0; j < nentries; j++)
-                // {
-                //     tree->GetEntry(j);
-                //     if ((fSec > 1504605300) && (fSec < 1504607400))
-                //     {
-                //         temp.push_back(HV);
-                //     }
-                //     if (fSec > 1504607400)
-                //     {
-                //         break;
-                //     }
-                // }
                 for (j = 0; j < nentries; j++)
                 {
                     tree->GetEntry(j);
-                    if ((fSec > 1535962800) && (fSec < 1535972400))
+                    if ((fSec > 1504605300) && (fSec < 1504607400))
                     {
                         temp.push_back(HV);
                     }
-                    if (fSec > 1535972400)
+                    if (fSec > 1504607400)
                     {
                         break;
                     }
                 }
+                // for (j = 0; j < nentries; j++)
+                // {
+                //     tree->GetEntry(j);
+                //     if ((fSec > 1535962800) && (fSec < 1535972400))
+                //     {
+                //         temp.push_back(HV);
+                //     }
+                //     if (fSec > 1535972400)
+                //     {
+                //         break;
+                //     }
+                // }
                 tree = 0, s = 0;
                 fSec = 0;
                 mean = accumulate(temp.begin(), temp.end(), 0.0) / temp.size();
@@ -132,11 +132,11 @@ void working(Int_t sector_n)
                 if (plate == 'A')
                 {
                     working = 1;
-                    if ((mean < 1450) && (mean > 20))
+                    if ((mean < 1450) && (mean > 200))
                     {
                         working = 0;
                     }
-                    else if (mean <= 20)
+                    else if (mean <= 200)
                     {
                         working = -1;
                     }
@@ -146,11 +146,11 @@ void working(Int_t sector_n)
                 if (plate == 'D')
                 {
                     drift.push_back("drift on");
-                    if ((mean < 1900) && (mean > 20))
+                    if ((mean < 1900) && (mean > 200))
                     {
                         drift.push_back("drift red.");
                     }
-                    else if (mean <= 20)
+                    else if (mean <= 200)
                     {
                         drift.push_back("drift off");
                     }
@@ -174,5 +174,5 @@ void working(Int_t sector_n)
     }
 
     file.close();
-    c.SaveAs(Form("2018/sector_%d.pdf", sector_n));
+    c.SaveAs(Form("2017/sector_%d.pdf", sector_n));
 }

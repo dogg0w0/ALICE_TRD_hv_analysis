@@ -113,28 +113,35 @@ void analysis::Loop(Double_t weight_channel)
     }
     g4->SetPoint(gentry, 0, 0);
     g5->SetPoint(gentry, 0, 0);
+    t0_lumi_gr = new TGraph(*g4);
+    tof_lumi_gr = new TGraph(*g5);
     // Find average HV
     g0->Fit("pol0", "Q");
     mean_hv = g0->GetFunction("pol0")->GetParameter(0);
 
-    c->cd(1);
-    dummyhist->Draw();
-    g2->SetMarkerStyle(20);
-    g2->SetMarkerSize(0.7);
-    g2->SetMarkerColor(8);
-    g3->SetMarkerStyle(21);
-    g3->SetMarkerSize(0.7);
-    g3->SetMarkerColor(9);
-    grs->Add(g2);
-    grs->Add(g3);
-    grs->SetTitle(channel_name.c_str());
-    grs->GetXaxis()->SetTimeOffset(0, "gmt");
-    grs->GetXaxis()->SetTimeDisplay(1);
-    grs->GetXaxis()->SetLabelOffset(0.02);
-    grs->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
-    grs->GetXaxis()->SetTitle("");
-    grs->GetYaxis()->SetTitle("Luminostiy (HZ/#mub)  #color[2]{Current (#muA)}");
-    grs->Draw("AP SAME");
+    // c->cd(1);
+    // dummyhist->Draw();
+    // g2->SetMarkerStyle(20);
+    // g2->SetMarkerSize(0.7);
+    // g2->SetMarkerColor(8);
+    // g3->SetMarkerStyle(21);
+    // g3->SetMarkerSize(0.7);
+    // g3->SetMarkerColor(9);
+    // //grs->Add(g2);
+    // grs->Add(g3);
+    // grs->SetTitle(channel_name.c_str());
+    // grs->GetXaxis()->SetTimeOffset(0, "gmt");
+    // grs->GetXaxis()->SetTimeDisplay(1);
+    // grs->GetXaxis()->SetLabelOffset(0.02);
+    // grs->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
+    // grs->GetXaxis()->SetTitle("");
+    // grs->GetYaxis()->SetTitle("Luminostiy (HZ/#mub)  #color[2]{Current (#muA)}");
+    // grs->Draw("AP SAME");
+
+    TVirtualPad *pad = c->GetPad(1);
+    pad->Divide(1, 2);
+    pad->cd(1);
+
 
     g1->SetMarkerStyle(2);
     g1->SetMarkerSize(0.7);
@@ -144,57 +151,72 @@ void analysis::Loop(Double_t weight_channel)
     g1->GetXaxis()->SetTimeDisplay(1);
     g1->GetXaxis()->SetLabelOffset(0.03);
     g1->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
-    //g1->GetXaxis()->SetTitle("");
-    //g1->GetYaxis()->SetTitle("Current (#muA)");
-    g1->Draw("P SAME");
+    g1->SetTitle(channel_name.c_str());
+    g1->GetYaxis()->SetTitle("current (#muA)");
+    g1->Draw("AP");
 
-    //Legend
-    auto legend = new TLegend(0.55, 0.3, 0.8, 0.45);
-    //legend->SetHeader("small offset in times","C"); // option "C" allows to center the header
-    legend->AddEntry(g1, "current", "p");
-    legend->AddEntry(g2, "T0 Luminosity", "p");
-    legend->AddEntry(g3, "ECal Luminosity", "p");
-    legend->Draw();
+    pad->cd(2);
+
+    g3->SetMarkerStyle(21);
+    g3->SetMarkerSize(0.7);
+    g3->SetMarkerColor(9);
+    g3->GetYaxis()->SetTitle("Ecal Lumi. (HZ/#mub)");
+    g3->GetXaxis()->SetTimeOffset(0, "gmt");
+    g3->GetXaxis()->SetTimeDisplay(1);
+    g3->GetXaxis()->SetLabelOffset(0.03);
+    g3->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
+    g3->Draw("AP");
+
+    // //Legend
+    // auto legend = new TLegend(0.55, 0.3, 0.8, 0.45);
+    // //legend->SetHeader("small offset in times","C"); // option "C" allows to center the header
+    // legend->AddEntry(g1, "current", "p");
+    // //legend->AddEntry(g2, "T0 Luminosity", "p");
+    // legend->AddEntry(g3, "ECal Luminosity", "p");
+    // legend->Draw();
 
     c->cd(2);
     g4->SetMarkerColor(8);
     g4->SetMarkerSize(0.5);
     g4->SetMarkerStyle(20);
+    g4->Fit("pol1", "Q");
+    g4->GetFunction("pol1")->SetLineColor(8);
+    g4->SetTitle("Luminosity Current Correlation");
+    g4->GetXaxis()->SetTitle("Luminostiy (HZ/#mub)");
+    g4->GetYaxis()->SetTitle("Current (#muA)");
+    g4->Draw("AP");
 
     g5->SetMarkerColor(9);
     g5->SetMarkerSize(0.5);
     g5->SetMarkerStyle(21);
 
-    t0_lumi_gr = new TGraph(*g4);
-    tof_lumi_gr = new TGraph(*g5);
+    // g4->Fit("pol1", "Q");
+    // g5->Fit("pol1", "Q");
+    // g4->GetFunction("pol1")->SetLineColor(8);
+    // g5->GetFunction("pol1")->SetLineColor(9);
 
-    g4->Fit("pol1", "Q");
-    g5->Fit("pol1", "Q");
-    g4->GetFunction("pol1")->SetLineColor(8);
-    g5->GetFunction("pol1")->SetLineColor(9);
+    // gT0Errors->SetMarkerColor(kRed);
+    // gT0Errors->SetMarkerSize(0.3);
+    // gT0Errors->SetMarkerStyle(3);
 
-    gT0Errors->SetMarkerColor(kRed);
-    gT0Errors->SetMarkerSize(0.3);
-    gT0Errors->SetMarkerStyle(3);
+    // gECALErrors->SetMarkerColor(kRed);
+    // gECALErrors->SetMarkerSize(0.3);
+    // gECALErrors->SetMarkerStyle(4);
 
-    gECALErrors->SetMarkerColor(kRed);
-    gECALErrors->SetMarkerSize(0.3);
-    gECALErrors->SetMarkerStyle(4);
-
-    gr45->Add(g4);
-    gr45->Add(g5);
-    gr45->Add(gT0Errors);
-    gr45->Add(gECALErrors);
-    gr45->SetTitle("Luminosity Current Correlation");
-    gr45->GetXaxis()->SetTitle("Luminostiy (HZ/#mub)");
-    gr45->GetYaxis()->SetTitle("Current (#muA)");
-    gr45->Draw("AP");
-    auto legend1 = new TLegend(0.55, 0.3, 0.8, 0.45);
-    legend1->AddEntry(g4, "T0 Luminosity", "p");
-    legend1->AddEntry(g5, "ECal Luminosity", "p");
-    legend1->AddEntry(gT0Errors, "T0 Outliers", "p");
-    legend1->AddEntry(gECALErrors, "ECal Outliers", "p");
-    legend1->Draw();
+    // gr45->Add(g4);
+    // gr45->Add(g5);
+    // gr45->Add(gT0Errors);
+    // gr45->Add(gECALErrors);
+    // gr45->SetTitle("Luminosity Current Correlation");
+    // gr45->GetXaxis()->SetTitle("Luminostiy (HZ/#mub)");
+    // gr45->GetYaxis()->SetTitle("Current (#muA)");
+    // gr45->Draw("AP");
+    // auto legend1 = new TLegend(0.55, 0.3, 0.8, 0.45);
+    // legend1->AddEntry(g4, "T0 Luminosity", "p");
+    // legend1->AddEntry(g5, "ECal Luminosity", "p");
+    // legend1->AddEntry(gT0Errors, "T0 Outliers", "p");
+    // legend1->AddEntry(gECALErrors, "ECal Outliers", "p");
+    // legend1->Draw();
 
     c->Write();
     myfile->Write();
@@ -263,10 +285,10 @@ void analysis::Loop(Double_t weight_channel)
         delete c;
     if (c1)
         delete c1;
-    if (legend)
-        delete legend;
-    if (legend1)
-        delete legend1;
+    // if (legend)
+    //     delete legend;
+    // if (legend1)
+    //     delete legend1;
     if (legend2)
         delete legend2;
     if (fDiag)

@@ -128,7 +128,7 @@ void detect()
     s->GetXaxis()->SetLabelOffset(0.02);
     s->GetXaxis()->SetTimeFormat("#splitline{%Y}{#splitline{%d\/%m}{%H\:%M}}");
     s->GetXaxis()->SetTitle("");
-    s->GetYaxis()->SetTitle("");
+    s->GetYaxis()->SetTitle("Output");
     s->SetMarkerStyle(8);
     s->SetMarkerSize(0.5);
     s->SetMarkerColor(kRed);
@@ -183,12 +183,12 @@ void detect()
     g->Draw("AP");
     g2->Draw("SAME P");
 
-    auto legend = new TLegend(0.7, 0.7, 0.8, 0.45);
+    auto legend = new TLegend(0.8, 0.9, 0.9, 0.8);
     //legend->SetHeader("small offset in times","C"); // option "C" allows to center the header
     legend->AddEntry(g, "broken chamber", "p");
     legend->AddEntry(g2, "reference chamber", "p");
     legend->Draw();
-
+    //legend->SetTextSize(300);
     c->cd(2);
     s->Draw("APL");
     s2->Draw("SAME PL");

@@ -55,8 +55,8 @@ void all::Loop()
    auto gT0Errors = new TGraph();
    auto gECALErrors = new TGraph();
    auto dummyhist = new TH1D();
-   auto dummygraphT0 = new TGraph();
-   auto dummygraphECAL = new TGraph();
+   auto dummygraphT0 = new TGraphErrors();
+   auto dummygraphECAL = new TGraphErrors();
    auto current_tof_cur = new TGraph();
    auto press = new TGraph();
 
@@ -77,6 +77,8 @@ void all::Loop()
       dummygraphECAL->SetPoint(gentry, T0_Luminosity, mean_current);
       gentry++;
    }
+   dummygraphT0->SetPoint(gentry, 0, 0);
+   dummygraphECAL->SetPoint(gentry, 0, 0);
 
    // Mark Outliers
    dummygraphT0->Fit("pol1", "Q");
@@ -99,7 +101,7 @@ void all::Loop()
       if (TMath::Abs(fECAL->Eval(Luminosity) - mean_current) < delta)
       {
          g4->SetPoint(g4entry, Luminosity, mean_current);
-         //g4->SetPointError(g4entry, 0.01, std_current);
+         g4->SetPointError(g4entry, 0.01, TMath::Sqrt(std_current));
          g4entry++;
       }
       else
@@ -111,7 +113,7 @@ void all::Loop()
       if (TMath::Abs(fT0->Eval(T0_Luminosity) - mean_current) < delta)
       {
          g5->SetPoint(g5entry, T0_Luminosity, mean_current);
-         //g5->SetPointError(g5entry,0.01, std_current);
+         g5->SetPointError(g5entry,0.01, TMath::Sqrt(std_current));
          g5entry++;
       }
       else
@@ -238,8 +240,4 @@ void all::Loop()
    tex->DrawLatex(0.25, 0.75, buffer_S);
    tex->DrawLatex(0.25, 0.70, buffer_Chi);
    tex->Draw();
-
-   auto c2 = new TCanvas();
-   c2->cd();
-   press->Draw("AP");
 }
