@@ -1,7 +1,8 @@
 # ALICE_TRD_hv_analysis
-analysis code for my bsc thesis, explanation of this repository can be found in the thesis.
+Analysis code for my Bsc thesis, a more thorough explanation can be found in the thesis.
 
 This is a short explanation of the current file structure:
+~~~~
 ├── code
 │   ├── 2017    # code to analyse the 2017 dataset 
 │   │   ├── apps
@@ -62,3 +63,4 @@ This is a short explanation of the current file structure:
 │   │       └── run_2
 │   └── vdm
 └── vdm #   code to analyse vdm scans 
+~~~~

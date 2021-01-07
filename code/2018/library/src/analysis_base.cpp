@@ -26,14 +26,14 @@ void analysis::Loop(Double_t weight_channel)
     auto g5 = new TGraph();
     auto g6 = new TGraph();
     auto gT0Errors = new TGraph();
-    auto gECALErrors = new TGraph();
+    auto gEMCALErrors = new TGraph();
     auto dummyhist = new TH1D();
     auto dummygraphT0 = new TGraph();
-    auto dummygraphECAL = new TGraph();
+    auto dummygraphEMCAL = new TGraph();
     auto current_tof_cur = new TGraph();
 
     Double_t delta = 1;
-    Long64_t gentry = 0, gerrorsentryT0 = 0, gerrorsentryECAL = 0, g4entry = 0, g5entry = 0;
+    Long64_t gentry = 0, gerrorsentryT0 = 0, gerrorsentryEMCAL = 0, g4entry = 0, g5entry = 0;
     Double_t current_cor = 0;
     TTimeStamp *ttime = new TTimeStamp();
     Long64_t nbytes = 0, nb = 0;
@@ -49,15 +49,15 @@ void analysis::Loop(Double_t weight_channel)
             continue;
         // if (Cut(ientry) < 0) continue;
         dummygraphT0->SetPoint(gentry, Luminosity, current);
-        dummygraphECAL->SetPoint(gentry, T0_Luminosity, current);
+        dummygraphEMCAL->SetPoint(gentry, T0_Luminosity, current);
         gentry++;
     }
 
     // Mark Outliers
     dummygraphT0->Fit("pol1", "Q");
-    dummygraphECAL->Fit("pol1", "Q");
+    dummygraphEMCAL->Fit("pol1", "Q");
     auto fT0 = dummygraphT0->GetFunction("pol1");
-    auto fECAL = dummygraphECAL->GetFunction("pol1");
+    auto fEMCAL = dummygraphEMCAL->GetFunction("pol1");
 
     gentry = 0;
     for (Long64_t jentry = 0; jentry < nentries; jentry++)
@@ -77,15 +77,15 @@ void analysis::Loop(Double_t weight_channel)
         current_cor = (current - offset < 0) ? 0 : (current - offset) * weight_channel;
         ttime->SetSec(fSec);
         ttime->SetNanoSec(fNanoSec);
-        if (TMath::Abs(fECAL->Eval(Luminosity) - current) < delta)
+        if (TMath::Abs(fEMCAL->Eval(Luminosity) - current) < delta)
         {
             g4->SetPoint(g4entry, Luminosity, current_cor);
             g4entry++;
         }
         else
         {
-            gECALErrors->SetPoint(gerrorsentryECAL, Luminosity, current_cor);
-            gerrorsentryECAL++;
+            gEMCALErrors->SetPoint(gerrorsentryEMCAL, Luminosity, current_cor);
+            gerrorsentryEMCAL++;
         }
 
         if (TMath::Abs(fT0->Eval(T0_Luminosity) - current) < delta)
@@ -98,7 +98,7 @@ void analysis::Loop(Double_t weight_channel)
             gT0Errors->SetPoint(gerrorsentryT0, T0_Luminosity, current_cor);
             gerrorsentryT0++;
         }
-        if (TMath::Abs(fT0->Eval(T0_Luminosity) - current) < delta && TMath::Abs(fECAL->Eval(Luminosity) - current) < delta)
+        if (TMath::Abs(fT0->Eval(T0_Luminosity) - current) < delta && TMath::Abs(fEMCAL->Eval(Luminosity) - current) < delta)
         {
             g0->SetPoint(gentry, ttime->AsDouble(), HV);
             g1->SetPoint(gentry, ttime->AsDouble(), current_cor);
@@ -135,7 +135,7 @@ void analysis::Loop(Double_t weight_channel)
     // grs->GetXaxis()->SetLabelOffset(0.02);
     // grs->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
     // grs->GetXaxis()->SetTitle("");
-    // grs->GetYaxis()->SetTitle("Luminostiy (HZ/#mub)  #color[2]{Current (#muA)}");
+    // grs->GetYaxis()->SetTitle("Luminostiy (Hz/#mub)  #color[2]{Current (#muA)}");
     // grs->Draw("AP SAME");
 
     TVirtualPad *pad = c->GetPad(1);
@@ -152,7 +152,7 @@ void analysis::Loop(Double_t weight_channel)
     g1->GetXaxis()->SetLabelOffset(0.03);
     g1->GetXaxis()->SetTimeFormat("#splitline{%H}{%M}");
     g1->SetTitle(channel_name.c_str());
-    g1->GetYaxis()->SetTitle("current (#muA)");
+    g1->GetYaxis()->SetTitle("Current (#muA)");
     g1->Draw("AP");
 
     pad->cd(2);
@@ -160,7 +160,7 @@ void analysis::Loop(Double_t weight_channel)
     g3->SetMarkerStyle(21);
     g3->SetMarkerSize(0.7);
     g3->SetMarkerColor(9);
-    g3->GetYaxis()->SetTitle("Ecal Lumi. (HZ/#mub)");
+    g3->GetYaxis()->SetTitle("EMCAL luminosity (Hz/#mub)");
     g3->GetXaxis()->SetTimeOffset(0, "gmt");
     g3->GetXaxis()->SetTimeDisplay(1);
     g3->GetXaxis()->SetLabelOffset(0.03);
@@ -172,7 +172,7 @@ void analysis::Loop(Double_t weight_channel)
     // //legend->SetHeader("small offset in times","C"); // option "C" allows to center the header
     // legend->AddEntry(g1, "current", "p");
     // //legend->AddEntry(g2, "T0 Luminosity", "p");
-    // legend->AddEntry(g3, "ECal Luminosity", "p");
+    // legend->AddEntry(g3, "EMCAL Luminosity", "p");
     // legend->Draw();
 
     c->cd(2);
@@ -182,7 +182,7 @@ void analysis::Loop(Double_t weight_channel)
     g4->Fit("pol1", "Q");
     g4->GetFunction("pol1")->SetLineColor(8);
     g4->SetTitle("Luminosity Current Correlation");
-    g4->GetXaxis()->SetTitle("Luminostiy (HZ/#mub)");
+    g4->GetXaxis()->SetTitle("Luminostiy (Hz/#mub)");
     g4->GetYaxis()->SetTitle("Current (#muA)");
     g4->Draw("AP");
 
@@ -199,23 +199,23 @@ void analysis::Loop(Double_t weight_channel)
     // gT0Errors->SetMarkerSize(0.3);
     // gT0Errors->SetMarkerStyle(3);
 
-    // gECALErrors->SetMarkerColor(kRed);
-    // gECALErrors->SetMarkerSize(0.3);
-    // gECALErrors->SetMarkerStyle(4);
+    // gEMCALErrors->SetMarkerColor(kRed);
+    // gEMCALErrors->SetMarkerSize(0.3);
+    // gEMCALErrors->SetMarkerStyle(4);
 
     // gr45->Add(g4);
     // gr45->Add(g5);
     // gr45->Add(gT0Errors);
-    // gr45->Add(gECALErrors);
+    // gr45->Add(gEMCALErrors);
     // gr45->SetTitle("Luminosity Current Correlation");
-    // gr45->GetXaxis()->SetTitle("Luminostiy (HZ/#mub)");
+    // gr45->GetXaxis()->SetTitle("Luminostiy (Hz/#mub)");
     // gr45->GetYaxis()->SetTitle("Current (#muA)");
     // gr45->Draw("AP");
     // auto legend1 = new TLegend(0.55, 0.3, 0.8, 0.45);
     // legend1->AddEntry(g4, "T0 Luminosity", "p");
-    // legend1->AddEntry(g5, "ECal Luminosity", "p");
+    // legend1->AddEntry(g5, "EMCAL Luminosity", "p");
     // legend1->AddEntry(gT0Errors, "T0 Outliers", "p");
-    // legend1->AddEntry(gECALErrors, "ECal Outliers", "p");
+    // legend1->AddEntry(gEMCALErrors, "EMCAL Outliers", "p");
     // legend1->Draw();
 
     c->Write();
@@ -223,15 +223,14 @@ void analysis::Loop(Double_t weight_channel)
     myfile->cd("..");
     myfile->cd("quality_assurance");
 
-    auto c1 = new TCanvas((channel_name + "_" + measurement_type + "assurance").c_str(),
-                          (channel_name + "_" + measurement_type).c_str(),
-                          10, 10, 1600, 900);
-    c1->Divide(2, 1);
+    auto c1 = new TCanvas((channel_name + "_" + measurement_type + "assurance_EMCAL_T0").c_str(),
+                          (channel_name + "_" + measurement_type + "EMCAL_T0").c_str(),
+                          10, 10, 900, 900);
 
-    c1->cd(1);
+    c1->cd();
     auto fDiag = new TF1("fDiag", "x", 0, maxLumi);
     g6->GetXaxis()->SetTitle("T0 Luminosity (Hz/#mub)");
-    g6->GetYaxis()->SetTitle("ECal Luminosity (Hz/#mub)");
+    g6->GetYaxis()->SetTitle("EMCAL Luminosity (Hz/#mub)");
     g6->SetTitle("Luminosities Correlation");
     g6->SetMarkerStyle(28);
     g6->SetMarkerColor(8);
@@ -246,8 +245,12 @@ void analysis::Loop(Double_t weight_channel)
     legend2->AddEntry(fDiag, "Perfect Correlation", "l");
     legend2->AddEntry(g6, "Correlation", "lp");
     legend2->Draw();
+    c1->Write();
 
-    c1->cd(2);
+    auto c2 = new TCanvas((channel_name + "_" + measurement_type + "TRD_TOF").c_str(),
+                          (channel_name + "_" + measurement_type + "TRD_TOF").c_str(),
+                          10, 10, 900, 900);
+    c2->cd();
     current_tof_cur->GetXaxis()->SetTitle("Anode Current (#muA)");
     current_tof_cur->GetYaxis()->SetTitle("TOF Current (A)");
     current_tof_cur->SetTitle("Correlation TOF-TRD Current");
@@ -255,7 +258,7 @@ void analysis::Loop(Double_t weight_channel)
     current_tof_cur->SetMarkerColor(8);
     current_tof_cur->SetMarkerSize(0.6);
     current_tof_cur->Draw("AP");
-    c1->Write();
+    c2->Write();
     myfile->Write();
     myfile->Close();
 
@@ -273,14 +276,14 @@ void analysis::Loop(Double_t weight_channel)
         delete g6;
     if (gT0Errors)
         delete gT0Errors;
-    if (gECALErrors)
-        delete gECALErrors;
+    if (gEMCALErrors)
+        delete gEMCALErrors;
     if (dummyhist)
         delete dummyhist;
     if (dummygraphT0)
         delete dummygraphT0;
-    if (dummygraphECAL)
-        delete dummygraphECAL;
+    if (dummygraphEMCAL)
+        delete dummygraphEMCAL;
     if (c)
         delete c;
     if (c1)

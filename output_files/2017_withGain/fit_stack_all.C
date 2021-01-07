@@ -18,12 +18,11 @@
     const int numfiles = 18;
 
     auto C = new TCanvas();
-
-    auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Stack 0", 32, 0.02, 0.15);
-    auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Stack 1", 32, 0.02, 0.15);
-    auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Stack 2", 32, 0.02, 0.15);
-    auto h_3 = new TH1D("h_3", "Slope Fit Param Hists in Stack 3", 20, 0.02, 0.15);
-    auto h_4 = new TH1D("h_4", "Slope Fit Param Hists in Stack 4", 28, 0.02, 0.15);
+    auto h_0 = new TH1D("h_0", "Stack 0", 32, 0.02, 0.15);
+    auto h_1 = new TH1D("h_1", "Stack 1", 30, 0.02, 0.15);
+    auto h_2 = new TH1D("h_2", "Stack 2", 32, 0.02, 0.15);
+    auto h_3 = new TH1D("h_3", "Stack 3", 20, 0.02, 0.15);
+    auto h_4 = new TH1D("h_4", "Stack 4", 28, 0.02, 0.15);
 
     TTree *tree = 0;
     TBranch *para_bBranch = 0;
@@ -113,7 +112,7 @@
         h_4->GetFunction("g4")->SetLineColor(palette[4]);
     }
 
-    h_0->GetYaxis()->SetRangeUser(0, 0.3);
+    h_0->GetYaxis()->SetRangeUser(0, 0.25);
     //h_0->GetXaxis()->SetRangeUser(0.01, 0.12);
 
     h_0->Draw("9 PLC PMC");
@@ -121,7 +120,7 @@
     h_2->Draw("9 SAME PLC PMC");
     h_3->Draw("9 SAME PLC PMC");
     h_4->Draw("9 SAME PLC PMC");
-    gPad->BuildLegend(0.75, 0.75, 0.9, 0.9);
+    gPad->BuildLegend(0.80, 0.65, 0.9, 0.9);
 
     if (kfit)
     {

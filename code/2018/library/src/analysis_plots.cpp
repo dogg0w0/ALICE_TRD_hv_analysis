@@ -113,8 +113,8 @@ void plots::FitInit()
             gr_lumi_fit_single_t0[layer + stack * 6]->SetName(Form("%02d_%d_%d_fit_T0", sector, stack, layer));
             gr_lumi_fit_single_t0[layer + stack * 6]->GetXaxis()->SetTitle("Luminosity (Hz/#mub)");
             gr_lumi_fit_single_t0[layer + stack * 6]->GetYaxis()->SetTitle("Current (#muA)");
-            gr_lumi_fit_single_tof[layer + stack * 6]->SetTitle(Form("%02d_%d_%d Fit ECAL", sector, stack, layer));
-            gr_lumi_fit_single_tof[layer + stack * 6]->SetName(Form("%02d_%d_%d_fit_ECAL", sector, stack, layer));
+            gr_lumi_fit_single_tof[layer + stack * 6]->SetTitle(Form("%02d_%d_%d Fit EMCAL", sector, stack, layer));
+            gr_lumi_fit_single_tof[layer + stack * 6]->SetName(Form("%02d_%d_%d_fit_EMCAL", sector, stack, layer));
             gr_lumi_fit_single_tof[layer + stack * 6]->GetXaxis()->SetTitle("Luminosity (Hz/#mub)");
             gr_lumi_fit_single_tof[layer + stack * 6]->GetYaxis()->SetTitle("Current (#muA)");
         }

@@ -66,11 +66,11 @@ void getv0root(string filename, string corAnodefile)
     Int_t g2entry = 0;
 
     //_____________________________________________________________
-     //Int_t start_time = 1501171600;
-     //Int_t end_time = 1501172600;
+     Int_t start_time = 1501171600;
+     Int_t end_time = 1501172600;
 
-    Int_t start_time = 1501172800;
-    Int_t end_time = 1501173800;
+    // Int_t start_time = 1501172800;
+    // Int_t end_time = 1501173800;
 
     //__________________________________________________________
     Long64_t nentries = tree1->GetEntries();
@@ -92,7 +92,7 @@ void getv0root(string filename, string corAnodefile)
         {
             break;
         }
-        if (plane != 2)
+        if (plane != 1)
         {
             continue;
         }
@@ -141,7 +141,7 @@ void getv0root(string filename, string corAnodefile)
     auto c = new TCanvas();
     c->Divide(2, 1);
     c->cd(1);
-    g->GetXaxis()->SetTitle("nominal separation (#Deltay)");
+    g->GetXaxis()->SetTitle("nominal separation (#Deltax)");
     g->GetYaxis()->SetTitle("V0TOT trigger rate/10000");
     g->Draw("AP");
 
@@ -151,16 +151,16 @@ void getv0root(string filename, string corAnodefile)
     sprintf(buffer_S, "#sigma = %.3f #pm %.3f", fgauss->GetParameter(2), fgauss->GetParError(2));
     sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f / %d", fgauss->GetChisquare(), fgauss->GetNDF());
     sprintf(buffer_r, "R(0,0) = %.3f", fgauss->GetMaximum() *10000);
-    sprintf(buffer_h, "h_{y} = #splitline{%.3f}{#pm %.3f} (mm)", fgauss->Integral(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum() , fgauss->IntegralError(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum() );
+    sprintf(buffer_h, "h_{x} = %.3f (mm)", fgauss->Integral(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum());
     tex->DrawLatex(0.60, 0.80, buffer_mu);
     tex->DrawLatex(0.60, 0.75, buffer_S);
     //tex->DrawLatex(0.60, 0.70, buffer_Chi);
-    tex->DrawLatex(0.60, 0.65, buffer_h);
-    tex->DrawLatex(0.60, 0.60, buffer_r);
+    tex->DrawLatex(0.60, 0.70, buffer_h);
+    tex->DrawLatex(0.60, 0.65, buffer_r);
     fgauss = 0;
 
     c->cd(2);
-    g2->GetXaxis()->SetTitle("nominal separation (#Deltay)");
+    g2->GetXaxis()->SetTitle("nominal separation (#Deltax)");
     g2->GetYaxis()->SetTitle("Anode Current (#muA)");
     g2->Draw("AP");
     fgauss = g2->GetFunction("gaus");
@@ -169,10 +169,10 @@ void getv0root(string filename, string corAnodefile)
     sprintf(buffer_S, "#sigma = %.3f #pm %.3f", fgauss->GetParameter(2), fgauss->GetParError(2));
     sprintf(buffer_Chi, "#chi^{2}_{red} = %.3f / %d", fgauss->GetChisquare(), fgauss->GetNDF());
     sprintf(buffer_r, "R(0,0) = %.3f", fgauss->GetMaximum());
-    sprintf(buffer_h, "h_{y} = #splitline{%.3f}{#pm %.3f} (mm)", fgauss->Integral(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum() , fgauss->IntegralError(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum());
+    sprintf(buffer_h, "h_{x} = #splitline{%.3f}{#pm %.3f} (mm)", fgauss->Integral(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum() , fgauss->IntegralError(fgauss->GetXmin(), fgauss->GetXmax()) / fgauss->GetMaximum());
     tex->DrawLatex(0.60, 0.80, buffer_mu);
     tex->DrawLatex(0.60, 0.75, buffer_S);
     //tex->DrawLatex(0.60, 0.70, buffer_Chi);
-    tex->DrawLatex(0.60, 0.65, buffer_h);
-    tex->DrawLatex(0.60, 0.60, buffer_r);
+    tex->DrawLatex(0.60, 0.69, buffer_h);
+    tex->DrawLatex(0.60, 0.64, buffer_r);
 }

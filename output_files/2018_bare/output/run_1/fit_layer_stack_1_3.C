@@ -25,12 +25,12 @@
     gStyle->SetOptFit(0);
 
     Int_t nbins = 50;
-    auto h_0 = new TH1D("h_0", "Slope Fit Param Hists in Layer 0", nbins, 0.02, 0.1);
-    auto h_1 = new TH1D("h_1", "Slope Fit Param Hists in Layer 1", nbins, 0.02, 0.1);
-    auto h_2 = new TH1D("h_2", "Slope Fit Param Hists in Layer 2", nbins, 0.02, 0.1);
-    auto h_3 = new TH1D("h_3", "Slope Fit Param Hists in Layer 3", nbins, 0.02, 0.1);
-    auto h_4 = new TH1D("h_4", "Slope Fit Param Hists in Layer 4", nbins, 0.02, 0.1);
-    auto h_5 = new TH1D("h_5", "Slope Fit Param Hists in Layer 5", nbins, 0.02, 0.1);
+    auto h_0 = new TH1D("h_0", "Layer 0", nbins, 0.02, 0.1);
+    auto h_1 = new TH1D("h_1", "Layer 1", nbins, 0.02, 0.1);
+    auto h_2 = new TH1D("h_2", "Layer 2", nbins, 0.02, 0.1);
+    auto h_3 = new TH1D("h_3", "Layer 3", nbins, 0.02, 0.1);
+    auto h_4 = new TH1D("h_4", "Layer 4", nbins, 0.02, 0.1);
+    auto h_5 = new TH1D("h_5", "Layer 5", nbins, 0.02, 0.1);
 
     Double_t para_a, para_b;
     Long64_t nentries;
@@ -140,7 +140,7 @@
     h_4->Draw("9 SAME PLC PMC");
     h_5->Draw("9 SAME PLC PMC");
 
-    gPad->BuildLegend(0.75, 0.75, 0.9, 0.9);
+    gPad->BuildLegend(0.80, 0.65, 0.9, 0.9);
 
     if (kfit)
     {

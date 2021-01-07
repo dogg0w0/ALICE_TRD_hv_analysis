@@ -52,7 +52,7 @@ void connectGraph()
     g3->SetParameters(par);
     hist->Fit(g3, "R");
 
-    hist->GetXaxis()->SetTitle("Slope Parameter");
+    hist->GetXaxis()->SetTitle("Slope Parameter (#muA/(Hz/#mub))");
     hist->GetYaxis()->SetTitle("entries");
     hist->GetXaxis()->SetRangeUser(0.02, 0.15);
     hist->Draw("");
