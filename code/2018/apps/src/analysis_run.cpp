@@ -63,7 +63,7 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
                                    Form("sm_%d.root", sector),
                                    channel_name, 'I', offset.offset);
                         a.Loop(plotter.weights[30 * sector + 6 * stack + layer]);
-                        mean_hv_map[stack][layer] = (a.mean_hv > 1000) ? kTRUE : kFALSE;
+                        mean_hv_map[stack][layer] = (a.mean_hv > 1450) ? kTRUE : kFALSE;
                         working.Update(stack, layer, mean_hv_map[stack][layer]);
 
                         // Print Information

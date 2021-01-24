@@ -27,31 +27,25 @@ void working(Int_t sector_n)
     TBranch *b_time_fNanoSec; //!
     Int_t working = 0;
     Int_t j = 0;
-    TH2D *h[18];
-    for (auto &&hs : h)
+    auto h = new TH2D("h", Form("Sector %d", sector_n), 5, 0, 5, 6, 0, 6);
+    if (sector_n == 15)
     {
-        if (j == 15)
-        {
-            hs = new TH2D("h", Form("Sector %d;Stack;Layer", j), 5, 0, 5, 6, 0, 6);
-        }
-        else
-        {
-            hs = new TH2D("h", Form("Sector %d", j), 5, 0, 5, 6, 0, 6);
-        }
-        for (Int_t layer = 1; layer < 7; layer++)
-        {
-            hs->GetYaxis()->SetBinLabel(layer, Form("%d", layer - 1));
-        }
-
-        for (Int_t stack = 1; stack < 6; stack++)
-        {
-            hs->GetXaxis()->SetBinLabel(stack, Form("%d", stack - 1));
-        }
-        j++;
+        h->GetXaxis()->SetTitle("Stack");
+        h->GetYaxis()->SetTitle("Layer");
     }
-    j = 0;
+
+    for (Int_t layer = 1; layer < 7; layer++)
+    {
+        h->GetYaxis()->SetBinLabel(layer, Form("%d", layer - 1));
+    }
+
+    for (Int_t stack = 1; stack < 6; stack++)
+    {
+        h->GetXaxis()->SetBinLabel(stack, Form("%d", stack - 1));
+    }
+
     vector<Double_t> x, y;
-    vector<string> drift;
+    string drift[30];
     TLatex *t = new TLatex();
     t->SetTextFont(62);
     t->SetTextColor(1);
@@ -94,13 +88,9 @@ void working(Int_t sector_n)
                 tree->SetBranchAddress("fNanoSec", &fNanoSec, &b_time_fNanoSec);
                 Int_t nentries = tree->GetEntries();
 
-                // while (fSec < 1536352131)
-                // {
-                //     tree->GetEntry(j);
-                //     j++;
-                // }
                 Double_t mean = 0;
                 vector<Double_t> temp;
+                // 2017
                 for (j = 0; j < nentries; j++)
                 {
                     tree->GetEntry(j);
@@ -113,6 +103,7 @@ void working(Int_t sector_n)
                         break;
                     }
                 }
+                // 2018
                 // for (j = 0; j < nentries; j++)
                 // {
                 //     tree->GetEntry(j);
@@ -140,22 +131,26 @@ void working(Int_t sector_n)
                     {
                         working = -1;
                     }
-                    h[sector_n]->SetBinContent(stack + 1, layer + 1, working);
+                    h->SetBinContent(stack + 1, layer + 1, working);
                     counter++;
                 }
                 if (plate == 'D')
                 {
-                    drift.push_back("drift on");
+                    drift[stack * 6 + layer] = "drift on";
                     if ((mean < 1900) && (mean > 200))
                     {
-                        drift.push_back("drift red.");
+                        drift[stack * 6 + layer] = "drift red.";
                     }
                     else if (mean <= 200)
                     {
-                        drift.push_back("drift off");
+                        drift[stack * 6 + layer] = "drift off";
                     }
-                    x.push_back(h[sector_n]->GetXaxis()->GetBinCenter(h[sector_n]->GetXaxis()->FindBin(stack + 1)) - 1.2);
-                    y.push_back(h[sector_n]->GetYaxis()->GetBinCenter(h[sector_n]->GetYaxis()->FindBin(layer + 1)) - 1.1);
+                    if (h->GetBinContent(stack + 1, layer + 1) == -1)
+                    {
+                        drift[stack * 6 + layer] = "drift off";
+                    }
+                    x.push_back(h->GetXaxis()->GetBinCenter(h->GetXaxis()->FindBin(stack + 1)) - 1.2);
+                    y.push_back(h->GetYaxis()->GetBinCenter(h->GetYaxis()->FindBin(layer + 1)) - 1.1);
                     counter++;
                 }
             }
@@ -167,7 +162,7 @@ void working(Int_t sector_n)
         }
     }
     cout << "drawing hist" << endl;
-    h[sector_n]->Draw("col");
+    h->Draw("col");
     for (Int_t i = 0; i < 30; i++)
     {
         t->DrawText(x[i], y[i], drift[i].c_str());

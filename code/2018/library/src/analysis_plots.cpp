@@ -3,9 +3,10 @@
 plots::plots(const Int_t sector_n)
 {
     sector = sector_n;
-    plots::ChamberWeightsInit();
+    //plots::ChamberWeightsInit();
     //plots::GainWeightsInit(gain_map);
     //plots::RadialWeightsInit();
+    plots::SolidAngleWeight();
     plots::WeightsInit();
     plots::ChannelNames();
     plots::Canvas();
@@ -15,9 +16,10 @@ plots::plots(const Int_t sector_n)
 plots::plots(const Int_t sector_n, std::string gain_map, const Int_t gain_index)
 {
     sector = sector_n;
-    plots::ChamberWeightsInit();
+    //plots::ChamberWeightsInit();
     //plots::GainWeightsInit(gain_map, gain_index);
     //plots::RadialWeightsInit();
+    plots::SolidAngleWeight();
     plots::WeightsInit();
     plots::ChannelNames();
     plots::Canvas();
@@ -392,6 +394,48 @@ void plots::RadialWeightsInit()
     }
 }
 
+void plots::SolidAngleWeight()
+{
+    Double_t norm = 0.12092787945968365;
+    std::vector<Double_t> angle = {
+        0.07861829517115891,
+        0.07568499771431361,
+        0.07795114617802425,
+        0.08006711481712464,
+        0.08204680741031922,
+        0.0806403478966623,
+        0.12786910109156452,
+        0.11964810229912837,
+        0.12409581988136771,
+        0.12828711212377358,
+        0.13224168076624945,
+        0.12793085278269273,
+        0.12092787945968365,
+        0.1116457223636261,
+        0.10338412911411944,
+        0.0959999207769946,
+        0.08937399307067563,
+        0.08340665100905106,
+        0.12786910109156452,
+        0.11964810229912837,
+        0.12409581988136771,
+        0.12828711212377358,
+        0.13224168076624945,
+        0.12793085278269273,
+        0.07861829517115893,
+        0.07568499771431361,
+        0.07795114617802423,
+        0.08006711481712464,
+        0.08204680741031924,
+        0.08064034789666231,
+    };
+
+    for (Int_t i = 0; i < 30; i++)
+    {
+        angle_weights[i] = (1 / (angle[i] / norm));
+    }
+}
+
 void plots::WeightsInit()
 {
     Double_t _temp;
@@ -401,7 +445,7 @@ void plots::WeightsInit()
         {
             for (Int_t layer = 0; layer < 6; layer++)
             {
-                _temp = gain_weights[sector * 30 + stack * 6 + layer] * chambers_weights[layer + stack * 6] * radial_weights[layer];
+                _temp = gain_weights[sector * 30 + stack * 6 + layer] * chambers_weights[layer + stack * 6] * radial_weights[layer] * angle_weights[layer + stack * 6];
                 weights.push_back(_temp);
             }
         }

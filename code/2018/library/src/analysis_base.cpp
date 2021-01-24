@@ -48,6 +48,7 @@ void analysis::Loop(Double_t weight_channel)
         if (HV < 0)
             continue;
         // if (Cut(ientry) < 0) continue;
+        
         dummygraphT0->SetPoint(gentry, Luminosity, current);
         dummygraphEMCAL->SetPoint(gentry, T0_Luminosity, current);
         gentry++;
@@ -74,7 +75,7 @@ void analysis::Loop(Double_t weight_channel)
         if (HV < 0)
             continue;
 
-        current_cor = (current - offset < 0) ? 0 : (current - offset) * weight_channel;
+        current_cor = (current - offset < 0) ? 0.0 : (current - offset) * weight_channel;
         ttime->SetSec(fSec);
         ttime->SetNanoSec(fNanoSec);
         if (TMath::Abs(fEMCAL->Eval(Luminosity) - current) < delta)
@@ -180,7 +181,7 @@ void analysis::Loop(Double_t weight_channel)
     g4->SetMarkerSize(0.5);
     g4->SetMarkerStyle(20);
     g4->Fit("pol1", "Q");
-    g4->GetFunction("pol1")->SetLineColor(8);
+    g4->GetFunction("pol1")->SetLineColor(1);
     g4->SetTitle("Luminosity Current Correlation");
     g4->GetXaxis()->SetTitle("Luminostiy (Hz/#mub)");
     g4->GetYaxis()->SetTitle("Current (#muA)");

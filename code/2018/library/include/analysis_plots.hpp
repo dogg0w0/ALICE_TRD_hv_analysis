@@ -27,6 +27,7 @@ public:
     Int_t n_not_working_chambers = 0;
     std::vector<std::string> channel_labels;
     std::vector<Double_t> chambers_weights = std::vector<Double_t>(30, 1.0);
+    std::vector<Double_t> angle_weights = std::vector<Double_t>(30, 1.0);
     std::vector<Double_t> gain_weights = std::vector<Double_t>(540, 1.0);
     std::vector<Double_t> radial_weights = std::vector<Double_t>(6, 1.0);
     std::vector<Double_t> weights;
@@ -42,6 +43,7 @@ public:
     void ChamberWeightsInit();
     void GainWeightsInit(const std::string gain_map, const Int_t gain_index);
     void RadialWeightsInit();
+    void SolidAngleWeight();
     void WeightsInit();
     void FitInit();
     void FitDraw();
