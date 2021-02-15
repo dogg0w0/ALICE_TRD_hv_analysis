@@ -88,21 +88,28 @@
     }
     hist->GetXaxis()->SetTitle("Gain");
     hist->GetYaxis()->SetTitle("slope parameter (#muA/(Hz/#mub))");
+    hist->GetZaxis()->SetTitle("entries");
+    hist->GetZaxis()->SetTitleOffset(0.5);
+    hist->GetYaxis()->SetTitleOffset(0.7);
 
     TH1 *hpro1 = hist->ProjectionY("", 1, 26 , "");
     hpro1->SetTitle("Cut (gain<0.46)");
     hpro1->SetName("hpro1");
+    hpro1->GetYaxis()->SetTitle("entries");
+    hpro1->GetYaxis()->SetTitleOffset(1);
 
     TH1 *hpro2 = hist->ProjectionY("", 32, 50, "");
     hpro2->SetTitle("Cut (gain>0.52)");
     hpro2->SetName("hpro2");
+    hpro2->GetYaxis()->SetTitle("entries");
+    hpro2->GetYaxis()->SetTitleOffset(1);
 
     auto c = new TCanvas("c", "Gain vs Slope", 10, 10, 1000, 1000);
     c->Divide(1,2);
     c->GetPad(2)->Divide(2, 1);
     c->cd(1);
-    c->GetPad(1)->SetRightMargin(0.2);
-    hist->DrawNormalized("colz",1);
+    c->GetPad(1)->SetRightMargin(0.15);
+    hist->Draw("colz");
     c->GetPad(2)->cd(1);
     hpro1->Draw("");
     c->GetPad(2)->cd(2);

@@ -35,7 +35,6 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
     std::vector<std::tuple<Int_t, Int_t, Int_t>> timestamps = dates_temp.timestamps;
     std::vector<std::string> luminosity_labels = dates_temp.luminosity_labels;
     std::vector<Double_t> luminosity_points = dates_temp.luminosity_points;
-
     plots plotter(sector_n, luminosity_labels, luminosity_points, gain_map);
     analysis_working working;
 
@@ -65,6 +64,7 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
                 Int_t stack = std::stoi(channel_name.substr(3, 1));
                 Int_t layer = std::stoi(channel_name.substr(5, 1));
                 char plate = channel_name[6];
+
                 if (sector == sector_n)
                 {
                     if (plate == 'A')
@@ -95,7 +95,9 @@ void analysis_run(Int_t sector_number, std::string input_data_dir, std::string i
                         mean_and_std_pair = current.Loop();
                         mean_current = mean_and_std_pair.first;
                         mean_std_current = mean_and_std_pair.second;
+
                         mean_current_map[stack][layer] = ((mean_current - offset.offset) < 0) ? 0 : (mean_current - offset.offset) * plotter.weights[layer + stack * 6 + sector * 30];
+
                         mean_std_current_map[stack][layer] = mean_std_current * plotter.weights[layer + stack * 6 + sector * 30];
 
                         // Calculate mean

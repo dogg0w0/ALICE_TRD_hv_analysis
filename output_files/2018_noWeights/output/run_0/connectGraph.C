@@ -30,31 +30,73 @@ void connectGraph()
     const int numfiles = 18;
 
     auto c0 = new TCanvas("c0", "Slope Distribution", 10, 10, 1800, 1600);
-    auto hist = new TH1D("hist", "Add of all Slope Hists", 30, 0, 0.15);
+    auto hist = new TH1D("hist", "Add of all Slope Hists", 40, 0.02, .22);
+
+    Double_t para_a, para_b;
+    Long64_t nentries;
+    Bool_t work;
+
+    TBranch *para_aBranch = 0;
+    TBranch *para_bBranch = 0;
+    TBranch *para_wBranch = 0;
+
+    vector<Double_t>
+        fit_a(540, 0.0),
+        fit_b(540, 0.0);
+    vector<Bool_t> working_chamber(540, 0);
+    TTree *tree = 0;
+    TTree *tree_w = 0;
 
     TFile *s[numfiles];
     for (Int_t i = 0; i < numfiles; i++)
     {
         s[i] = TFile::Open(root_File_Names[i], "READ");
+        tree = (TTree *)s[i]->Get("fits/fit_params");
+        tree->SetMakeClass(1);
+        tree->SetBranchAddress("fit_a", &para_a, &para_aBranch);
+        tree->SetBranchAddress("fit_b", &para_b, &para_bBranch);
+        nentries = tree->GetEntries();
+        //cout << "HER---------------------------------------" << endl;
+        tree_w = (TTree *)s[i]->Get("working_chambers");
+        tree_w->SetMakeClass(1);
+        tree_w->SetBranchAddress("working", &work, &para_wBranch);
 
-        auto h1 = (TH1D *)s[i]->Get("fits/h_b");
-        hist->Add(h1);
+        // Then loop over all of them.
+        for (Long64_t j = 0; j < nentries; j++)
+        {
+            tree->GetEntry(j);
+            tree_w->GetEntry(j);
+            fit_a[30 * i + j] = para_a;
+            fit_b[30 * i + j] = para_b;
+            working_chamber[30 * i + j] = work;
+            cout << working_chamber[30 * i + j] << endl;
+        }
     }
 
-    Double_t par[6];
+    for(int i=0;i<fit_b.size();i++){
+        if(working_chamber[i]){
+            hist->Fill(fit_b[i]);
+        }
+    }
+
+    
+    Double_t par[9];
     TF1 *g1 = new TF1("g1", "gaus", 0.02, 0.1);
     hist->Fit(g1, "R");
     TF1 *g2 = new TF1("g2", "gaus", 0.08, 0.15);
     hist->Fit(g2, "R");
+    TF1 *g3 = new TF1("g3", "gaus", 0.13, 0.22);
+    hist->Fit(g3, "R");
     g1->GetParameters(&par[0]);
     g2->GetParameters(&par[3]);
-    TF1 *g3 = new TF1("g3", "gaus(0)+gaus(3)", 0.02, 0.15);
-    g3->SetParameters(par);
-    hist->Fit(g3, "R");
+    g3->GetParameters(&par[6]);
+    TF1 *g4 = new TF1("g4", "gaus(0)+gaus(3)+gaus(6)", 0.02, 0.22);
+    g4->SetParameters(par);
+    hist->Fit(g4, "R");
 
     hist->GetXaxis()->SetTitle("Slope Parameter (#muA/(Hz/#mub))");
     hist->GetYaxis()->SetTitle("entries");
-    hist->GetXaxis()->SetRangeUser(0.02, 0.15);
+    //hist->GetXaxis()->SetRangeUser(0.02, 0.15);
     hist->Draw("");
 
     // Fit results
@@ -66,16 +108,22 @@ void connectGraph()
         buffer_S[100],
         buffer_M1[100],
         buffer_S1[100],
+        buffer_M2[100],
+        buffer_S2[100],
         buffer_Chi[100];
-    tex->DrawLatex(0.2, 0.85, "Gaussian Fit");
-    sprintf(buffer_M, "#mu_1 = %.3f #pm %.3f", g3->GetParameter(1), g3->GetParError(1));
-    sprintf(buffer_S, "#sigma_1 = %.3f #pm %.3f", g3->GetParameter(2), g3->GetParError(2));
-    sprintf(buffer_M1, "#mu_2 = %.3f #pm %.3f", g3->GetParameter(4), g3->GetParError(4));
-    sprintf(buffer_S1, "#sigma_2 = %.3f #pm %.3f", g3->GetParameter(5), g3->GetParError(5));
-    sprintf(buffer_Chi, "#chi^{2}_{red} = %.1f", g3->GetChisquare() / g3->GetNDF());
-    tex->DrawLatex(0.2, 0.80, buffer_M);
-    tex->DrawLatex(0.2, 0.75, buffer_S);
-    tex->DrawLatex(0.2, 0.70, buffer_M1);
-    tex->DrawLatex(0.2, 0.65, buffer_S1);
-    tex->DrawLatex(0.2, 0.60, buffer_Chi);
+    sprintf(buffer_M, "#mu_1 = %.3f #pm %.3f", g4->GetParameter(1), g4->GetParError(1));
+    sprintf(buffer_S, "#sigma_1 = %.3f #pm %.3f", g4->GetParameter(2), g4->GetParError(2));
+    sprintf(buffer_M1, "#mu_2 = %.3f #pm %.3f", g4->GetParameter(4), g4->GetParError(4));
+    sprintf(buffer_S1, "#sigma_2 = %.3f #pm %.3f", g4->GetParameter(5), g4->GetParError(5));
+    sprintf(buffer_M2, "#mu_3 = %.3f #pm %.3f", g4->GetParameter(6), g4->GetParError(6));
+    sprintf(buffer_S2, "#sigma_3 = %.3f #pm %.3f", g4->GetParameter(7), g4->GetParError(7));
+    sprintf(buffer_Chi, "#chi^{2}_{red} = %.1f", g4->GetChisquare() / g4->GetNDF());
+    tex->DrawLatex(0.6, 0.85, "Gaussian Fit");
+    tex->DrawLatex(0.6, 0.80, buffer_M);
+    tex->DrawLatex(0.6, 0.75, buffer_S);
+    tex->DrawLatex(0.6, 0.70, buffer_M1);
+    tex->DrawLatex(0.6, 0.65, buffer_S1);
+    tex->DrawLatex(0.6, 0.60, buffer_M2);
+    tex->DrawLatex(0.6, 0.55, buffer_S2);
+    tex->DrawLatex(0.6, 0.50, buffer_Chi);
 }

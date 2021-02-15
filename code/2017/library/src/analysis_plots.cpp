@@ -3,6 +3,11 @@
 plots::plots(const Int_t sector_n)
 {
     sector = sector_n;
+    //plots::ChamberWeightsInit();
+    //plots::GainWeightsInit(gain_map, gain_index);
+    //plots::RadialWeightsInit();
+    //plots::SolidAngleWeight();
+    plots::WeightsInit();
     plots::ChannelNames();
     plots::Canvas();
     plots::HistSector();
@@ -13,9 +18,10 @@ plots::plots(const Int_t sector_n)
 plots::plots(const Int_t sector_n, const std::vector<std::string> &luminosity_labels, const std::vector<Double_t> &luminosity_points, std::string gain_map)
 {
     sector = sector_n;
-    plots::ChamberWeightsInit();
-    //plots::GainWeightsInit(gain_map);
+    //plots::ChamberWeightsInit();
+    //plots::GainWeightsInit(gain_map, gain_index);
     //plots::RadialWeightsInit();
+    //plots::SolidAngleWeight();
     plots::WeightsInit();
     plots::ChannelNames();
     plots::Canvas();
@@ -203,6 +209,8 @@ void plots::WriteLumi(const std::string time_stamp)
     gr_lumi_fit->SetTitle(Form("Average Anode Current in Sector %d", sector));
     gr_lumi_fit->GetXaxis()->SetTitle("Luminosity (Hz/#mub)");
     gr_lumi_fit->GetYaxis()->SetTitle("Current (#muA)");
+    gr_lumi_fit->SetMarkerStyle(21);
+    gr_lumi_fit->GetYaxis()->SetTitleOffset(1);
 
     for (Int_t i = 0; i < luminosities.size(); i++)
     {
@@ -215,6 +223,7 @@ void plots::WriteLumi(const std::string time_stamp)
     hist_lumi->SetTitle(("Anode Current during HL @ " + time_stamp).c_str());
     auto c0 = new TCanvas(Form("sector_lumi_%d", sector), Form("Sector %d", sector), 10, 10, 1000, 600);
     c0->Divide(2, 1);
+    c0->GetPad(1)->SetRightMargin(0.22);
     c0->GetPad(1)->SetGrid();
     c0->cd(1);
     hist_lumi->Draw("colz");
@@ -572,6 +581,48 @@ void plots::RadialWeightsInit()
     }
 }
 
+void plots::SolidAngleWeight()
+{
+    Double_t norm = 0.12092787945968365;
+    std::vector<Double_t> angle = {
+        0.07861829517115891,
+        0.07568499771431361,
+        0.07795114617802425,
+        0.08006711481712464,
+        0.08204680741031922,
+        0.0806403478966623,
+        0.12786910109156452,
+        0.11964810229912837,
+        0.12409581988136771,
+        0.12828711212377358,
+        0.13224168076624945,
+        0.12793085278269273,
+        0.12092787945968365,
+        0.1116457223636261,
+        0.10338412911411944,
+        0.0959999207769946,
+        0.08937399307067563,
+        0.08340665100905106,
+        0.12786910109156452,
+        0.11964810229912837,
+        0.12409581988136771,
+        0.12828711212377358,
+        0.13224168076624945,
+        0.12793085278269273,
+        0.07861829517115893,
+        0.07568499771431361,
+        0.07795114617802423,
+        0.08006711481712464,
+        0.08204680741031924,
+        0.08064034789666231,
+    };
+
+    for (Int_t i = 0; i < 30; i++)
+    {
+        angle_weights[i] = (1 / (angle[i] / norm));
+    }
+}
+
 void plots::WeightsInit()
 {
     Double_t _temp;
@@ -581,7 +632,7 @@ void plots::WeightsInit()
         {
             for (Int_t layer = 0; layer < 6; layer++)
             {
-                _temp = gain_weights[sector * 30 + stack * 6 + layer] * chambers_weights[layer + stack * 6] * radial_weights[layer];
+                _temp = gain_weights[sector * 30 + stack * 6 + layer] * chambers_weights[layer + stack * 6] * radial_weights[layer] * angle_weights[layer + stack * 6];
                 weights.push_back(_temp);
             }
         }

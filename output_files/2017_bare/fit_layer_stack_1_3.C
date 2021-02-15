@@ -33,14 +33,18 @@
 
     Double_t para_a, para_b;
     Long64_t nentries;
+    Bool_t work;
 
     TBranch *para_aBranch = 0;
     TBranch *para_bBranch = 0;
+    TBranch *para_wBranch = 0;
 
     vector<Double_t>
         fit_a(540, 0.0),
         fit_b(540, 0.0);
+    vector<Bool_t> working_chamber(540, 0);
     TTree *tree = 0;
+    TTree *tree_w = 0;
 
     TFile *s[numfiles];
     for (Int_t i = 0; i < numfiles; i++)
@@ -52,12 +56,18 @@
         tree->SetBranchAddress("fit_b", &para_b, &para_bBranch);
         nentries = tree->GetEntries();
 
+        tree_w = (TTree *)s[i]->Get("working_chambers");
+        tree_w->SetMakeClass(1);
+        tree_w->SetBranchAddress("working", &work, &para_wBranch);
+
         // Then loop over all of them.
         for (Long64_t j = 0; j < nentries; j++)
         {
             tree->GetEntry(j);
+            tree_w->GetEntry(j);
             fit_a[30 * i + j] = para_a;
             fit_b[30 * i + j] = para_b;
+            working_chamber[30 * i + j] = work;
         }
     }
 
@@ -67,15 +77,21 @@
     {
         for (auto &&stack : stacks)
         {
-            h_0->Fill(fit_b[30 * sector + stack * 6 + 0]);
-            h_1->Fill(fit_b[30 * sector + stack * 6 + 1]);
-            h_2->Fill(fit_b[30 * sector + stack * 6 + 2]);
-            h_3->Fill(fit_b[30 * sector + stack * 6 + 3]);
-            h_4->Fill(fit_b[30 * sector + stack * 6 + 4]);
-            h_5->Fill(fit_b[30 * sector + stack * 6 + 5]);
+            if (working_chamber[30 * sector + stack * 6 + 0])
+                h_0->Fill(fit_b[30 * sector + stack * 6 + 0]);
+            if (working_chamber[30 * sector + stack * 6 + 1])
+                h_1->Fill(fit_b[30 * sector + stack * 6 + 1]);
+            if (working_chamber[30 * sector + stack * 6 + 2])
+                h_2->Fill(fit_b[30 * sector + stack * 6 + 2]);
+            if (working_chamber[30 * sector + stack * 6 + 3])
+                h_3->Fill(fit_b[30 * sector + stack * 6 + 3]);
+            if (working_chamber[30 * sector + stack * 6 + 4])
+                h_4->Fill(fit_b[30 * sector + stack * 6 + 4]);
+            if (working_chamber[30 * sector + stack * 6 + 5])
+                h_5->Fill(fit_b[30 * sector + stack * 6 + 5]);
             if (fit_b[30 * sector + stack * 6 + 5] > 0.06)
             {
-                cout << sector << " " << stack << " " << 5 << endl;
+                cout << sector << " " << stack << " " << 5 << working_chamber[30 * sector + stack * 6 + 5] << endl;
             }
         }
     }
